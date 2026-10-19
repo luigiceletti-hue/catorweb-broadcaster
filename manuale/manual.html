@@ -156,7 +156,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <!-- ───────────────────────── 2 ───────────────────────── -->
 <section id="install"><h2><span class="n">2</span>Installing</h2>
 <ol class="steps">
-<li>Double-click <code>Setup_CatorwebBroadcaster.exe</code>.</li>
+<li>Download <code>Setup_CatorwebBroadcaster.exe</code> from <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">github.com/…/releases/latest</a> (it's free) and double-click the file.</li>
 <li>Choose the setup language and follow the steps. No administrator rights are needed: the program installs for your user only.</li>
 <li>At the end you will find <b>Catorweb Broadcaster</b> on the Desktop and in the Start menu.</li>
 </ol>
@@ -168,7 +168,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 
 <!-- ───────────────────────── 3 ───────────────────────── -->
 <section id="settings"><h2><span class="n">3</span>First start and Settings</h2>
-<p>On the first start the <b>Settings</b> page opens. Later you find it with <span class="b">⚙ Settings</span>, on the right of the tabs.</p>
+<p>On the first start the <b>Settings</b> page opens. Later you find it with <span class="b">⚙ Settings</span>, on the right of the tabs: it opens in a <b>separate window</b>, so the radio and your headphone monitoring carry on. <span class="b">← Back to the radio</span> closes that window.</p>
 <figure class="small"><img src="img/en/settings1.webp" loading="lazy" alt="Settings: language, radio, server"><figcaption>Language, station details and streaming server.</figcaption></figure>
 <h3>Language</h3>
 <p>Italiano or English: changes the whole interface. On the first start it follows Windows.</p>
@@ -234,7 +234,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><td><span class="b">🎧 Listen ▾</span></td><td>Headphone monitoring, three modes (see <a href="#listen">Listening</a>).</td></tr>
 <tr><td>Dot on the right</td><td>Green = the audio engine is running.</td></tr>
 </table>
-<p>Below are the <b>tabs</b>: Dashboard, Library, Clockwheel, Scheduler, Queue, Statistics, Log, Maintenance, Tools, 🎛 Studio. On the right <span class="b">⚙ Settings</span> and <span class="b">❓ Help</span> (the quick guide inside the app).</p>
+<p>Below are the <b>tabs</b>: Dashboard, Library, Clockwheel, Scheduler, Queue, Statistics, Log, Maintenance, Tools, 🎛 Studio. On the right <span class="b">⚙ Settings</span> (opens in a separate window) and <span class="b">❓ Help</span> (the quick guide inside the app).</p>
 <h3>📌 Reminders board</h3>
 <p>The round <span class="b">📌</span> button at the bottom right opens a small board: type a note ("call Friday's guest", "renew the server on the 30th") and press <kbd>Enter</kbd>. <b>✓</b> marks it done (it gets struck through and moves to the bottom), <b>✎</b> edits it, <b>🗑</b> deletes it. The red number on the button shows how many reminders are still to do. Notes are saved in the database, even when you close the program.</p>
 <figure class="tiny" style="max-width:280px"><img src="img/en/promemoria.webp" loading="lazy" alt="Reminders board"><figcaption>The board, open.</figcaption></figure>
@@ -331,7 +331,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><td><b>Stop mode</b></td><td>For generated playlists: Loop (finish the round), Exact (exact length), Over (first overrun).</td></tr>
 </table>
 <h3>The buttons</h3>
-<p><span class="b">💾 Save</span> · <span class="b">⚡ Activate</span> forces it now (it overrides the scheduler; a banner at the top reminds you, <span class="b">✖ Release</span> removes it) · <span class="b">👁 Preview</span> shows what would play · <span class="b">📀 Generate playlist</span> builds a playlist of the chosen length (minutes).</p>
+<p><span class="b">💾 Save</span> · <span class="b">⚡ Activate</span> forces it now (it overrides the scheduler; a banner at the top reminds you, <span class="b">✖ Release</span> removes it) · <span class="b">👁 Preview</span> shows what would play, even before saving · <span class="b">📀 Generate playlist</span> builds a playlist of the chosen length (minutes).</p>
 <div class="tip"><b>✅ A starter clockwheel</b>
 <ol>
 <li>Station ID (Jingle category)</li>
@@ -502,6 +502,8 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <li>Every now and then copy the Database folder and <code>%APPDATA%\CatorwebPC</code> to an external drive or the cloud.</li>
 <li>Before big cleanups in Maintenance: <b>Backup &amp; Restore → Create backup</b>.</li></ol></div>
 <p>The program uses ports <b>8767, 8001 and 1235</b> only inside the PC: nothing needs opening on the router.</p>
+<h3>Updates, licenses and source code</h3>
+<p>New versions are published on <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">GitHub</a>: download the Setup and install it over the old one. Catorweb Broadcaster is <b>free software</b> (GNU GPL version 2 or later): the source code is at <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster" target="_blank">github.com/luigiceletti-hue/catorweb-broadcaster</a>. In the program folder, under <code>licenze</code>, you'll find the components it uses (Liquidsoap, FFmpeg, mutagen, Python…) with their licenses.</p>
 </section>
 
 <!-- ───────────────────────── 19 ───────────────────────── -->

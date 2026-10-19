@@ -156,7 +156,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <!-- ───────────────────────── 2 ───────────────────────── -->
 <section id="installare"><h2><span class="n">2</span>Installare</h2>
 <ol class="steps">
-<li>Fai doppio clic su <code>Setup_CatorwebBroadcaster.exe</code>.</li>
+<li>Scarica <code>Setup_CatorwebBroadcaster.exe</code> dalla pagina <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">github.com/…/releases/latest</a> (è gratuito) e fai doppio clic sul file.</li>
 <li>Scegli la lingua dell'installazione e segui i passaggi. Non servono permessi di amministratore: il programma si installa solo per il tuo utente.</li>
 <li>Alla fine trovi <b>Catorweb Broadcaster</b> sul Desktop e nel menu Start.</li>
 </ol>
@@ -168,7 +168,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 
 <!-- ───────────────────────── 3 ───────────────────────── -->
 <section id="impostazioni"><h2><span class="n">3</span>Primo avvio e Impostazioni</h2>
-<p>Al primo avvio si apre la pagina <b>Impostazioni</b>. Più avanti la ritrovi con <span class="b">⚙ Impostazioni</span>, a destra delle schede.</p>
+<p>Al primo avvio si apre la pagina <b>Impostazioni</b>. Più avanti la ritrovi con <span class="b">⚙ Impostazioni</span>, a destra delle schede: si apre in una <b>finestra a parte</b>, così la radio e l'ascolto in cuffia continuano. <span class="b">← Torna alla radio</span> chiude quella finestra.</p>
 <figure class="small"><img src="img/it/impostazioni1.webp" loading="lazy" alt="Impostazioni: lingua, radio, server"><figcaption>Lingua, dati della radio e server di streaming.</figcaption></figure>
 <h3>Lingua</h3>
 <p>Italiano o English: cambia tutta l'interfaccia. Al primo avvio è quella di Windows.</p>
@@ -234,7 +234,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <tr><td><span class="b">🎧 Ascolto ▾</span></td><td>Ascolto in cuffia, tre modi (vedi <a href="#ascolto">Ascoltare</a>).</td></tr>
 <tr><td>Pallino a destra</td><td>Verde = il motore audio è attivo.</td></tr>
 </table>
-<p>Sotto ci sono le <b>schede</b>: Dashboard, Libreria, Clockwheel, Scheduler, Coda, Statistiche, Log, Manutenzione, Tools, 🎛 Regia. A destra <span class="b">⚙ Impostazioni</span> e <span class="b">❓ Aiuto</span> (la guida rapida dentro l'app).</p>
+<p>Sotto ci sono le <b>schede</b>: Dashboard, Libreria, Clockwheel, Scheduler, Coda, Statistiche, Log, Manutenzione, Tools, 🎛 Regia. A destra <span class="b">⚙ Impostazioni</span> (si apre in una finestra a parte) e <span class="b">❓ Aiuto</span> (la guida rapida dentro l'app).</p>
 <h3>📌 Bacheca dei promemoria</h3>
 <p>Il pulsante tondo <span class="b">📌</span> in basso a destra apre una piccola bacheca: scrivi una nota ("chiamare l'ospite di venerdì", "rinnovare il server il 30") e premi <kbd>Invio</kbd>. <b>✓</b> la segna come fatta (diventa barrata e scende in fondo), <b>✎</b> la modifica, <b>🗑</b> la cancella. Il numero rosso sul pulsante dice quanti promemoria sono ancora da fare. Le note restano salvate nel database, anche chiudendo il programma.</p>
 <figure class="tiny" style="max-width:280px"><img src="img/it/promemoria.webp" loading="lazy" alt="Bacheca dei promemoria"><figcaption>La bacheca aperta.</figcaption></figure>
@@ -331,7 +331,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <tr><td><b>Stop mode</b></td><td>Per le playlist generate: Loop (completa il giro), Exact (durata esatta), Over (primo sforamento).</td></tr>
 </table>
 <h3>I pulsanti</h3>
-<p><span class="b">💾 Salva</span> · <span class="b">⚡ Attiva</span> lo forza subito (ha la precedenza sullo scheduler; un avviso in alto lo ricorda, <span class="b">✖ Libera</span> lo toglie) · <span class="b">👁 Anteprima</span> mostra cosa suonerebbe · <span class="b">📀 Genera playlist</span> crea una playlist della durata scelta (minuti).</p>
+<p><span class="b">💾 Salva</span> · <span class="b">⚡ Attiva</span> lo forza subito (ha la precedenza sullo scheduler; un avviso in alto lo ricorda, <span class="b">✖ Libera</span> lo toglie) · <span class="b">👁 Anteprima</span> mostra cosa suonerebbe, anche prima di salvare · <span class="b">📀 Genera playlist</span> crea una playlist della durata scelta (minuti).</p>
 <div class="tip"><b>✅ Un clockwheel di partenza</b>
 <ol>
 <li>Station ID (categoria Jingle)</li>
@@ -502,6 +502,8 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <li>Copia ogni tanto su un disco esterno o nel cloud la cartella Database e <code>%APPDATA%\CatorwebPC</code>.</li>
 <li>Prima di grandi pulizie in Manutenzione: <b>Backup &amp; Restore → Crea backup</b>.</li></ol></div>
 <p>Il programma usa le porte <b>8767, 8001 e 1235</b> solo dentro il PC: non serve aprire niente sul router.</p>
+<h3>Aggiornamenti, licenze e codice sorgente</h3>
+<p>Le nuove versioni escono su <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">GitHub</a>: scarica il Setup e installalo sopra il vecchio. Catorweb Broadcaster è <b>software libero</b> (licenza GNU GPL versione 2 o successiva): il codice sorgente è su <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster" target="_blank">github.com/luigiceletti-hue/catorweb-broadcaster</a>. Nella cartella del programma, in <code>licenze</code>, trovi l'elenco dei componenti usati (Liquidsoap, FFmpeg, mutagen, Python…) con le loro licenze.</p>
 </section>
 
 <!-- ───────────────────────── 19 ───────────────────────── -->
