@@ -1,0 +1,5 @@
+# Statistiche dei linguaggi su GitHub: il manuale e le guide sono documentazione,
+# le pagine .en.html sono generate da tools\i18n_tool.py (non contano come codice)
+manuale/** linguist-documentation
+app/help*.html linguist-documentation
+app/*.en.html linguist-generated
