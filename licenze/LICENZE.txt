@@ -1,0 +1,55 @@
+CATORWEB BROADCASTER  -  COMPONENTI E LICENZE / COMPONENTS AND LICENSES
+=========================================================================
+
+Catorweb Broadcaster e' software libero: puoi ridistribuirlo e/o modificarlo secondo
+la GNU GPL versione 2 o successiva (GPL-2.0.txt). Codice sorgente:
+https://github.com/luigiceletti-hue/catorweb-broadcaster
+Catorweb Broadcaster is free software under the GNU GPL v2 or later (GPL-2.0.txt).
+
+Catorweb Broadcaster e' gratuito. Contiene questi programmi e librerie di terze
+parti, ognuno con la sua licenza. I testi delle licenze sono in questa cartella.
+Catorweb Broadcaster is free. It includes the third-party programs and libraries
+below, each under its own license. The license texts are in this folder.
+
+
+LIQUIDSOAP 2.2.4  (liquidsoap\liquidsoap.exe - il motore audio / the audio engine)
+  Licenza / License : GNU GPL v2 o successiva / or later  -> GPL-2.0.txt
+  Codice sorgente   : https://github.com/savonet/liquidsoap/releases/tag/v2.2.4
+  Sito / Website    : https://www.liquidsoap.info
+
+  liquidsoap.exe contiene anche / also contains:
+  - FFmpeg   (LGPL v2.1+ / GPL v2+)   sorgenti: https://ffmpeg.org/download.html
+  - LAME MP3 (LGPL)                   sorgenti: https://lame.sourceforge.io
+  - altre librerie open source elencate nel progetto Liquidsoap
+    (other open source libraries listed by the Liquidsoap project)
+  Testo LGPL / LGPL text -> LGPL-2.1.txt
+
+MUTAGEN 1.47.0  (lettura e scrittura dei tag MP3 / MP3 tag reading and writing)
+  Licenza / License : GNU GPL v2 o successiva / or later  -> GPL-2.0.txt
+  Codice sorgente   : https://github.com/quodlibet/mutagen
+
+PYTHON 3.13
+  Licenza / License : Python Software Foundation License  -> Python-LICENSE.txt
+  Sito / Website    : https://www.python.org
+
+CERTIFI
+  Licenza / License : Mozilla Public License 2.0  -> certifi-LICENSE.txt
+  Codice sorgente   : https://github.com/certifi/python-certifi
+
+PYINSTALLER (crea il programma .exe / builds the .exe)
+  Licenza / License : GNU GPL v2 con eccezione per i programmi creati
+                      (GPL v2 with an exception for bundled programs)  -> PyInstaller-COPYING.txt
+
+INNO SETUP (l'installatore / the installer)
+  Licenza / License : Inno Setup License, https://jrsoftware.org/files/is/license.txt
+
+
+JINGLE DI ESEMPIO / SAMPLE JINGLES  (app\jingle)
+  "The DJ Catoper Show" (c) DJ Catoper. Si possono usare liberamente dentro
+  Catorweb Broadcaster. / Free to use inside Catorweb Broadcaster.
+
+DATI ONLINE / ONLINE DATA
+  La scheda del brano scarica, quando la usi, informazioni da Wikipedia
+  (CC BY-SA), MusicBrainz e iTunes Search: non sono incluse nel programma.
+  The track card downloads, when used, information from Wikipedia (CC BY-SA),
+  MusicBrainz and iTunes Search: none of it is included in the program.

@@ -1,0 +1,86 @@
+CATORWEB BROADCASTER  -  regia radio per Windows
+==========================================================
+
+COS'E'
+  Suona la tua musica dal PC e la manda in diretta al tuo server di
+  streaming (Icecast, Shoutcast o ingresso live Liquidsoap). Coda,
+  clockwheel, scheduler, jingle, microfono con ducking, registrazione,
+  regia manuale.
+
+PRIMO AVVIO
+  1. Apri "Catorweb Broadcaster" (icona sul Desktop o menu Start).
+     Si aprono una finestra nera (il programma) e la finestra della radio.
+  2. Compila la pagina Impostazioni:
+     - La radio: nome, genere, indirizzo d'ascolto pubblico (facoltativo)
+     - Server di streaming: tipo, indirizzo, porta, mount, password
+       (i dati del tuo fornitore). "Prova collegamento" li verifica.
+     - Cartelle: musica, database, registrazioni, export
+     - Microfono (facoltativo)
+  3. Salva: si apre la Dashboard (niente login, l'app risponde solo su
+     questo PC). Poi in "Libreria" importa la cartella della musica.
+     Non hai ancora i dati del server? Lascia vuoto l'indirizzo e usa
+     🎧 Prova finche' non li avrai.
+
+ANDARE IN ONDA
+  In alto "FUORI ONDA - Vai in onda" e conferma -> "IN ONDA".
+  Per chiudere: "IN ONDA - Chiudi diretta".
+  Chiudere la finestra nera chiude anche la diretta.
+  Finche' il programma e' aperto il PC non va in sospensione
+  (chiudere il coperchio del portatile lo sospende comunque).
+
+🎧 PROVA (ascoltare senza andare in onda)
+  Pulsante "🎧 Prova" accanto a FUORI ONDA: la radio gira normalmente
+  (coda, clockwheel, jingle, microfono) ma solo sul PC; al server non
+  arriva niente. Ascolta con "🎧 Ascolto".
+  In Prova il pulsante verde dice "🎧 IN PROVA (solo sul PC) - ⏹ Ferma";
+  quello grande resta "FUORI ONDA - Vai in onda": premendolo (e
+  confermando) il server si collega SENZA fermare la musica, il brano che
+  stai ascoltando va in onda cosi' com'e'. "⏹ Ferma" spegne tutto.
+  In Prova la registrazione automatica non parte (parte quando vai in onda).
+  Se salvi le Impostazioni (microfono, server) durante la Prova, la Prova
+  si riavvia da sola con i valori nuovi.
+
+LINGUA
+  Impostazioni -> "🌐 Lingua / Language": Italiano o English.
+  Al primo avvio e' quella di Windows.
+
+CAMBIARE LE IMPOSTAZIONI
+  "⚙ Impostazioni" a destra delle schede. Il server vale dalla prossima
+  "Vai in onda"; se cambi le cartelle il programma si riavvia da solo.
+
+MICROFONO
+  "🎙 MIC" in alto (o barra spaziatrice tenuta premuta). Cursore = volume voce.
+  Pulsante accanto al MIC (stesso riquadro):
+   "🤖 Auto"  (di base) la musica scende solo mentre parli e risale
+              ~1 s dopo l'ultima parola
+   "🎚 Regia" si parla tenendo premuta la barra spaziatrice: la musica
+              scende subito e risale quando la lasci, come il fader
+              di un mixer
+  Non confonderlo con "▶ Automatico / ✋ Manuale", che decide solo
+  come partono i brani.
+
+TIPI DI SERVER
+  Icecast 2 ........ host, porta, mount (es. /stream), utente "source"
+  Shoutcast ........ host e porta pubblica (si collega da solo a porta+1)
+  Liquidsoap harbor  come Icecast, mount di solito "/"
+
+DOVE STANNO I DATI
+  %APPDATA%\CatorwebPC\config.json   impostazioni
+  %APPDATA%\CatorwebPC\data\         log, stato, backup
+  Il database e le registrazioni stanno nelle cartelle scelte.
+  Disinstallando il programma questi dati restano.
+
+PRESENTAZIONE CON CLAUDE (facoltativa)
+  Se sul PC c'e' Claude Code collegato al tuo account, nella scheda
+  Regia compare "✍ Proponi presentazione": scrive 2-3 frasi sul
+  prossimo brano. Si spegne in Impostazioni -> Extra.
+
+PROBLEMI
+  - "Catorweb Broadcaster e' gia' aperto": usa la finestra gia' aperta.
+  - Non va in onda: Impostazioni -> Prova collegamento; guarda la
+    scheda Log.
+  - Il programma usa le porte 8767, 8001 e 1235 solo sul PC.
+
+LICENZE
+  Nella cartella del programma, in "licenze", l'elenco dei componenti
+  (Liquidsoap, mutagen, Python...) con licenze e link ai sorgenti.

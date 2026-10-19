@@ -1,0 +1,8 @@
+# non pubblicati / not published
+build/
+_prova/
+liquidsoap/
+github/
+__pycache__/
+*.pyc
+*.zip

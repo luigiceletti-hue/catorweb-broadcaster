@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Impostazioni — Catorweb Broadcaster</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E📻%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:22px;color:#79c0ff;margin-bottom:4px}
+.sub{color:#7d8590;margin-bottom:22px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px 18px 8px;margin-bottom:16px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .hint{color:#7d8590;font-size:12px;margin-bottom:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0 14px}
+@media (max-width:600px){.row,.row3{grid-template-columns:1fr}}
+label{display:block;color:#adbac7;font-size:12px;margin-bottom:4px}
+input,select{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px 10px;font-size:14px;outline:none;margin-bottom:12px}
+input:focus,select:focus{border-color:#388bfd}
+input[type=checkbox]{width:auto;margin:0 6px 0 0}
+.chk{display:flex;align-items:center;margin-bottom:12px;color:#adbac7;font-size:13px}
+.path{display:flex;gap:6px}
+.path input{font-family:Consolas,monospace;font-size:13px}
+button{background:#238636;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:9px 16px}
+button:hover{background:#2ea043}
+button.sec{background:#21262d;border:1px solid #30363d;color:#e6edf3;font-weight:500}
+button.sec:hover{background:#30363d}
+button.small{padding:6px 10px;font-size:13px;margin-bottom:12px;white-space:nowrap}
+.msg{border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13px;display:none}
+.ok{background:#12261a;border:1px solid #238636;color:#7ee2a8;display:block}
+.err{background:#2d1517;border:1px solid #da3633;color:#ffa198;display:block}
+.info{background:#121d2f;border:1px solid #1f6feb;color:#a5c8ff;display:block}
+.bar{position:sticky;bottom:0;background:#0d1117;border-top:1px solid #30363d;padding:12px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+a{color:#79c0ff}
+.howto{margin:0 0 14px;font-size:13px;color:#adbac7}
+.howto summary{cursor:pointer;color:#79c0ff;margin-bottom:6px}
+.howto ol{margin:6px 0 8px 20px}
+.howto li{margin:6px 0;line-height:1.5}
+.howto code{background:#0d1117;border:1px solid #30363d;border-radius:4px;padding:1px 6px;font-family:Consolas,monospace;font-size:12.5px;user-select:all}
+.first .only-later{display:none}
+.later .only-first{display:none}
+</style></head>
+<body><div class="wrap" id="wrap">
+<h1>⚙ Impostazioni</h1>
+<div class="sub only-first">Benvenuto in Catorweb Broadcaster. Compila questi campi una volta sola: potrai cambiarli quando vuoi dal pulsante ⚙ Impostazioni.</div>
+<div class="sub only-later"><a href="/" onclick="return backToRadio(false)">← Torna alla radio</a> · <a href="/help" target="_blank">❓ Aiuto</a></div>
+<div class="sub only-first"><a href="/help" target="_blank">❓ Aiuto: come compilare questa pagina</a></div>
+
+<div class="card">
+  <h2>🌐 Lingua / Language</h2>
+  <select id="language" onchange="location.href = '/impostazioni?lang=' + this.value" style="max-width:240px">
+    <option value="it">Italiano</option><option value="en">English</option>
+  </select>
+</div>
+
+
+<div class="card">
+  <h2>📻 La radio</h2>
+  <div class="hint">Nome e genere vengono mandati al server e compaiono nei player degli ascoltatori.</div>
+  <div class="row">
+    <div><label>Nome della radio</label><input id="station.name"></div>
+    <div><label>Genere</label><input id="station.genre"></div>
+  </div>
+  <div class="row">
+    <div><label>Descrizione (facoltativa)</label><input id="station.description"></div>
+    <div><label>Sito web (facoltativo)</label><input id="station.website" placeholder="https://"></div>
+  </div>
+  <label>Indirizzo d'ascolto pubblico (facoltativo, per 🎧 Ascolto → Come gli ascoltatori)</label>
+  <input id="station.listen_url" placeholder="https://mioserver.com:8000/stream">
+</div>
+
+<div class="card">
+  <h2>📡 Server di streaming</h2>
+  <div class="hint">I dati che ti ha dato il fornitore dello streaming (pannello Icecast / Shoutcast / Centova / AzuraCast…).</div>
+  <div class="hint" style="color:#a5c8ff">Non li hai ancora? Lascia vuoto l'indirizzo: puoi usare tutto in 🎧 Prova (la radio suona solo sul PC) e inserirli quando li avrai.</div>
+  <label>Tipo di server</label>
+  <select id="stream.type" onchange="typeChanged(true)"></select>
+  <div class="row3">
+    <div><label>Indirizzo (host)</label><input id="stream.host" placeholder="es. stream.miaradio.it"></div>
+    <div><label>Porta</label><input id="stream.port" type="number" min="1" max="65535"></div>
+    <div><label>Bitrate (kbps)</label><select id="stream.bitrate">
+      <option>64</option><option>96</option><option>128</option><option>160</option><option>192</option><option>256</option><option>320</option></select></div>
+  </div>
+  <div class="row" id="mount-row">
+    <div><label>Mount</label><input id="stream.mount" placeholder="/stream"></div>
+    <div><label>Utente sorgente</label><input id="stream.user" placeholder="source"></div>
+  </div>
+  <div id="sc-hint" class="hint" style="display:none">Shoutcast: inserisci la porta pubblica del server (l'app si collega da sola alla porta + 1). Per Shoutcast v2 con più stream la password può essere nel formato <code>password:#1</code>.</div>
+  <label>Password sorgente <span id="pw-hint" style="color:#7d8590"></span></label>
+  <input id="stream.password" type="password" autocomplete="new-password">
+  <label class="chk"><input type="checkbox" id="stream.public">Elenca la radio nelle directory pubbliche (se il server lo permette)</label>
+  <div id="test-msg" class="msg"></div>
+  <button class="sec small" onclick="testConn()">🔌 Prova collegamento</button>
+</div>
+
+<div class="card">
+  <h2>📁 Cartelle</h2>
+  <div class="hint">Musica da trasmettere, database della libreria, registrazioni ⏺ REC ed export delle playlist.</div>
+  <label>Cartella della musica</label>
+  <div class="path"><input id="paths.music"><button class="sec small" onclick="pick('paths.music')">Sfoglia…</button></div>
+  <label>Cartella del database (libreria, clockwheel, playlist)</label>
+  <div class="path"><input id="paths.database"><button class="sec small" onclick="pick('paths.database')">Sfoglia…</button></div>
+  <label>Cartella delle registrazioni</label>
+  <div class="path"><input id="paths.recordings"><button class="sec small" onclick="pick('paths.recordings')">Sfoglia…</button></div>
+  <label>Cartella per l'export MP3 delle playlist</label>
+  <div class="path"><input id="paths.export"><button class="sec small" onclick="pick('paths.export')">Sfoglia…</button></div>
+</div>
+
+<div class="card">
+  <h2>🎙 Microfono</h2>
+  <div class="hint">Il microfono per parlare in diretta. Se non lo usi lascia "Nessun microfono".</div>
+  <div class="path">
+    <select id="audio.mic_device"></select>
+    <button class="sec small" onclick="loadMics()">↻</button>
+  </div>
+  <div class="row">
+    <div><label>Tono della voce</label>
+      <select id="audio.voice_tone">
+        <option value="-2">−2 semitoni (molto più grave)</option><option value="-1.5">−1,5 semitoni</option>
+        <option value="-1">−1 semitono (più grave)</option><option value="-0.5">−0,5 semitoni</option>
+        <option value="0">0 — voce naturale</option><option value="0.5">+0,5 semitoni</option>
+        <option value="1">+1 semitono (più acuta)</option><option value="1.5">+1,5 semitoni</option>
+        <option value="2">+2 semitoni (molto più acuta)</option>
+      </select></div>
+    <div><label>Voce piena (bassi)</label>
+      <select id="audio.voice_bass">
+        <option value="0">0 dB — spenta</option><option value="1">+1 dB</option><option value="2">+2 dB</option>
+        <option value="2.5">+2,5 dB</option><option value="3">+3 dB</option><option value="3.5">+3,5 dB (consigliata)</option>
+        <option value="4">+4 dB</option><option value="5">+5 dB</option><option value="6">+6 dB</option>
+      </select></div>
+  </div>
+  <div class="hint">Il processore della voce (compressore, de-esser, limitatore) è sempre attivo; qui regoli solo tono e corpo della voce. In 🎧 Prova la modifica si sente subito dopo il salvataggio.</div>
+</div>
+
+<div class="card">
+  <h2>✨ Extra</h2>
+  <label class="chk"><input type="checkbox" id="extras.claude_intro">"✍ Proponi presentazione" con Claude</label>
+  <div class="hint">Nella scheda 🎛 Regia, sotto il prossimo brano, Claude scrive 2-3 frasi da leggere al microfono usando le informazioni del brano.</div>
+  <div id="claude-status" class="hint"></div>
+  <details class="howto">
+    <summary>Come attivarlo</summary>
+    <ol>
+      <li>Ti serve un account <b>Claude</b> con abbonamento (Pro o Max): il piano gratuito non comprende Claude Code.</li>
+      <li><b>Installa Claude Code</b>: apri <b>PowerShell</b> (menu Start → scrivi "PowerShell"), incolla questa riga e premi Invio:<br>
+        <code>irm https://claude.ai/install.ps1 | iex</code></li>
+      <li><b>Collegalo al tuo account</b>: nella stessa finestra scrivi <code>claude</code> e premi Invio. Si apre il browser: accedi con il tuo account Claude e autorizza. Poi scrivi <code>/exit</code> e chiudi PowerShell.</li>
+      <li><b>Chiudi e riapri Catorweb Broadcaster</b>. Qui sopra deve comparire "✓ Claude Code trovato"; in Regia, sotto il prossimo brano, compare <b>✍ Proponi presentazione</b>.</li>
+    </ol>
+    <div class="hint">Se l'installazione chiede <b>Git per Windows</b>, scaricalo da git-scm.com e installalo con le opzioni proposte. Ogni presentazione usa una piccola parte dei limiti di utilizzo del tuo abbonamento Claude.</div>
+  </details>
+</div>
+
+<div class="bar">
+  <button onclick="save()" id="save-btn">💾 Salva</button>
+  <span id="save-msg" class="msg" style="margin:0"></span>
+</div>
+</div>
+
+<script>
+let CFG = null, TYPES = {}, FIRST = false, ONAIR = false;
+const DEF_MOUNT = { icecast: '/stream', shoutcast: '/', harbor: '/' };
+
+async function api(url, body) {
+  const r = await fetch(url, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return r.json();
+}
+function get(path, obj) { return path.split('.').reduce((o, k) => (o || {})[k], obj); }
+function set(path, obj, v) { const ks = path.split('.'); let o = obj; ks.slice(0, -1).forEach(k => o = o[k] = o[k] || {}); o[ks[ks.length - 1]] = v; }
+function fields() { return [...document.querySelectorAll('input[id*="."],select[id*="."]')]; }
+function msg(id, cls, text) { const el = document.getElementById(id); el.className = 'msg ' + cls; el.textContent = text; }
+
+function typeChanged(user) {
+  const t = document.getElementById('stream.type').value;
+  document.getElementById('mount-row').style.display = t === 'shoutcast' ? 'none' : '';
+  document.getElementById('sc-hint').style.display = t === 'shoutcast' ? '' : 'none';
+  if (user) {
+    const m = document.getElementById('stream.mount');
+    if (!m.value || Object.values(DEF_MOUNT).includes(m.value)) m.value = DEF_MOUNT[t];
+    const u = document.getElementById('stream.user'); if (!u.value) u.value = 'source';
+  }
+}
+
+async function loadMics() {
+  const sel = document.getElementById('audio.mic_device');
+  const cur = sel.value || (CFG && CFG.audio.mic_device) || '';
+  const d = await api('/api/edition/mics');
+  const mics = d.mics || [];
+  if (cur && !mics.includes(cur)) mics.unshift(cur);
+  sel.innerHTML = '<option value="">Nessun microfono</option>' + mics.map(m => `<option>${m.replace(/</g, '&lt;')}</option>`).join('');
+  sel.value = cur;
+}
+
+async function load() {
+  const d = await api('/api/edition/config');
+  if (!d.ok) { document.body.innerHTML = '<div class="wrap"><div class="msg err">' + (d.error || 'Accesso negato') + '</div><a href="/">Accedi</a></div>'; return; }
+  CFG = d.config; TYPES = d.stream_types; FIRST = d.first_run; ONAIR = d.on_air;
+  document.getElementById('language').value = document.documentElement.lang;   // lingua di questa pagina
+  document.getElementById('wrap').classList.add(FIRST ? 'first' : 'later');
+  document.getElementById('stream.type').innerHTML = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+  await loadMics();
+  fields().forEach(el => {
+    const v = get(el.id, CFG);
+    if (el.type === 'checkbox') el.checked = !!v;
+    else if (v !== undefined && el.id !== 'audio.mic_device') el.value = String(v);
+  });
+  document.getElementById('pw-hint').textContent = CFG.stream.has_password ? '(lascia vuoto per tenere quella salvata)' : '';
+  const cs = document.getElementById('claude-status');
+  cs.textContent = d.claude_found ? '✓ Claude Code trovato su questo PC' : '✗ Claude Code non trovato su questo PC: vedi "Come attivarlo" qui sotto';
+  cs.style.color = d.claude_found ? '#7ee2a8' : '#d29922';
+  if (!d.claude_found) document.querySelector('.howto').open = true;
+  typeChanged(false);
+}
+
+function collect() {
+  const c = {};
+  fields().forEach(el => set(el.id, c, el.type === 'checkbox' ? el.checked : el.value.trim()));
+  c.language = document.getElementById('language').value;
+  return c;
+}
+
+async function testConn() {
+  msg('test-msg', 'info', 'Collegamento in corso…');
+  const d = await api('/api/edition/test', { config: collect() });
+  msg('test-msg', d.ok ? 'ok' : 'err', d.ok ? '✓ ' + d.msg : '✗ ' + d.error);
+}
+
+async function pick(id) {
+  const el = document.getElementById(id);
+  msg('save-msg', 'info', 'Scegli la cartella nella finestra che si è aperta (se non la vedi, guarda nella barra delle applicazioni)…');
+  const d = await api('/api/edition/pick_folder', { start: el.value });
+  document.getElementById('save-msg').className = 'msg';
+  if (d.ok && d.path) el.value = d.path;
+}
+
+// Aperta dalla radio in una finestra a parte: "torna alla radio" la chiude (la radio non si e' mai
+// fermata). reload = ricarica la pagina della radio (lingua o cartelle cambiate).
+function backToRadio(reload) {
+  const o = window.opener;
+  if (o && !o.closed) {
+    try { if (reload) o.location.reload(); o.focus(); } catch (e) {}
+    window.close();
+    return false;
+  }
+  location.href = '/';
+  return false;
+}
+
+async function save() {
+  const body = { config: collect() };
+  const btn = document.getElementById('save-btn'); btn.disabled = true;
+  const d = await api('/api/edition/config', body);
+  btn.disabled = false;
+  if (!d.ok) { msg('save-msg', 'err', (d.errors || [d.error]).join(' · ')); return; }
+  if (d.restart_needed) {
+    if (!d.restart_started) { msg('save-msg', 'info', 'Salvato. Le nuove cartelle valgono dopo aver chiuso la diretta e riavviato l\'app.'); return; }
+    msg('save-msg', 'info', 'Salvato. Riavvio di Catorweb Broadcaster per usare le nuove cartelle…');
+    const t0 = Date.now();
+    const wait = async () => {
+      try { await fetch('/api/public/nowplaying', { cache: 'no-store' }); backToRadio(true); }
+      catch (e) { if (Date.now() - t0 < 30000) setTimeout(wait, 1000); else msg('save-msg', 'err', 'Riavvio non riuscito: chiudi e riapri Catorweb Broadcaster.'); }
+    };
+    setTimeout(wait, 2500);
+    return;
+  }
+  msg('save-msg', d.liq_note === 'next_on_air' ? 'info' : 'ok',
+      d.liq_note === 'prova_restarted' ? '✓ Salvato. La 🎧 Prova si riavvia con le nuove impostazioni (qualche secondo).'
+    : d.liq_note === 'next_on_air'     ? '✓ Salvato. Sei in diretta: microfono e server nuovi valgono dalla prossima "Vai in onda" (chiudi e riapri la diretta per usarli subito).'
+    :                                    '✓ Salvato.');
+  if (FIRST || d.language_changed) setTimeout(() => backToRadio(true), 1200);
+}
+
+load();
+</script>
+</body></html>

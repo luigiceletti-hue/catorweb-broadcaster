@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manuale di Catorweb Broadcaster</title>
+<style>
+:root{--bg:#f6f7f9;--paper:#fff;--txt:#1f2328;--mut:#59636e;--brd:#d8dee4;--acc:#0969da;--acc2:#e7f0fb;--tip:#eaf5ec;--tipb:#2da44e;--warn:#fff6e0;--warnb:#d4a72c;--code:#eef1f4;--shadow:0 1px 3px rgba(0,0,0,.08),0 6px 24px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--paper:#151b23;--txt:#e6edf3;--mut:#9198a1;--brd:#30363d;--acc:#4493f8;--acc2:#132339;--tip:#12261a;--tipb:#2ea043;--warn:#2b2312;--warnb:#bb8009;--code:#1f2630;--shadow:0 1px 3px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#0d1117;--paper:#151b23;--txt:#e6edf3;--mut:#9198a1;--brd:#30363d;--acc:#4493f8;--acc2:#132339;--tip:#12261a;--tipb:#2ea043;--warn:#2b2312;--warnb:#bb8009;--code:#1f2630;--shadow:0 1px 3px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif}
+a{color:var(--acc)}
+.wrap{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1240px;margin:0 auto}
+aside{position:sticky;top:0;height:100vh;overflow:auto;padding:24px 14px 40px 20px;border-right:1px solid var(--brd)}
+aside .brand{font-weight:700;font-size:17px;margin-bottom:4px}
+aside .lang{font-size:13px;margin-bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+aside .lang button{font:inherit;font-size:12px;background:var(--paper);color:var(--txt);border:1px solid var(--brd);border-radius:6px;padding:2px 8px;cursor:pointer}
+aside ol{list-style:none;margin:0;padding:0;counter-reset:c}
+aside li{margin:1px 0}
+aside a{display:block;padding:4px 8px;border-radius:6px;color:var(--mut);text-decoration:none;font-size:14px}
+aside a:hover,aside a.on{background:var(--acc2);color:var(--txt)}
+aside .grp{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:14px 8px 4px;font-weight:600}
+main{padding:32px 48px 120px;min-width:0}
+.cover{background:linear-gradient(135deg,#0b3d91,#6d28d9);color:#fff;border-radius:16px;padding:40px 36px;margin-bottom:36px;box-shadow:var(--shadow)}
+.cover h1{margin:0 0 6px;font-size:36px;line-height:1.2}
+.cover p{margin:4px 0;opacity:.92;max-width:720px}
+.cover .meta{font-size:13px;opacity:.8;margin-top:14px}
+section{background:var(--paper);border:1px solid var(--brd);border-radius:14px;padding:26px 32px;margin:0 0 26px;box-shadow:var(--shadow)}
+h2{font-size:25px;margin:0 0 12px;line-height:1.3}
+h2 .n{color:var(--acc);margin-right:8px}
+h3{font-size:18px;margin:24px 0 8px}
+h4{font-size:15.5px;margin:18px 0 6px}
+p{margin:8px 0}
+ul,ol{margin:8px 0;padding-left:24px}
+li{margin:4px 0}
+.b,kbd{display:inline-block;background:var(--code);border:1px solid var(--brd);border-radius:5px;padding:0 6px;font-size:.88em;white-space:nowrap;line-height:1.5}
+code{background:var(--code);border-radius:4px;padding:1px 5px;font-size:.88em;font-family:Consolas,monospace}
+.tip,.warn,.idea{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:4px solid}
+.tip{background:var(--tip);border-color:var(--tipb)}
+.warn{background:var(--warn);border-color:var(--warnb)}
+.idea{background:var(--acc2);border-color:var(--acc)}
+.tip b:first-child,.warn b:first-child,.idea b:first-child{display:block;margin-bottom:2px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+th,td{border:1px solid var(--brd);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code)}
+figure{margin:18px 0}
+figure img{display:block;max-width:100%;height:auto;border-radius:10px;border:1px solid var(--brd);box-shadow:var(--shadow);cursor:zoom-in;background:#0d1117}
+figure.small img{max-width:min(560px,100%)}
+figure.tiny img{max-width:min(380px,100%)}
+figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
+.steps{counter-reset:s;list-style:none;padding-left:0}
+.steps>li{counter-increment:s;position:relative;padding-left:40px;margin:10px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:27px;height:27px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border:1px solid var(--brd);border-radius:10px;padding:12px 16px}
+.card h4{margin-top:0}
+.check li{list-style:none;margin-left:-22px}
+.check li::before{content:"☐ ";color:var(--acc)}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:50;cursor:zoom-out;padding:20px}
+#zoom img{max-width:100%;max-height:100%;border-radius:8px}
+.menu-btn{display:none}
+@media (max-width:900px){
+ .wrap{grid-template-columns:1fr}
+ aside{position:fixed;inset:0 30% 0 0;z-index:40;background:var(--paper);transform:translateX(-105%);transition:transform .2s;height:100%}
+ aside.open{transform:none;box-shadow:var(--shadow)}
+ .menu-btn{display:block;position:fixed;right:16px;bottom:16px;z-index:41;border:0;border-radius:24px;padding:10px 16px;background:var(--acc);color:#fff;font:inherit;font-weight:600}
+ main{padding:16px 16px 100px}
+ section{padding:18px 16px}
+ .cols{grid-template-columns:1fr}
+ .cover{padding:28px 20px}.cover h1{font-size:28px}
+}
+@media print{
+ aside,.menu-btn,#zoom{display:none!important}
+ .wrap{display:block}main{padding:0}
+ body{background:#fff;color:#000;font-size:12pt}
+ section,.cover{box-shadow:none;break-inside:auto;border-color:#ccc}
+ section{page-break-before:always}
+ figure{break-inside:avoid}
+ a{color:#000;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside id="toc">
+  <div class="brand">📻 Catorweb Broadcaster</div>
+  <div class="lang"><a href="manual.html" style="display:inline;padding:0">🇬🇧 English</a>
+    <button onclick="print()" title="Stampa o salva in PDF">🖨 Stampa / PDF</button>
+    <button onclick="toggleTheme()" title="Tema chiaro/scuro">◐</button></div>
+  <div class="grp">Per iniziare</div>
+  <ol>
+    <li><a href="#benvenuto">Benvenuto</a></li>
+    <li><a href="#installare">Installare</a></li>
+    <li><a href="#impostazioni">Primo avvio e Impostazioni</a></li>
+    <li><a href="#10minuti">La tua radio in 10 minuti</a></li>
+  </ol>
+  <div class="grp">Usare l'app</div>
+  <ol>
+    <li><a href="#schermata">La schermata</a></li>
+    <li><a href="#libreria">Libreria e import</a></li>
+    <li><a href="#tag">Tag Editor ed embargo</a></li>
+    <li><a href="#jingle">Jingle e categorie speciali</a></li>
+    <li><a href="#coda">Coda e playlist</a></li>
+    <li><a href="#clockwheel">Clockwheel</a></li>
+    <li><a href="#scheduler">Scheduler e palinsesto</a></li>
+    <li><a href="#onda">Andare in onda e 🎧 Prova</a></li>
+    <li><a href="#regia">🎛 Regia</a></li>
+    <li><a href="#mic">🎙 Microfono</a></li>
+    <li><a href="#rec">⏺ Registrazione</a></li>
+    <li><a href="#ascolto">Ascoltare in cuffia</a></li>
+    <li><a href="#stats">Statistiche, Manutenzione, Tools</a></li>
+    <li><a href="#dati">Dati, backup, aggiornamenti</a></li>
+    <li><a href="#problemi">Problemi frequenti</a></li>
+  </ol>
+  <div class="grp">Guide pratiche</div>
+  <ol>
+    <li><a href="#radio">Creare una web radio</a></li>
+    <li><a href="#podcast">Fare un podcast</a></li>
+    <li><a href="#consigli">Consigli per usare al meglio l'app</a></li>
+    <li><a href="#glossario">Glossario</a></li>
+  </ol>
+</aside>
+<button class="menu-btn" onclick="document.getElementById('toc').classList.toggle('open')">☰ Indice</button>
+
+<main>
+<div class="cover">
+  <h1>📻 Catorweb Broadcaster</h1>
+  <p><b>Manuale completo</b>: come si usa, come creare una web radio e come registrare un podcast.</p>
+  <p>Una regia radio completa sul tuo PC Windows: libreria musicale, clockwheel, palinsesto, microfono, jingle, registrazione e diretta verso il tuo server di streaming.</p>
+  <div class="meta">Versione del programma 2.11 · Le immagini mostrano una radio di prova ("Radio Demo").</div>
+</div>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section id="benvenuto"><h2><span class="n">1</span>Benvenuto</h2>
+<p><b>Catorweb Broadcaster</b> fa diventare il tuo computer una regia radiofonica. Scegli la musica, prepara il palinsesto, parli al microfono e mandi tutto in diretta su internet, dove gli ascoltatori ti sentono con un player, un'app o un sito.</p>
+<p>Si usa dal <b>browser</b> (Edge, Chrome, Firefox): le pagine sembrano un sito, ma girano solo sul tuo PC. Insieme si apre una <b>finestra nera</b>: è il programma vero e proprio, il "motore" (dentro c'è Liquidsoap, il software audio usato da molte radio professionali).</p>
+<h3>Cosa ti serve</h3>
+<table>
+<tr><th>Cosa</th><th>Note</th></tr>
+<tr><td>PC con Windows 10 o 11</td><td>Va bene un PC normale. Per trasmettere tante ore di fila è meglio un PC dedicato, sempre acceso.</td></tr>
+<tr><td>La tua musica in MP3</td><td>In una o più cartelle del PC o di un disco esterno.</td></tr>
+<tr><td>Connessione internet</td><td>Per trasmettere a 128 kbps bastano 0,2 Mbit/s in <b>upload</b>; meglio averne almeno 1 stabile. Il cavo di rete è più affidabile del Wi-Fi.</td></tr>
+<tr><td>Un server di streaming</td><td>Icecast, Shoutcast o un ingresso Liquidsoap, di solito a pagamento da un fornitore (vedi <a href="#radio">Creare una web radio</a>). <b>Non serve per iniziare</b>: con <span class="b">🎧 Prova</span> la radio suona sul PC.</td></tr>
+<tr><td>Microfono e cuffie</td><td>Facoltativi. Un microfono USB è il modo più semplice di iniziare.</td></tr>
+</table>
+<div class="idea"><b>💡 Le tre idee chiave</b>
+<ul>
+<li><b>Libreria</b>: tutti i tuoi brani, divisi in <i>categorie</i> (Blues, Anni 70, Jingle…).</li>
+<li><b>Clockwheel</b>: la "ricetta" che dice alla radio quali categorie suonare e in che ordine, così va avanti da sola.</li>
+<li><b>Scheduler</b>: il palinsesto, cioè quale clockwheel usare a quale ora del giorno.</li>
+</ul></div>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section id="installare"><h2><span class="n">2</span>Installare</h2>
+<ol class="steps">
+<li>Fai doppio clic su <code>Setup_CatorwebBroadcaster.exe</code>.</li>
+<li>Scegli la lingua dell'installazione e segui i passaggi. Non servono permessi di amministratore: il programma si installa solo per il tuo utente.</li>
+<li>Alla fine trovi <b>Catorweb Broadcaster</b> sul Desktop e nel menu Start.</li>
+</ol>
+<div class="warn"><b>⚠ "Windows ha protetto il PC" o l'antivirus avvisa</b>
+È normale per i programmi gratuiti non "firmati" con un certificato a pagamento: Windows e alcuni antivirus non conoscono ancora il file. Su SmartScreen clicca <i>Ulteriori informazioni → Esegui comunque</i>; se l'antivirus analizza il file, aspetta che finisca e conferma.</div>
+<p><b>Aggiornare</b>: installa il nuovo Setup sopra il vecchio. Impostazioni, libreria e registrazioni restano.</p>
+<p><b>Disinstallare</b>: dalle App di Windows. I tuoi dati (impostazioni, database, registrazioni) <b>non</b> vengono cancellati.</p>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section id="impostazioni"><h2><span class="n">3</span>Primo avvio e Impostazioni</h2>
+<p>Al primo avvio si apre la pagina <b>Impostazioni</b>. Più avanti la ritrovi con <span class="b">⚙ Impostazioni</span>, a destra delle schede.</p>
+<figure class="small"><img src="img/it/impostazioni1.webp" loading="lazy" alt="Impostazioni: lingua, radio, server"><figcaption>Lingua, dati della radio e server di streaming.</figcaption></figure>
+<h3>Lingua</h3>
+<p>Italiano o English: cambia tutta l'interfaccia. Al primo avvio è quella di Windows.</p>
+<h3>La radio</h3>
+<ul>
+<li><b>Nome</b> e <b>genere</b>: arrivano ai player degli ascoltatori. Il nome si usa anche per i file delle registrazioni.</li>
+<li><b>Descrizione</b> e <b>sito</b>: facoltativi.</li>
+<li><b>Indirizzo d'ascolto pubblico</b>: il link dello stream che usano gli ascoltatori (te lo dà il fornitore). Serve per <span class="b">🎧 Ascolto → Come gli ascoltatori</span>, con cui ti ascolti "da fuori".</li>
+</ul>
+<h3>Server di streaming</h3>
+<table>
+<tr><th>Tipo</th><th>Cosa inserire</th></tr>
+<tr><td><b>Icecast 2</b></td><td>Indirizzo (host), porta, mount (es. <code>/stream</code>), utente (di solito <code>source</code>), password.</td></tr>
+<tr><td><b>Shoutcast</b></td><td>Indirizzo e porta <b>pubblica</b> (l'app si collega da sola alla porta + 1), password. Per Shoutcast v2 con più stream: <code>password:#1</code>.</td></tr>
+<tr><td><b>Liquidsoap (harbor)</b></td><td>Come Icecast; il mount è di solito <code>/</code>.</td></tr>
+</table>
+<p><b>Bitrate</b>: 128 kbps è lo standard delle web radio musicali (buona qualità, poca banda per gli ascoltatori); 192 kbps se il tuo pubblico ascolta soprattutto da casa. <span class="b">🔌 Prova collegamento</span> controlla i dati senza andare in onda.</p>
+<div class="tip"><b>✅ Non hai ancora i dati del server?</b>Lascia vuoto l'indirizzo e salva. Puoi usare tutto in <span class="b">🎧 Prova</span> e inserire i dati quando li avrai.</div>
+<figure class="small"><img src="img/it/impostazioni2.webp" loading="lazy" alt="Impostazioni: cartelle, microfono, extra"><figcaption>Cartelle, microfono ed extra.</figcaption></figure>
+<h3>Cartelle</h3>
+<table>
+<tr><td><b>Musica</b></td><td>Dove tieni la musica (puoi comunque importare da qualunque cartella).</td></tr>
+<tr><td><b>Database</b></td><td>La libreria, i clockwheel e le playlist. Mettila in una cartella che salvi nei backup.</td></tr>
+<tr><td><b>Registrazioni</b></td><td>Dove finiscono gli MP3 del <span class="b">⏺ REC</span>.</td></tr>
+<tr><td><b>Export</b></td><td>Dove Tools copia gli MP3 delle playlist.</td></tr>
+</table>
+<p>Se cambi una cartella il programma si riavvia da solo (non durante una diretta).</p>
+<h3>Microfono</h3>
+<p>Scegli il microfono dall'elenco (<span class="b">↻</span> aggiorna l'elenco se l'hai appena collegato). <b>Tono della voce</b> (−2…+2 semitoni) e <b>voce piena</b> (bassi, consigliato +3,5 dB) regolano il processore della voce, che comprime, toglie le sibilanti e limita i picchi.</p>
+<h3>Extra</h3>
+<ul>
+<li><b>Proponi presentazione con Claude</b>: in Regia Claude scrive 2-3 frasi da leggere al microfono (vedi <a href="#regia">Regia</a>). Per attivarlo: <ol><li>serve un account Claude con abbonamento Pro o Max;</li><li>apri <b>PowerShell</b> (menu Start → "PowerShell"), incolla <code>irm https://claude.ai/install.ps1 | iex</code> e premi Invio;</li><li>scrivi <code>claude</code> e premi Invio: nel browser accedi con il tuo account Claude e autorizza, poi scrivi <code>/exit</code>;</li><li>chiudi e riapri Catorweb Broadcaster: in Impostazioni compare "✓ Claude Code trovato".</li></ol>Se l'installazione chiede Git per Windows, scaricalo da git-scm.com. In Impostazioni la voce "Come attivarlo" ripete questi passi.</li>
+</ul>
+</section>
+
+<!-- ───────────────────────── 4 ───────────────────────── -->
+<section id="10minuti"><h2><span class="n">4</span>La tua radio in 10 minuti</h2>
+<p>Il percorso più breve per sentire la tua radio suonare, anche senza server.</p>
+<ol class="steps">
+<li><b>Impostazioni</b>: nome della radio, cartelle, eventualmente il microfono. Salva.</li>
+<li><b>Libreria → ⬆ Import → 📁 Cartella</b>: <span class="b">📂 Sfoglia…</span>, scegli una cartella di musica, lascia "crea automaticamente" e premi <span class="b">⬇ Importa</span>. Ripeti per 2-3 cartelle di generi diversi: ognuna diventa una categoria.</li>
+<li><b>Clockwheel → + Nuovo</b>: aggiungi gli slot, per esempio <i>Jingle, Rock, Blues, Rock, Jingle, Anni 70</i>. Salva e premi <span class="b">⚡ Attiva</span>.</li>
+<li>In alto premi <span class="b">🎧 Prova</span>, poi <span class="b">🎧 Ascolto → Tutto</span> per ascoltare. La radio suona da sola!</li>
+<li>Apri <b>🎛 Regia</b>, accendi il microfono con la <kbd>barra spaziatrice</kbd> e fai il tuo primo intervento.</li>
+<li>Quando hai i dati del server: Impostazioni → server → <span class="b">🔌 Prova collegamento</span>, poi <span class="b">⚪ FUORI ONDA — Vai in onda</span>.</li>
+</ol>
+<div class="tip"><b>✅ La categoria Jingle c'è già</b>Al primo avvio la Libreria contiene la categoria <b>Jingle</b> con 3 jingle di esempio, così il clockwheel ha subito qualcosa da usare. Sostituiscili con i tuoi quando li avrai.</div>
+</section>
+
+<!-- ───────────────────────── 5 ───────────────────────── -->
+<section id="schermata"><h2><span class="n">5</span>La schermata</h2>
+<figure><img src="img/it/dashboard.webp" loading="lazy" alt="Dashboard"><figcaption>La Dashboard: in onda ora, prossimi brani, stato dello stream, statistiche e log.</figcaption></figure>
+<h3>La barra in alto</h3>
+<figure><img src="img/it/barra.webp" loading="lazy" alt="Barra in alto e schede"><figcaption>La barra dei comandi e, sotto, le schede.</figcaption></figure>
+<table>
+<tr><th>Comando</th><th>A cosa serve</th></tr>
+<tr><td><span class="b">⚪ FUORI ONDA — Vai in onda</span></td><td>Va in diretta (chiede conferma). In onda diventa <span class="b">🔴 IN ONDA — Chiudi diretta</span>.</td></tr>
+<tr><td><span class="b">🎧 Prova</span></td><td>La radio suona solo sul PC, senza mandare niente al server.</td></tr>
+<tr><td><span class="b">⏹ a fine brano</span></td><td>In onda: chiude la diretta quando finisce il brano in corso.</td></tr>
+<tr><td><span class="b">▶ Automatico / ✋ Manuale</span></td><td>Come partono i brani: da soli o solo quando premi AVVIA (vedi <a href="#regia">Regia</a>).</td></tr>
+<tr><td>Riquadro <span class="b">🎙 MIC</span></td><td>Microfono, modo di abbassare la musica, volume della voce.</td></tr>
+<tr><td><span class="b">⏺ REC</span> · auto · 📂</td><td>Registrazione di quello che va in onda.</td></tr>
+<tr><td><span class="b">🎧 Ascolto ▾</span></td><td>Ascolto in cuffia, tre modi (vedi <a href="#ascolto">Ascoltare</a>).</td></tr>
+<tr><td>Pallino a destra</td><td>Verde = il motore audio è attivo.</td></tr>
+</table>
+<p>Sotto ci sono le <b>schede</b>: Dashboard, Libreria, Clockwheel, Scheduler, Coda, Statistiche, Log, Manutenzione, Tools, 🎛 Regia. A destra <span class="b">⚙ Impostazioni</span> e <span class="b">❓ Aiuto</span> (la guida rapida dentro l'app).</p>
+<h3>📌 Bacheca dei promemoria</h3>
+<p>Il pulsante tondo <span class="b">📌</span> in basso a destra apre una piccola bacheca: scrivi una nota ("chiamare l'ospite di venerdì", "rinnovare il server il 30") e premi <kbd>Invio</kbd>. <b>✓</b> la segna come fatta (diventa barrata e scende in fondo), <b>✎</b> la modifica, <b>🗑</b> la cancella. Il numero rosso sul pulsante dice quanti promemoria sono ancora da fare. Le note restano salvate nel database, anche chiudendo il programma.</p>
+<figure class="tiny" style="max-width:280px"><img src="img/it/promemoria.webp" loading="lazy" alt="Bacheca dei promemoria"><figcaption>La bacheca aperta.</figcaption></figure>
+<div class="warn"><b>⚠ La finestra nera</b>Chiuderla chiude il programma <b>e la diretta</b>. Lasciala aperta, anche ridotta a icona. Se chiudi solo il browser la radio continua: riaprilo dall'icona sul Desktop.</div>
+</section>
+
+<!-- ───────────────────────── 6 ───────────────────────── -->
+<section id="libreria"><h2><span class="n">6</span>Libreria e import</h2>
+<figure><img src="img/it/libreria.webp" loading="lazy" alt="Libreria"><figcaption>A sinistra le categorie, a destra i brani della categoria scelta.</figcaption></figure>
+<p>Le <b>categorie</b> sono cartelle "virtuali": un brano può stare in più categorie senza duplicare il file.</p>
+<ul>
+<li><b>Cerca</b> e <b>ordina</b> (artista, titolo, genere, durata, anno, data di inserimento, casuale, ordine manuale trascinando).</li>
+<li>Seleziona i brani con le caselle (o <span class="b">✓ Tutti</span>) e poi:
+ <span class="b">➕ In coda</span> li aggiunge in fondo alla coda, <span class="b">↺ Sostituisci coda</span> svuota la coda e ci mette quelli selezionati, <span class="b">↗ Sposta</span> li copia o sposta in un'altra categoria, <span class="b">↩ Rimuovi</span> li toglie dalla categoria (restano in libreria), <span class="b">🗑 Elimina dal database</span> li toglie dalla libreria, da tutte le categorie, dalla coda e dai pulsanti jingle (i file restano sul disco), <span class="b">💾 Salva M3U</span> salva una playlist.</li>
+<li><span class="b">+ Cat</span> crea una categoria. Passando il mouse su una categoria: <span class="b">+sub</span> sottocategoria, <span class="b">✎</span> rinomina, <span class="b">✕</span> elimina (puoi eliminare solo la categoria, oppure anche tutti i suoi brani dal database, pure se sono in altre categorie; i file restano sul disco). Trascina dei brani su una categoria per copiarli lì.</li>
+<li><span class="b">📊 Stats</span>: decenni, generi e anni della categoria.</li>
+</ul>
+<figure class="tiny"><img src="img/it/eliminacategoria.webp" loading="lazy" alt="Eliminare una categoria"><figcaption>✕ su una categoria: le tre scelte.</figcaption></figure>
+<figure class="tiny"><img src="img/it/statscategoria.webp" loading="lazy" alt="Statistiche della categoria"><figcaption>📊 Stats di una categoria: utile per capire se la rotazione è equilibrata.</figcaption></figure>
+<h3>Importare</h3>
+<figure class="small"><img src="img/it/import.webp" loading="lazy" alt="Finestra Importa brani"><figcaption>Libreria → ⬆ Import.</figcaption></figure>
+<table>
+<tr><th>Scheda</th><th>Cosa fa</th><th>Copia i file?</th></tr>
+<tr><td><b>📁 Cartella</b></td><td>Tutti gli MP3 di una cartella e delle sottocartelle, in una categoria (vuota = col nome della cartella).</td><td><b>No</b>, restano dove sono</td></tr>
+<tr><td><b>📋 Playlist generata</b></td><td>Una playlist dell'app o una tua M3U (<span class="b">📂 Scegli file M3U…</span>).</td><td><b>No</b></td></tr>
+<tr><td><b>⬆ Upload file</b></td><td>Trascini dei file, per esempio da una chiavetta.</td><td><b>Sì</b>, in <code>musica\importati</code></td></tr>
+<tr><td><b>🎙️ Registra</b></td><td>Registri un parlato (voice track, intro, promo) con taglio, bassi/alti e compressore.</td><td>File nuovo in <code>musica\registrazioni</code></td></tr>
+</table>
+<div class="warn"><b>⚠ Non spostare i file importati</b>L'app ricorda dove si trova ogni file. Se sposti o rinomini una cartella dopo l'import, quei brani non si trovano più: <b>Manutenzione → File mancanti</b> li elenca. Importa da una posizione definitiva.</div>
+<p>Con più di 200 file l'app chiede conferma prima di importare: è solo un avviso, puoi importare anche migliaia di brani.</p>
+</section>
+
+<!-- ───────────────────────── 7 ───────────────────────── -->
+<section id="tag"><h2><span class="n">7</span>Tag Editor ed embargo</h2>
+<div class="cols">
+<figure class="tiny" style="margin:0"><img src="img/it/tageditor.webp" loading="lazy" alt="Tag Editor"><figcaption>Clic sul titolo di un brano: il Tag Editor.</figcaption></figure>
+<div>
+<p>Con l'anteprima ascolti il brano (<span class="b">«10</span> <span class="b">10»</span> per saltare). Puoi correggere titolo, artista, album, anno, genere e il <b>tipo</b> (canzone, jingle, intro, voice track…).</p>
+<ul>
+<li><b>Applica il genere a tutto l'album</b>: comodo per sistemare i generi in fretta.</li>
+<li><span class="b">✂ Taglia silenzi</span>: toglie i silenzi a inizio e fine file (l'originale resta come copia di sicurezza).</li>
+<li><span class="b">+ Coda</span>: mette il brano in coda.</li>
+</ul>
+</div></div>
+<h3>Embargo</h3>
+<p>Scrivi una data nel campo <b>Commento</b> (es. <code>24 ottobre</code>, <code>24/10</code>, <code>24/10/2026</code>): il brano è sotto <b>embargo</b> fino a quel giorno compreso. Non viene scelto dal clockwheel, non entra in coda, playlist o scheduler e non si esporta. In libreria compare 🔒 con la data. Dal giorno dopo è libero da solo.</p>
+<div class="idea"><b>💡 A cosa serve</b>Un singolo che esce venerdì: lo importi oggi, metti la data di uscita e sei sicuro che non vada in onda prima.</div>
+</section>
+
+<!-- ───────────────────────── 8 ───────────────────────── -->
+<section id="jingle"><h2><span class="n">8</span>Jingle e categorie speciali</h2>
+<p>Il <b>nome della categoria</b> decide come vanno in onda i brani che contiene:</p>
+<table>
+<tr><th>Se il nome contiene…</th><th>I brani diventano</th><th>Effetto</th></tr>
+<tr><td><i>jingle, sweeper, liner, station id, imaging</i></td><td>Jingle</td><td rowspan="2">Niente dissolvenze (fade) e niente crossfade: partono e finiscono "secchi", come devono.</td></tr>
+<tr><td><i>intro, promo, news, spot, voice track</i></td><td>Intro, promo, news, spot, voice track</td></tr>
+<tr><td>qualunque altro nome</td><td>Canzoni</td><td>Crossfade morbido tra un brano e l'altro.</td></tr>
+</table>
+<p>I jingle non vengono mai cercati online e non hanno la scheda del brano. Nella Regia hai anche 8 <b>pulsanti jingle</b> da lanciare a mano (vedi <a href="#regia">Regia</a>).</p>
+<div class="tip"><b>✅ Tipi di "imaging" da preparare</b>
+<ul>
+<li><b>Station ID</b> (3-10 s): "Stai ascoltando Radio Demo". Il più importante: ogni 15-20 minuti.</li>
+<li><b>Sweeper</b> (5-15 s): effetto + frase, tra due canzoni.</li>
+<li><b>Jingle cantato</b>: il "marchio" musicale della radio.</li>
+<li><b>Intro di programma</b> e <b>promo</b> dei tuoi appuntamenti.</li>
+</ul></div>
+</section>
+
+<!-- ───────────────────────── 9 ───────────────────────── -->
+<section id="coda"><h2><span class="n">9</span>Coda e playlist</h2>
+<figure><img src="img/it/coda.webp" loading="lazy" alt="Coda"><figcaption>La scheda Coda.</figcaption></figure>
+<p>I brani in <b>coda</b> partono <b>prima</b> del clockwheel, nell'ordine. Quando la coda è vuota la radio continua con il clockwheel attivo. <span class="b">🗑 Svuota</span> la cancella, ✕ toglie un brano.</p>
+<p>Le <b>playlist</b> salvate (M3U) si aggiungono alla coda dalla Dashboard con <span class="b">➕ Aggiungi</span> o <span class="b">🔁 Sostituisci</span>, oppure a orario con lo Scheduler.</p>
+<div class="idea"><b>💡 Coda o clockwheel?</b>Usa la <b>coda</b> per un programma preparato brano per brano (una scaletta, una richiesta). Usa il <b>clockwheel</b> per tutto il resto del tempo: è lui che fa andare la radio 24 ore su 24.</div>
+</section>
+
+<!-- ───────────────────────── 10 ───────────────────────── -->
+<section id="clockwheel"><h2><span class="n">10</span>Clockwheel</h2>
+<figure><img src="img/it/clockwheel.webp" loading="lazy" alt="Editor del clockwheel"><figcaption>Un clockwheel con 7 slot e le regole di ripetizione.</figcaption></figure>
+<p>Un clockwheel è una <b>ruota di slot</b>: ogni slot pesca un brano (o più) da una categoria. Finito l'ultimo slot si ricomincia dal primo. È il "formato" della tua radio.</p>
+<h3>Gli slot</h3>
+<ul>
+<li><b>Categoria</b> da cui pescare.</li>
+<li><b>Modalità</b>: <i>Casuale</i> con regole, brano da più tempo non suonato, suonato più di recente, artista da più tempo non suonato…</li>
+<li><b>Quanti brani</b> per slot.</li>
+<li>Trascina ⠿ per cambiare l'ordine, <span class="b">+ Aggiungi</span> per uno slot nuovo.</li>
+</ul>
+<h3>Regole di ripetizione</h3>
+<table>
+<tr><td><b>Separazione artista</b> (minuti)</td><td>Tempo minimo tra due brani dello stesso artista. 60 è un buon inizio.</td></tr>
+<tr><td><b>Separazione album</b> (minuti)</td><td>Lo stesso per gli album e le compilation.</td></tr>
+<tr><td><b>Max stesso artista per ora</b></td><td>0 = nessun limite.</td></tr>
+<tr><td><b>Separazione rigida</b></td><td>Non ripetere un brano tra gli ultimi N.</td></tr>
+<tr><td><b>Stop mode</b></td><td>Per le playlist generate: Loop (completa il giro), Exact (durata esatta), Over (primo sforamento).</td></tr>
+</table>
+<h3>I pulsanti</h3>
+<p><span class="b">💾 Salva</span> · <span class="b">⚡ Attiva</span> lo forza subito (ha la precedenza sullo scheduler; un avviso in alto lo ricorda, <span class="b">✖ Libera</span> lo toglie) · <span class="b">👁 Anteprima</span> mostra cosa suonerebbe · <span class="b">📀 Genera playlist</span> crea una playlist della durata scelta (minuti).</p>
+<div class="tip"><b>✅ Un clockwheel di partenza</b>
+<ol>
+<li>Station ID (categoria Jingle)</li>
+<li>Canzone "forte" (la tua categoria più amata)</li>
+<li>Canzone recente</li>
+<li>Canzone "gold" (classico)</li>
+<li>Sweeper (Jingle)</li>
+<li>Canzone forte</li>
+<li>Canzone di un'altra categoria per variare</li>
+</ol>
+Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minuti. Le categorie con pochi brani vanno usate meno spesso, altrimenti si ripetono.</div>
+</section>
+
+<!-- ───────────────────────── 11 ───────────────────────── -->
+<section id="scheduler"><h2><span class="n">11</span>Scheduler e palinsesto</h2>
+<figure><img src="img/it/scheduler.webp" loading="lazy" alt="Evento dello scheduler"><figcaption>Un evento: dalle 06:00 per 840 minuti, ogni giorno, clockwheel "Mix generale".</figcaption></figure>
+<p>Lo <b>Scheduler</b> esegue <b>eventi a orario</b> (ora del PC). Ogni evento ha nome, ora d'inizio, durata, ripetizione (ogni giorno, giorni scelti, una volta sola) e un <b>tipo</b>:</p>
+<ul>
+<li><b>Clockwheel</b>: in quella fascia la radio usa quel clockwheel. È il modo di costruire il <b>palinsesto</b>.</li>
+<li><b>Playlist</b>: aggiunge o sostituisce la coda con una playlist.</li>
+<li><b>Azione</b>: salta il brano, svuota la coda, mette in coda una categoria o un brano, sposta brani tra categorie, cambia il clockwheel di default, fa il <b>backup del database</b>…</li>
+</ul>
+<p><span class="b">▶ Esegui ora</span> prova subito un evento. Il pulsante 🗓 mostra la <b>timeline</b> della settimana:</p>
+<figure><img src="img/it/timeline.webp" loading="lazy" alt="Timeline settimanale"><figcaption>La timeline: i blocchi della settimana, la linea rossa "adesso" e il blocco IN ONDA.</figcaption></figure>
+<div class="tip"><b>✅ Un palinsesto semplice</b>
+<table>
+<tr><td>06:00–20:00</td><td>Clockwheel "Giorno" (musica varia)</td></tr>
+<tr><td>20:00–24:00</td><td>Clockwheel "Sera" (genere più specifico)</td></tr>
+<tr><td>Sab e Dom 10:00</td><td>Programma speciale (playlist o clockwheel dedicato)</td></tr>
+<tr><td>04:00 ogni giorno</td><td>Azione "Backup del database"</td></tr>
+</table></div>
+</section>
+
+<!-- ───────────────────────── 12 ───────────────────────── -->
+<section id="onda"><h2><span class="n">12</span>Andare in onda e 🎧 Prova</h2>
+<figure class="small"><img src="img/it/onair.webp" loading="lazy" alt="Pulsanti di diretta e prova"><figcaption>In Prova: il pulsante verde è acceso, quello grande resta FUORI ONDA.</figcaption></figure>
+<h3>🎧 Prova: la radio solo sul PC</h3>
+<p>La radio funziona in tutto (coda, clockwheel, jingle, microfono, regia) ma <b>al server non arriva niente</b>. Ascolta con <span class="b">🎧 Ascolto</span>. Serve per:</p>
+<ul><li>provare un clockwheel o un programma nuovo;</li><li>scaldare la voce e regolare il microfono;</li><li>registrare un podcast (vedi <a href="#podcast">Fare un podcast</a>);</li><li>usare l'app prima di avere un server.</li></ul>
+<p>Premendo <b>Vai in onda</b> durante la Prova, il server si collega <b>senza fermare la musica</b>: il brano che stai ascoltando va in onda così com'è.</p>
+<h3>In diretta</h3>
+<ol class="steps">
+<li>Premi <span class="b">⚪ FUORI ONDA — Vai in onda</span> e conferma.</li>
+<li>Il pulsante diventa <span class="b">🟠 Collegamento al server…</span> e poi <span class="b">🔴 IN ONDA</span>.</li>
+<li>La diretta parte dal primo brano in coda o, se è vuota, dal clockwheel.</li>
+</ol>
+<p>Per chiudere: <span class="b">🔴 IN ONDA — Chiudi diretta</span>, oppure <span class="b">⏹ a fine brano</span> per chiudere senza tagliare la canzone (si può annullare).</p>
+<div class="tip"><b>✅ Checklist prima di ogni diretta</b>
+<ul class="check">
+<li>Prova collegamento riuscita (Impostazioni).</li>
+<li>Coda o clockwheel pronti; scheduler controllato nella timeline.</li>
+<li>Microfono giusto, volume voce provato in Prova.</li>
+<li>Cuffie collegate al PC (non al microfono USB) su 🎧 Ascolto → Solo musica.</li>
+<li>⏺ REC "auto" acceso se vuoi l'archivio della puntata.</li>
+<li>Notifiche di Windows e programmi pesanti chiusi.</li>
+</ul></div>
+<p>Finché Catorweb Broadcaster è aperto, Windows non va in sospensione (ma il coperchio chiuso di un portatile lo sospende comunque).</p>
+</section>
+
+<!-- ───────────────────────── 13 ───────────────────────── -->
+<section id="regia"><h2><span class="n">13</span>🎛 Regia</h2>
+<figure><img src="img/it/regia.webp" loading="lazy" alt="Scheda Regia"><figcaption>La Regia: conto alla rovescia, prossimo brano, scheda dell'artista, scaletta, ricerca rapida e pulsanti jingle.</figcaption></figure>
+<p>È la scheda per <b>condurre</b>. In alto il grande <b>conto alla rovescia</b> della fine del brano (la barra diventa arancione negli ultimi 30 secondi e rossa lampeggiante negli ultimi 10) e la fascia <b>PROSSIMO</b>.</p>
+<h3>▶ Automatico e ✋ Manuale</h3>
+<ul>
+<li><b>Automatico</b>: coda + clockwheel, tutto parte da solo.</li>
+<li><b>Manuale</b>: alla fine del brano in corso la radio si ferma e aspetta <span class="b">▶ AVVIA</span>. Premere AVVIA mentre un brano suona passa subito al prossimo. È il modo per parlare quanto vuoi tra un brano e l'altro.</li>
+</ul>
+<p>"Chiudi diretta" rimette sempre Automatico per la volta dopo.</p>
+<h3>Scaletta e ricerca rapida</h3>
+<p>La <b>scaletta</b> è la coda: cerca un brano a destra, <span class="b">+ Scaletta</span> lo aggiunge, ✕ lo toglie.</p>
+<h3>Scheda del brano</h3>
+<p>Sotto PROSSIMO compare la scheda del prossimo brano: foto e biografia dell'artista (Wikipedia), album e anno (MusicBrainz, iTunes), quante volte l'hai passato e quando. Serve internet; le schede restano in memoria 30 giorni, <span class="b">↻ cerca di nuovo</span> le aggiorna.</p>
+<div class="warn"><b>⚠ Fonti libere</b>Le informazioni arrivano da fonti aperte e a volte sbagliano omonimi: controlla prima di dirle in onda.</div>
+<h3>✍ Proponi presentazione (facoltativa)</h3>
+<p>Se sul PC c'è <b>Claude Code</b> collegato al tuo account, Claude scrive 2-3 frasi da leggere al microfono usando solo i fatti della scheda. Scegli Opus (scrive meglio) o Sonnet (consuma meno). Il testo compare nel riquadro <b>🎙 DA LEGGERE</b>.</p>
+<h3>Pulsanti jingle</h3>
+<p>8 pulsanti: assegnali dalla ricerca con 🎵, un clic li fa partire, <span class="b">⏹ Ferma jingle</span> li ferma. Funzionano anche in Automatico. Ogni pulsante ha il suo modo (clic sull'etichetta in basso):</p>
+<table>
+<tr><td><b>≋ SOPRA</b></td><td>Il jingle suona sopra la musica, che si abbassa. Per effetti brevi, applausi, risate.</td></tr>
+<tr><td><b>⏏ STACCO</b></td><td>La musica sfuma in ~1 s e il jingle suona da solo; poi in Automatico riparte il brano successivo, in Manuale silenzio fino ad AVVIA.</td></tr>
+</table>
+</section>
+
+<!-- ───────────────────────── 14 ───────────────────────── -->
+<section id="mic"><h2><span class="n">14</span>🎙 Microfono</h2>
+<figure class="tiny"><img src="img/it/mic.webp" loading="lazy" alt="Riquadro microfono"><figcaption>MIC, modo (Auto/Regia) e volume voce.</figcaption></figure>
+<ul>
+<li><span class="b">🎙 MIC</span>: clic = acceso/spento (rosso = acceso).</li>
+<li><kbd>Barra spaziatrice</kbd> tenuta premuta: parli finché la tieni (non mentre scrivi in un campo).</li>
+<li>Cursore: volume della voce in onda, da −6 a +18 dB.</li>
+</ul>
+<h3>🤖 Auto o 🎚 Regia: quando si abbassa la musica</h3>
+<table>
+<tr><th>Modo</th><th>Come funziona</th><th>Per chi</th></tr>
+<tr><td><b>🤖 Auto</b> (di base)</td><td>La musica scende solo mentre parli davvero e risale circa 1 s dopo l'ultima parola. Il microfono può restare acceso.</td><td>Chi parla spesso sopra la musica, interviste.</td></tr>
+<tr><td><b>🎚 Regia</b></td><td>Tieni premuta la <kbd>barra spaziatrice</kbd>: la musica scende subito e risale quando la lasci, come il fader di un mixer.</td><td>Chi vuole decidere ogni intervento.</td></tr>
+</table>
+<div class="tip"><b>✅ Consigli per una bella voce</b>
+<ul>
+<li>Un <b>microfono dinamico</b> USB prende meno rumori della stanza di uno a condensatore.</li>
+<li>Bocca a <b>10-15 cm</b>, leggermente di lato; un antipop (filtro di stoffa) evita i "p" esplosivi.</li>
+<li>Stanza con tende, tappeti, libri: meno rimbombo. Evita stanze vuote e bagni.</li>
+<li>Regola il volume in <b>Prova</b>: la voce deve stare un po' sopra la musica, non sparare.</li>
+<li>Tono e "voce piena" in Impostazioni: cambia poco alla volta e riascoltati con una registrazione.</li>
+</ul></div>
+</section>
+
+<!-- ───────────────────────── 15 ───────────────────────── -->
+<section id="rec"><h2><span class="n">15</span>⏺ Registrazione</h2>
+<figure class="tiny"><img src="img/it/rec.webp" loading="lazy" alt="REC"><figcaption>REC, registrazione automatica e cartella.</figcaption></figure>
+<ul>
+<li><span class="b">⏺ REC</span>: clic = avvia (rosso, con il tempo), clic = ferma. Funziona in onda e in Prova.</li>
+<li><b>auto</b>: registra da sola ogni diretta, da "Vai in onda" a "Chiudi diretta" (in Prova parte solo a mano).</li>
+<li><span class="b">📂</span> apre la cartella delle registrazioni.</li>
+</ul>
+<p>Ogni registrazione crea <b>due MP3</b>:</p>
+<table>
+<tr><td><code>NomeRadio_AAAA-MM-GG_hh-mm-ss.mp3</code></td><td>Esattamente quello che va in onda (musica + voce), 192 kbps, circa 85 MB all'ora.</td></tr>
+<tr><td><code>…_voce.mp3</code></td><td>Solo la tua voce: utilissima per il montaggio di un podcast.</td></tr>
+</table>
+<p>Nella Dashboard il riquadro <b>Spazio e archivio</b> dice quante <b>ore di registrazione</b> stanno ancora sul disco (circa 144 MB per ogni ora, contando anche il file della voce), quanto occupano le registrazioni e la libreria. Sotto le 24 ore diventa arancione, sotto le 3 rosso; se stai registrando compare anche un avviso in alto.</p>
+</section>
+
+<!-- ───────────────────────── 16 ───────────────────────── -->
+<section id="ascolto"><h2><span class="n">16</span>Ascoltare in cuffia</h2>
+<p>Il pulsante <span class="b">🎧 Ascolto ▾</span> in alto apre un menu con i tre modi di ascolto, ognuno spiegato. Ne suona uno alla volta e il pulsante mostra quale è acceso.</p>
+<figure class="tiny"><img src="img/it/ascolto.webp" loading="lazy" alt="Menu Ascolto"><figcaption>Il menu 🎧 Ascolto.</figcaption></figure>
+<table>
+<tr><th>🎧 Ascolto →</th><th>Cosa senti</th><th>Quando usarlo</th></tr>
+<tr><td><b>🔊 Tutto, senza ritardo</b></td><td>Quello che esce dal PC (musica + voce), senza ritardo.</td><td>Controllare la radio. Non mentre parli: ti sentiresti in eco.</td></tr>
+<tr><td><b>🎧 Solo musica</b> + uscita</td><td>Solo la musica, senza la tua voce, ~1 s di ritardo.</td><td>In cuffia mentre conduci. Scegli l'uscita delle cuffie collegate al PC.</td></tr>
+<tr><td><b>📡 Come gli ascoltatori</b></td><td>Lo stream pubblico, con il ritardo del server (5-30 s).</td><td>Verificare cosa sentono gli ascoltatori. Funziona se in Impostazioni c'è l'indirizzo d'ascolto.</td></tr>
+</table>
+</section>
+
+<!-- ───────────────────────── 17 ───────────────────────── -->
+<section id="stats"><h2><span class="n">17</span>Statistiche, Manutenzione, Tools</h2>
+<h3>Statistiche</h3>
+<figure><img src="img/it/statistiche.webp" loading="lazy" alt="Statistiche"><figcaption>Ogni riquadro si apre con un clic.</figcaption></figure>
+<p>Panoramica della libreria, <b>top brani</b> (esportabili in M3U, anche come countdown per una classifica), top artisti e generi, riprodotti di recente, mai suonati, "nel database da tempo ma mai suonati" (perfetti per riscoprire brani dimenticati).</p>
+<h3>Manutenzione</h3>
+<figure><img src="img/it/manutenzione.webp" loading="lazy" alt="Manutenzione"><figcaption>Gli strumenti di pulizia della libreria.</figcaption></figure>
+<ul>
+<li><b>Tracce brevi / corrotte</b> e <b>Silenzi sospetti</b> a inizio o fine file.</li>
+<li><b>File mancanti</b> (nel database ma non più sul disco) e <b>File orfani</b> (sul disco ma non nel database).</li>
+<li><b>Duplicati</b> (stesso artista e titolo), <b>Categorie vuote</b>, <b>Tag mancanti</b> (con deduzione di artista/titolo dal nome del file).</li>
+<li><b>Backup &amp; Restore</b> del database.</li>
+</ul>
+<div class="warn"><b>⚠ "DAL DISCO"</b>Le azioni che dicono "dal disco" cancellano davvero i file. Le altre li tolgono solo dal database.</div>
+<h3>Tools</h3>
+<figure class="small"><img src="img/it/tools.webp" loading="lazy" alt="Tools"><figcaption>M3U → MP3 Export e gli strumenti online.</figcaption></figure>
+<p><b>M3U → MP3 Export</b> copia in una cartella i brani di una playlist o della coda (per una chiavetta, un DJ set, un backup). <b>Online Tools</b> apre strumenti per le playlist su catorweb.net.</p>
+<p>La scheda <b>Log</b> mostra cosa succede nell'app e nel motore audio; <span class="b">📋 Copia</span> per mandarlo a chi ti aiuta.</p>
+</section>
+
+<!-- ───────────────────────── 18 ───────────────────────── -->
+<section id="dati"><h2><span class="n">18</span>Dati, backup, aggiornamenti</h2>
+<table>
+<tr><td><code>%APPDATA%\CatorwebPC\config.json</code></td><td>Impostazioni</td></tr>
+<tr><td><code>%APPDATA%\CatorwebPC\data\</code></td><td>Log, stato, palinsesto, backup automatici</td></tr>
+<tr><td>Cartella Database (Impostazioni)</td><td>Libreria, clockwheel, playlist</td></tr>
+<tr><td>Cartella Registrazioni</td><td>Gli MP3 del REC</td></tr>
+</table>
+<p>Per aprire <code>%APPDATA%</code> incollalo nella barra degli indirizzi di Esplora file.</p>
+<div class="tip"><b>✅ Backup in 3 mosse</b>
+<ol><li>Nello Scheduler, un'azione "Backup del database" ogni notte.</li>
+<li>Copia ogni tanto su un disco esterno o nel cloud la cartella Database e <code>%APPDATA%\CatorwebPC</code>.</li>
+<li>Prima di grandi pulizie in Manutenzione: <b>Backup &amp; Restore → Crea backup</b>.</li></ol></div>
+<p>Il programma usa le porte <b>8767, 8001 e 1235</b> solo dentro il PC: non serve aprire niente sul router.</p>
+</section>
+
+<!-- ───────────────────────── 19 ───────────────────────── -->
+<section id="problemi"><h2><span class="n">19</span>Problemi frequenti</h2>
+<h4>Non va in onda / resta "Non collegato"</h4>
+<p>Impostazioni → <span class="b">🔌 Prova collegamento</span>: il messaggio dice il motivo (indirizzo o porta sbagliati, password o mount rifiutati, server spento). Con Shoutcast metti la porta <b>pubblica</b>. Guarda anche la scheda Log.</p>
+<h4>La musica resta bassa con il microfono acceso</h4>
+<p>Sei in <b>🎚 Regia</b> e hai acceso il microfono con 🎙 MIC: in Regia si parla tenendo premuta la barra spaziatrice. Se vuoi lasciarlo acceso passa a <b>🤖 Auto</b>.</p>
+<h4>Il microfono non si sente</h4>
+<p>Controlla in Impostazioni che sia scelto quello giusto (<span class="b">↻</span> aggiorna l'elenco). Funziona solo in onda o in Prova.</p>
+<h4>Mi sento in eco</h4>
+<p>Stai ascoltando 🎧 Ascolto → Tutto mentre parli: usa Solo musica.</p>
+<h4>"SILENZIO RILEVATO"</h4>
+<p>In onda non arriva audio da più di 20 secondi. Il motore si riavvia da solo; se resta, chiudi e riapri la diretta. In Manuale il silenzio tra un brano e l'altro è normale.</p>
+<h4>Un brano non parte / "File non trovato"</h4>
+<p>Il file è stato spostato o rinominato: Manutenzione → File mancanti.</p>
+<h4>"Catorweb Broadcaster è già aperto"</h4>
+<p>Il programma è già acceso: usa la finestra aperta, oppure chiudila e riapri l'icona.</p>
+<h4>La scheda del brano è vuota</h4>
+<p>Serve internet e l'artista nei tag.</p>
+</section>
+
+<!-- ───────────────────────── 20 ───────────────────────── -->
+<section id="radio"><h2><span class="n">20</span>Guida: creare una web radio</h2>
+<h3>1. L'idea</h3>
+<p>Prima della tecnica viene il <b>formato</b>: che musica, per chi, con quale tono. Una radio "di tutto un po'" è difficile da far conoscere; una radio con un'identità chiara (blues e roots, rock italiano anni 70, indie emergente…) si ricorda e si consiglia.</p>
+<ul>
+<li>Scegli un <b>nome</b> breve, facile da dire e da scrivere; controlla che il dominio e i social siano liberi.</li>
+<li>Scrivi in una riga chi sei: "La radio del blues, dalle radici a oggi".</li>
+</ul>
+<h3>2. I diritti della musica</h3>
+<div class="warn"><b>⚠ Trasmettere musica di altri richiede licenze</b>In Italia di solito servono la licenza <b>SIAE</b> (autori ed editori) e quella per i diritti dei produttori discografici e degli artisti (per esempio <b>SCF</b>). Esistono tariffe dedicate alle web radio, e alcuni fornitori di streaming offrono pacchetti con le licenze incluse. Le regole cambiano: verifica sui siti ufficiali prima di partire. Con musica tua o con licenza libera (Creative Commons che permettono l'uso, musica "royalty-free") il problema non si pone.</div>
+<h3>3. Il server di streaming</h3>
+<p>Il tuo PC manda <b>un solo</b> flusso al server; è il server che lo moltiplica per tutti gli ascoltatori. Si noleggia da un fornitore (cerca "Shoutcast hosting" o "Icecast hosting"):</p>
+<ul>
+<li><b>Ascoltatori contemporanei</b> (slot): per iniziare ne bastano 25-100.</li>
+<li><b>Bitrate</b>: 128 kbps MP3 va benissimo.</li>
+<li>Quasi tutti includono un <b>pannello</b> (Centova, AzuraCast, Everest…) con le statistiche e il link d'ascolto.</li>
+<li>Ti daranno: indirizzo, porta, mount (Icecast), password. Sono i dati da mettere in Impostazioni.</li>
+</ul>
+<h3>4. Farsi trovare</h3>
+<ul>
+<li>Un sito o una pagina con un <b>player</b> (il fornitore spesso ne dà uno pronto).</li>
+<li>Iscrivi la radio alle <b>directory</b>: TuneIn, Radio.net, Radio Garden, Streema, le app di radio online… Più directory = più ascoltatori casuali.</li>
+<li>Social: annuncia i programmi in diretta, pubblica estratti, chiedi richieste.</li>
+</ul>
+<h3>5. Il suono e l'identità</h3>
+<ul>
+<li><b>Imaging</b>: station ID ogni 15-20 minuti, sweeper tra i brani, jingle per i programmi (vedi <a href="#jingle">Jingle</a>).</li>
+<li><b>Tag puliti</b>: titolo e artista corretti compaiono nei player degli ascoltatori.</li>
+<li>I livelli dei brani vengono uniformati automaticamente, ma evita file di qualità troppo bassa (sotto 128 kbps).</li>
+</ul>
+<h3>6. Il palinsesto</h3>
+<ul>
+<li>Parti con <b>2-3 clockwheel</b> (giorno, sera, weekend) e uno scheduler semplice.</li>
+<li>Aggiungi <b>appuntamenti fissi</b>: lo stesso programma, lo stesso giorno, alla stessa ora. Gli ascoltatori tornano per le abitudini.</li>
+<li>Un programma in diretta a settimana fa più di dieci ore di sola musica.</li>
+</ul>
+<h3>7. Trasmettere 24 ore su 24</h3>
+<ul>
+<li>Un <b>PC dedicato</b>, con il cavo di rete e magari un piccolo gruppo di continuità (UPS).</li>
+<li>Imposta gli <b>orari di attività</b> di Windows Update, così non riavvia il PC mentre trasmetti.</li>
+<li>Controlla ogni tanto Manutenzione (file mancanti, duplicati) e le Statistiche (mai suonati).</li>
+</ul>
+</section>
+
+<!-- ───────────────────────── 21 ───────────────────────── -->
+<section id="podcast"><h2><span class="n">21</span>Guida: fare un podcast</h2>
+<p>Catorweb Broadcaster è perfetto per i podcast "stile radio": voce, musica e jingle in un'unica registrazione, come un programma vero.</p>
+<h3>La ricetta</h3>
+<ol class="steps">
+<li>Prepara la <b>scaletta</b> nella Regia (coda) e metti <b>✋ Manuale</b>, così decidi tu quando parte ogni brano.</li>
+<li>Premi <span class="b">🎧 Prova</span>: niente va su internet.</li>
+<li>Premi <span class="b">⏺ REC</span>.</li>
+<li>Conduci: sigla (jingle a STACCO), introduzione, brani con <span class="b">▶ AVVIA</span>, interventi con la barra spaziatrice.</li>
+<li>Ferma il <span class="b">⏺ REC</span>. Con <span class="b">📂</span> trovi due file: la puntata completa e la sola voce.</li>
+</ol>
+<h3>Montaggio (facoltativo)</h3>
+<p>Per tagliare un errore usa un editor gratuito come <b>Audacity</b>. Il file <code>_voce.mp3</code> ti permette di sistemare il parlato separatamente dalla musica. Per l'ascolto in cuffia e in auto, punta a un volume medio di circa <b>−16 LUFS</b> (lo standard di Apple Podcasts e Spotify); in Audacity c'è "Normalizzazione volume".</p>
+<h3>Dove pubblicare</h3>
+<table>
+<tr><th>Tipo di puntata</th><th>Dove</th></tr>
+<tr><td><b>Con musica commerciale</b></td><td><b>Mixcloud</b>: ha accordi con le società dei diritti per i programmi musicali. Regole principali (verifica quelle attuali): inserisci la <b>tracklist</b> con i tempi, non troppi brani dello stesso artista o album in una puntata, nessun download per gli ascoltatori.</td></tr>
+<tr><td><b>Solo parlato, o musica libera / tua</b></td><td>Un servizio di hosting podcast (Spreaker, RSS.com, Spotify for Creators…): crea il feed RSS e lo distribuisce a Spotify, Apple Podcasts, Amazon Music, YouTube.</td></tr>
+</table>
+<div class="warn"><b>⚠ Musica commerciale sulle piattaforme podcast</b>Le licenze della radio <b>non</b> coprono un file scaricabile. Su Spotify, Apple Podcasts o YouTube una puntata con canzoni commerciali può essere rimossa o bloccata. Lì usa musica libera, tua, o solo pochi secondi come sottofondo (che resta comunque una zona grigia).</div>
+<h3>Consigli per le puntate</h3>
+<ul>
+<li><b>Struttura fissa</b>: sigla → saluto e tema → blocchi (2-3 brani + intervento) → saluti e prossima puntata.</li>
+<li><b>Durata costante</b> e <b>uscita regolare</b> (ogni settimana lo stesso giorno).</li>
+<li>Una <b>copertina</b> quadrata (3000×3000 px) leggibile anche piccola.</li>
+<li>Titoli che dicono il contenuto: "Blues di Chicago: da Muddy Waters a oggi" più di "Puntata 12".</li>
+<li>Prima di registrare, un minuto di prova in REC per controllare voce e livelli.</li>
+</ul>
+</section>
+
+<!-- ───────────────────────── 22 ───────────────────────── -->
+<section id="consigli"><h2><span class="n">22</span>Consigli per usare al meglio l'app</h2>
+<div class="cols">
+<div class="card"><h4>📚 Libreria</h4><ul>
+<li>Organizza le categorie per <b>ruolo in onda</b> (forti, recenti, classici, notturni) più che per cartella.</li>
+<li>Sistema i generi con "Applica il genere a tutto l'album".</li>
+<li>Usa l'<b>embargo</b> per le uscite future.</li>
+<li>Una volta al mese: Manutenzione → File mancanti e Duplicati.</li></ul></div>
+<div class="card"><h4>🎡 Clockwheel</h4><ul>
+<li>Slot con categorie grandi più spesso, piccole più di rado.</li>
+<li>Separazione artista 60 minuti come base.</li>
+<li>Prova sempre con <span class="b">👁 Anteprima</span> o in Prova.</li>
+<li>Un jingle ogni 3-4 brani mantiene l'identità.</li></ul></div>
+<div class="card"><h4>🎛 In diretta</h4><ul>
+<li>Guarda il conto alla rovescia: parla sull'intro o sulla coda dei brani, non a metà.</li>
+<li>Prepara la scaletta prima, con la ricerca rapida.</li>
+<li>Usa ✋ Manuale per i programmi parlati, ▶ Automatico per il resto.</li>
+<li>⏹ a fine brano per chiudere con eleganza.</li></ul></div>
+<div class="card"><h4>🛡 Sicurezza</h4><ul>
+<li>Backup notturno con lo Scheduler.</li>
+<li>Prima di cambiare tutto: Crea backup.</li>
+<li>Non chiudere la finestra nera durante la diretta.</li>
+<li>Ogni tanto dai un'occhiata alla scheda Log.</li></ul></div>
+</div>
+<div class="idea"><b>💡 Scorciatoie da ricordare</b><kbd>Barra spaziatrice</kbd> = microfono (tieni premuto) · clic sul titolo = Tag Editor · clic sull'anno = modifica anno · trascina un brano su una categoria = copia.</div>
+</section>
+
+<!-- ───────────────────────── 23 ───────────────────────── -->
+<section id="glossario"><h2><span class="n">23</span>Glossario</h2>
+<table>
+<tr><td><b>Bitrate</b></td><td>Quantità di dati al secondo dello stream (kbps): più alto = più qualità e più banda.</td></tr>
+<tr><td><b>Clockwheel</b></td><td>Sequenza di slot che decide l'ordine delle categorie in onda.</td></tr>
+<tr><td><b>Crossfade</b></td><td>Dissolvenza incrociata tra la fine di un brano e l'inizio del successivo.</td></tr>
+<tr><td><b>Ducking</b></td><td>Abbassamento automatico della musica quando parli.</td></tr>
+<tr><td><b>Embargo</b></td><td>Blocco di un brano fino a una data.</td></tr>
+<tr><td><b>Icecast / Shoutcast</b></td><td>I due tipi di server di streaming più diffusi.</td></tr>
+<tr><td><b>Imaging</b></td><td>L'insieme di jingle, station ID e sweeper che danno identità alla radio.</td></tr>
+<tr><td><b>LUFS</b></td><td>Unità di misura del volume percepito, usata per podcast e streaming.</td></tr>
+<tr><td><b>Mount</b></td><td>Il "nome" dello stream sul server Icecast (es. <code>/stream</code>).</td></tr>
+<tr><td><b>Palinsesto</b></td><td>Il programma della giornata/settimana: cosa va in onda e quando.</td></tr>
+<tr><td><b>Prova</b></td><td>La radio funziona solo sul PC, senza trasmettere.</td></tr>
+<tr><td><b>Slot</b></td><td>Una posizione del clockwheel: una categoria e quanti brani prendere.</td></tr>
+<tr><td><b>Station ID</b></td><td>Breve identificazione: "Stai ascoltando…".</td></tr>
+<tr><td><b>Sweeper</b></td><td>Breve effetto con voce tra due brani.</td></tr>
+<tr><td><b>Voice track</b></td><td>Un intervento parlato registrato prima e messo in scaletta.</td></tr>
+</table>
+<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manuale per la versione 2.11. La guida rapida è anche dentro l'app: <span class="b">❓ Aiuto</span>.</p>
+</section>
+</main>
+</div>
+<div id="zoom" onclick="this.style.display='none'"><img alt=""></div>
+<script>
+// ingrandisci le immagini con un clic
+document.querySelectorAll('figure img').forEach(i => i.addEventListener('click', () => {
+  const z = document.getElementById('zoom'); z.querySelector('img').src = i.src; z.style.display = 'flex';
+}));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('zoom').style.display = 'none'; });
+// indice: evidenzia la sezione visibile, chiude il menu su telefono
+const links = [...document.querySelectorAll('aside a[href^="#"]')];
+const obs = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+}), {rootMargin: '-20% 0px -70% 0px'});
+document.querySelectorAll('main section').forEach(s => obs.observe(s));
+links.forEach(a => a.addEventListener('click', () => document.getElementById('toc').classList.remove('open')));
+function toggleTheme() {
+  const r = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const cur = r.dataset.theme || (dark ? 'dark' : 'light');
+  r.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('cwpc-manual-theme', r.dataset.theme); } catch (e) {}
+}
+try { const t = localStorage.getItem('cwpc-manual-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</body>
+</html>
