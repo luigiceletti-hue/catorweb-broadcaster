@@ -1,57 +1,54 @@
 # 📻 Catorweb Broadcaster
 
-**Regia radio per Windows** — suona la tua musica dal PC e la manda in diretta al tuo server di streaming (Icecast, Shoutcast o Liquidsoap).
-*A radio automation studio for Windows — plays your music from your PC and broadcasts it live to your streaming server.*
+**A radio automation studio for Windows.** It plays your music from your PC and broadcasts it live to your streaming server (Icecast, Shoutcast or Liquidsoap).
 
-## ⬇ Scarica / Download
+🇮🇹 *[Leggi in italiano](README.it.md)*
 
-👉 **[Ultima versione / Latest release](../../releases/latest)** → `Setup_CatorwebBroadcaster.exe`
+## ⬇ Download
 
-Windows 10 / 11 · gratuito e open source / free and open source · niente permessi di amministratore / no admin rights needed
+👉 **[Latest release](../../releases/latest)** → `Setup_CatorwebBroadcaster.exe`
 
-## Cosa fa / What it does
+Windows 10 / 11 · free and open source · no admin rights needed
 
-- **Libreria** con categorie, import senza copiare i file, Tag Editor, embargo per data
-- **Clockwheel** e **Scheduler**: la radio va avanti da sola 24 ore su 24
-- **🎛 Regia**: conto alla rovescia, scaletta, modo manuale, 8 pulsanti jingle
-- **🎙 Microfono** con abbassamento automatico della musica e processore della voce
-- **🎧 Prova**: la radio suona solo sul PC, per provare o registrare un podcast
-- **⏺ Registrazione** della diretta (anche la sola voce, per il montaggio)
-- Italiano e English · manuale completo in [`manuale/`](manuale/)
+## Features
 
-*Library with categories, clockwheels and scheduler, live studio with countdown and jingle buttons, microphone with ducking and voice processing, rehearsal mode, recording — in Italian and English. Full manual in [`manuale/`](manuale/).*
+- **Library** with categories: import your music without copying the files, Tag Editor, release-date embargo
+- **Clockwheels** and **Scheduler**: the station runs on its own, 24/7
+- **🎛 Live studio**: big countdown, running order, manual mode, 8 jingle buttons
+- **🎙 Microphone** with automatic music ducking and voice processing
+- **🎧 Rehearsal mode**: the station plays only on your PC, to practise or record a podcast
+- **⏺ Recording** of the live show (voice only too, for editing)
+- Interface in **English and Italian** · full manual in [`manuale/`](manuale/) (`manual.html` in English)
 
-## Installare / Installing
+## Installing
 
-1. Scarica `Setup_CatorwebBroadcaster.exe` dalla pagina delle release. / *Download it from the releases page.*
-2. Avvialo. Se Windows mostra **"Il PC è stato protetto"**, clicca **Ulteriori informazioni → Esegui comunque**: il programma è gratuito e non è firmato digitalmente. / *If Windows shows "Windows protected your PC", click **More info → Run anyway**: the program is free and not digitally signed.*
-3. Al primo avvio compila le **Impostazioni**. / *Fill in the **Settings** on first start.*
+1. Download `Setup_CatorwebBroadcaster.exe` from the [releases page](../../releases/latest).
+2. Run it. If Windows shows **"Windows protected your PC"**, click **More info → Run anyway**: the program is free and not digitally signed.
+3. On first start, fill in the **Settings** (station name, music folder, streaming server).
 
-Aggiornare: installa la nuova versione sopra la vecchia, i tuoi dati restano. / *Updating: install the new version over the old one, your data is kept.*
+**Updating:** install the new version over the old one, your data is kept. The program tells you when a new version is available.
 
-## Codice sorgente / Source code
+## Source code
 
-Il programma è scritto in Python (server locale + interfaccia HTML) e usa [Liquidsoap](https://www.liquidsoap.info) come motore audio.
-*The program is written in Python (local server + HTML interface) and uses Liquidsoap as its audio engine.*
+The program is written in Python (local server + HTML interface) and uses [Liquidsoap](https://www.liquidsoap.info) as its audio engine.
 
-| Cartella / Folder | Contenuto / Contents |
+| Folder | Contents |
 |---|---|
-| `app/` | server Python, interfaccia, script Liquidsoap, traduzioni, guida, jingle di esempio |
-| `tools/` | strumenti per le traduzioni / translation tools |
-| `licenze/` | licenze dei componenti / third-party licenses |
-| `manuale/` | manuale HTML (IT/EN) |
-| `build_exe.ps1`, `installer.iss` | creazione del programma e dell'installatore / build scripts |
+| `app/` | Python server, interface, Liquidsoap script, translations, help pages, sample jingles |
+| `tools/` | translation and publishing tools |
+| `licenze/` | third-party licenses |
+| `manuale/` | HTML manual (English and Italian) |
+| `build_exe.ps1`, `installer.iss` | build scripts for the program and the installer |
 
-**Ricostruirlo / Building it**
+**Building it**
 1. Windows, Python 3.13: `py -3 -m pip install mutagen pyinstaller`
-2. Liquidsoap **2.2.4** per Windows (dal [sito ufficiale](https://github.com/savonet/liquidsoap/releases/tag/v2.2.4)): metti `liquidsoap.exe` nella cartella `liquidsoap/` (non è nel repository: pesa 128 MB). / *Put `liquidsoap.exe` in `liquidsoap/` (not in the repository: 128 MB).*
-3. [Inno Setup 6](https://jrsoftware.org/isinfo.php) per creare l'installatore.
+2. Liquidsoap **2.2.4** for Windows ([official release](https://github.com/savonet/liquidsoap/releases/tag/v2.2.4)): put `liquidsoap.exe` in the `liquidsoap/` folder (not in the repository: it is 128 MB).
+3. [Inno Setup 6](https://jrsoftware.org/isinfo.php) to build the installer.
 4. `powershell -ExecutionPolicy Bypass -File build_exe.ps1` → `build\Setup_CatorwebBroadcaster.exe`
 
-Per provarlo senza compilarlo / *To run it from source*: `py -3 app\radio_broadcaster_server.py`
+To run it from source: `py -3 app\radio_broadcaster_server.py`
 
-## Licenza / License
+## License
 
-Catorweb Broadcaster è software libero, distribuito secondo la **GNU General Public License versione 2 o successiva** ([LICENSE](LICENSE)).
-*Catorweb Broadcaster is free software under the **GNU GPL v2 or later**.*
-Componenti di terze parti e relative licenze: [`licenze/LICENZE.txt`](licenze/LICENZE.txt). I jingle di esempio in `app/jingle` sono © DJ Catoper, liberi da usare dentro l'app.
+Catorweb Broadcaster is free software, released under the **GNU General Public License version 2 or later** ([LICENSE](LICENSE)).
+Third-party components and their licenses: [`licenze/LICENZE.txt`](licenze/LICENZE.txt). The sample jingles in `app/jingle` are © DJ Catoper, free to use within the app.
