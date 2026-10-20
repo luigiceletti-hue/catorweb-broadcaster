@@ -153,5 +153,10 @@
 "Server di streaming non configurato: inserisci i dati in Impostazioni": "",
 "^file:/*": "",
 "utf-16-le": "",
-"Promemoria vuoto": "Empty reminder"
+"Promemoria vuoto": "Empty reminder",
+"Catorweb Broadcaster non riesce a partire:\\n\\n": "=",
+"Apri la radio": "=",
+"Esci da Catorweb Broadcaster": "=",
+"🔴 IN ONDA": "=",
+"🎧 In prova": "="
 }

@@ -135,7 +135,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <!-- ───────────────────────── 1 ───────────────────────── -->
 <section id="welcome"><h2><span class="n">1</span>Welcome</h2>
 <p><b>Catorweb Broadcaster</b> turns your computer into a radio studio. You pick the music, plan the schedule, talk on the microphone and send everything live on the internet, where listeners hear you with a player, an app or a website.</p>
-<p>You use it in your <b>browser</b> (Edge, Chrome, Firefox): the pages look like a website, but they only run on your PC. A <b>black window</b> opens too: that is the actual program, the "engine" (it contains Liquidsoap, the audio software used by many professional stations).</p>
+<p>You use it in your <b>browser</b> (Edge, Chrome, Firefox): the pages look like a website, but they only run on your PC. The actual program, the "engine" (it contains Liquidsoap, the audio software used by many professional stations), lives in the <b>📻 icon next to the clock</b> (bottom right; if you don't see it, click the small ˄ arrow): double-click reopens the radio, right-click → Quit closes it. Windows first puts it among the <b>hidden icons</b> (small ˄ arrow): to keep it always visible, drag it onto the taskbar, or right-click the taskbar → Taskbar settings → Other system tray icons → turn on Catorweb Broadcaster.</p>
 <h3>What you need</h3>
 <table>
 <tr><th>What</th><th>Notes</th></tr>
@@ -238,7 +238,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <h3>📌 Reminders board</h3>
 <p>The round <span class="b">📌</span> button at the bottom right opens a small board: type a note ("call Friday's guest", "renew the server on the 30th") and press <kbd>Enter</kbd>. <b>✓</b> marks it done (it gets struck through and moves to the bottom), <b>✎</b> edits it, <b>🗑</b> deletes it. The red number on the button shows how many reminders are still to do. Notes are saved in the database, even when you close the program.</p>
 <figure class="tiny" style="max-width:280px"><img src="img/en/promemoria.webp" loading="lazy" alt="Reminders board"><figcaption>The board, open.</figcaption></figure>
-<div class="warn"><b>⚠ The black window</b>Closing it closes the program <b>and the broadcast</b>. Keep it open, even minimized. If you only close the browser the radio keeps going: reopen it from the Desktop icon.</div>
+<div class="warn"><b>⚠ The icon next to the clock</b>Closing the radio window does <b>not</b> stop anything: the radio carries on, and you reopen it by double-clicking the 📻 icon next to the clock (or the Desktop icon). <b>Right-click → Quit</b> closes the program <b>and the broadcast</b>: if you are on air it asks first.</div>
 </section>
 
 <!-- ───────────────────────── 6 ───────────────────────── -->
@@ -503,7 +503,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <li>Before big cleanups in Maintenance: <b>Backup &amp; Restore → Create backup</b>.</li></ol></div>
 <p>The program uses ports <b>8767, 8001 and 1235</b> only inside the PC: nothing needs opening on the router.</p>
 <h3>Updates, licenses and source code</h3>
-<p>New versions are published on <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">GitHub</a>: download the Setup and install it over the old one. Catorweb Broadcaster is <b>free software</b> (GNU GPL version 2 or later): the source code is at <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster" target="_blank">github.com/luigiceletti-hue/catorweb-broadcaster</a>. In the program folder, under <code>licenze</code>, you'll find the components it uses (Liquidsoap, FFmpeg, mutagen, Python…) with their licenses.</p>
+<p>When a new version is out the app tells you itself, with a <span class="b">🆕 Available…</span> strip at the top and a <span class="b">⬇ Download</span> button (it can be turned off in Settings → Extra). New versions are published on <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster/releases/latest" target="_blank">GitHub</a>: download the Setup and install it over the old one. Catorweb Broadcaster is <b>free software</b> (GNU GPL version 2 or later): the source code is at <a href="https://github.com/luigiceletti-hue/catorweb-broadcaster" target="_blank">github.com/luigiceletti-hue/catorweb-broadcaster</a>. In the program folder, under <code>licenze</code>, you'll find the components it uses (Liquidsoap, FFmpeg, mutagen, Python…) with their licenses.</p>
 </section>
 
 <!-- ───────────────────────── 19 ───────────────────────── -->
@@ -621,7 +621,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <div class="card"><h4>🛡 Safety</h4><ul>
 <li>Nightly backup with the Scheduler.</li>
 <li>Before changing everything: Create backup.</li>
-<li>Don't close the black window while on air.</li>
+<li>Don't use Quit on the icon next to the clock while on air.</li>
 <li>Glance at the Log tab now and then.</li></ul></div>
 </div>
 <div class="idea"><b>💡 Shortcuts to remember</b><kbd>Space bar</kbd> = microphone (hold) · click a title = Tag Editor · click the year = edit year · drag a track onto a category = copy.</div>

@@ -149,6 +149,8 @@ a{color:#79c0ff}
     </ol>
     <div class="hint">Se l'installazione chiede <b>Git per Windows</b>, scaricalo da git-scm.com e installalo con le opzioni proposte. Ogni presentazione usa una piccola parte dei limiti di utilizzo del tuo abbonamento Claude.</div>
   </details>
+  <label class="chk"><input type="checkbox" id="extras.check_updates">Avvisami quando esce una nuova versione</label>
+  <div class="hint">All'avvio chiede a GitHub solo il numero dell'ultima versione. <span id="app-version"></span></div>
 </div>
 
 <div class="bar">
@@ -205,6 +207,7 @@ async function load() {
     else if (v !== undefined && el.id !== 'audio.mic_device') el.value = String(v);
   });
   document.getElementById('pw-hint').textContent = CFG.stream.has_password ? '(lascia vuoto per tenere quella salvata)' : '';
+  fetch('/api/edition/info').then(r => r.json()).then(i => { if (i.version) document.getElementById('app-version').textContent = 'Versione installata: ' + i.version; }).catch(() => {});
   const cs = document.getElementById('claude-status');
   cs.textContent = d.claude_found ? '✓ Claude Code trovato su questo PC' : '✗ Claude Code non trovato su questo PC: vedi "Come attivarlo" qui sotto';
   cs.style.color = d.claude_found ? '#7ee2a8' : '#d29922';

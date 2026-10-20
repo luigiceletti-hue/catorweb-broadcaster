@@ -898,6 +898,20 @@ function openSettings() {
   if (!w) return true;          // finestre bloccate: si apre qui come prima
   w.focus(); return false;
 }
+// Nuova versione su GitHub: fascia sotto la barra, "Più tardi" la nasconde fino alla versione successiva
+function updLater() {
+  const v = document.getElementById('upd-ver').textContent;
+  try { localStorage.setItem('cwbSkipVersion', v); } catch (e) {}
+  document.getElementById('update-banner').style.display = 'none';
+}
+setTimeout(() => fetch('/api/edition/update').then(r => r.json()).then(u => {
+  let skip = ''; try { skip = localStorage.getItem('cwbSkipVersion') || ''; } catch (e) {}
+  if (!u.ok || !u.newer || u.latest === skip) return;
+  document.getElementById('upd-ver').textContent = u.latest;
+  document.getElementById('upd-cur').textContent = u.current;
+  document.getElementById('upd-link').href = u.url;
+  document.getElementById('update-banner').style.display = 'block';
+}).catch(() => {}), 4000);
 // Edizione distribuibile: nome radio, stream pubblico, cartelle (da /impostazioni)
 window.EDITION = {};
 fetch('/api/edition/info').then(r => r.json()).then(d => {
@@ -909,6 +923,7 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
 </script>
 <div id="silence-banner" style="display:none">⚠️ SILENZIO RILEVATO — lo streaming è muto da più di 20 secondi</div>
 <div id="forced-cover-banner" style="display:none"></div>
+<div id="update-banner" style="display:none;background:#12261a;border-bottom:1px solid var(--green);color:var(--txt);text-align:center;font-size:13px;padding:6px 10px">🆕 È disponibile <b>Catorweb Broadcaster <span id="upd-ver"></span></b> (tu hai la <span id="upd-cur"></span>) <a id="upd-link" href="#" target="_blank" rel="noopener" style="margin-left:8px"><button class="sm">⬇ Scarica</button></a> <button class="sec sm" onclick="updLater()">Più tardi</button></div>
 <div id="disk-banner" style="display:none;background:var(--red);color:#fff;text-align:center;font-weight:600;font-size:13px;padding:6px"></div>
 
 <nav id="nav">

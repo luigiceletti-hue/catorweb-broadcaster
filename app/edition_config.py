@@ -101,6 +101,7 @@ def defaults():
         "extras": {
             "ntfy_topic": "",          # notifiche push su silenzio (facoltativo)
             "claude_intro": True,      # "Proponi presentazione" se Claude Code c'e'
+            "check_updates": True,     # chiede a GitHub il numero dell'ultima versione
         },
         "ports": {                     # diverse dalla versione originale: possono convivere
             "app": 8767, "telnet": 1235, "monitor": 8001,

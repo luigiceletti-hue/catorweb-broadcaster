@@ -154,6 +154,46 @@ def _open_app_window(url):
     import webbrowser
     webbrowser.open(url)
 
+# ── Versione e aggiornamenti ──────────────────────────────────────────────
+# La versione sta in installer.iss (#define AppVersion); build_exe.ps1 la scrive in app\version.txt.
+GITHUB_REPO = "luigiceletti-hue/catorweb-broadcaster"
+
+def _app_version():
+    for p in (APP_DIR / "version.txt", APP_DIR.parent / "installer.iss"):
+        try:
+            txt = p.read_text(encoding="utf-8-sig")
+        except Exception:
+            continue
+        m = re.search(r'AppVersion\s+"([\d.]+)"', txt) if p.suffix == ".iss" else re.match(r"\s*([\d.]+)", txt)
+        if m:
+            return m.group(1)
+    return "0"
+
+def _ver_tuple(v):
+    return tuple(int(x) for x in re.findall(r"\d+", v or "")[:3]) or (0,)
+
+_update_cache = {"at": 0.0, "data": None}
+
+def _update_info(force=False):
+    """Ultima versione pubblicata su GitHub (solo il numero), al massimo ogni 6 ore."""
+    if not force and _update_cache["data"] and time.time() - _update_cache["at"] < 6 * 3600:
+        return _update_cache["data"]
+    cur = _app_version()
+    data = {"current": cur, "latest": None, "newer": False, "url": f"https://github.com/{GITHUB_REPO}/releases/latest"}
+    try:
+        req = urllib.request.Request(f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest",
+                                     headers={"User-Agent": f"CatorwebBroadcaster/{cur}",
+                                              "Accept": "application/vnd.github+json"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            rel = json.loads(r.read().decode("utf-8"))
+        latest = (rel.get("tag_name") or "").lstrip("vV")
+        data.update(latest=latest, url=rel.get("html_url") or data["url"],
+                    newer=_ver_tuple(latest) > _ver_tuple(cur))
+    except Exception as e:
+        data["error"] = str(e)[:120]
+    _update_cache.update(at=time.time(), data=data)
+    return data
+
 # ── Quanto occupa la libreria (Dashboard → Spazio e archivio) ─────────────
 # I brani stanno in cartelle qualsiasi (l'import non copia): si sommano le dimensioni
 # dei file del database, in sottofondo e al massimo ogni 10 minuti (migliaia di brani
@@ -1498,7 +1538,7 @@ def _silence_detect_file(path, duration):
             ["ffmpeg", "-i", str(path),
              "-af", f"silencedetect=noise={SILENCE_SCAN_NOISE_DB}:d={SILENCE_SCAN_MIN_GAP}",
              "-f", "null", "-"],
-            capture_output=True, text=True, timeout=120
+            capture_output=True, text=True, timeout=120, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
         )
     except Exception:
         return None
@@ -3461,6 +3501,10 @@ class Handler(BaseHTTPRequestHandler):
         qs   = parse_qs(p.query)
         if path == "/api/edition/info":
             self._api_edition_info(); return
+        if path == "/api/edition/update":
+            if not EC.load()["extras"].get("check_updates", True):
+                self._json({"ok": True, "disabled": True, "current": _app_version(), "newer": False}); return
+            self._json({"ok": True, **_update_info()}); return
         if path in ADMIN_ONLY and not self._is_admin:
             self._json({"ok": False, "error": "Accesso negato"}, 403); return
 
@@ -5808,7 +5852,7 @@ class Handler(BaseHTTPRequestHandler):
             ff_cmd += ["-af", ",".join(af_parts)]
         ff_cmd += ["-ar", "44100", "-ac", "2", "-b:a", "192k", str(dest)]
         try:
-            r = _sp.run(ff_cmd, capture_output=True, timeout=60)
+            r = _sp.run(ff_cmd, capture_output=True, timeout=60, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
             if r.returncode != 0 or not dest.exists():
                 self._json({"ok": False, "error": "Conversione ffmpeg fallita: " + r.stderr.decode(errors="ignore")[-300:]}); return
         except Exception as e:
@@ -5905,7 +5949,7 @@ class Handler(BaseHTTPRequestHandler):
             r = subprocess.run(
                 ["ffmpeg", "-y", "-ss", str(max(0.0, trim_start)), "-i", str(src),
                  "-t", str(trim_end - trim_start), "-c:a", "copy", str(tmp_path)],
-                capture_output=True, timeout=60
+                capture_output=True, timeout=60, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
             )
             if r.returncode != 0 or not tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
@@ -6035,6 +6079,7 @@ class Handler(BaseHTTPRequestHandler):
     def _api_edition_info(self):
         cfg = EC.load()
         self._json({"ok": True,
+                    "version":    _app_version(),
                     "language":   cfg.get("language", "it"),
                     "station":    cfg["station"]["name"],
                     "listen_url": cfg["station"]["listen_url"],
@@ -6707,6 +6752,74 @@ class Handler(BaseHTTPRequestHandler):
 
 # ── Entry point ────────────────────────────────────────────────────────
 def main():
+    """Edizione senza finestra nera: i messaggi vanno nel file programma.log, gli errori gravi in un avviso."""
+    if sys.stdout is None or sys.stderr is None:          # exe senza console (PyInstaller --noconsole)
+        try:
+            LOG_DIR.mkdir(parents=True, exist_ok=True)
+            _log = open(LOG_DIR / "programma.log", "a", encoding="utf-8", buffering=1, errors="replace")
+            sys.stdout = sys.stderr = _log
+            print(f"\n===== {datetime.now():%Y-%m-%d %H:%M:%S} avvio =====")
+        except Exception:
+            pass
+    try:
+        _main()
+    except SystemExit:
+        raise
+    except BaseException as e:
+        import traceback
+        traceback.print_exc()
+        try:
+            import tray
+            tray.message_box(("Catorweb Broadcaster could not start:\n\n" if _lang() == "en"
+                              else "Catorweb Broadcaster non riesce a partire:\n\n") + f"{e}\n\n"
+                             + f"Log: {LOG_DIR / 'programma.log'}", "Catorweb Broadcaster", 0x10)
+        except Exception:
+            pass
+        os._exit(1)
+
+def _start_tray(server):
+    """Icona vicino all'orologio al posto della finestra nera: Apri / Impostazioni / Esci."""
+    if "--no-tray" in sys.argv or os.name != "nt":
+        return
+    import tray
+    en = _lang() == "en"
+    base = f"http://127.0.0.1:{PORT}"
+    station = CFG["station"]["name"] or "Catorweb Broadcaster"
+
+    def on_air():
+        return _liq_is_active() and not _prova["on"]
+
+    def quit_app():
+        if on_air() and tray.message_box(
+                ("You are ON AIR: closing Catorweb Broadcaster ends the broadcast.\n\nQuit anyway?" if en else
+                 "Sei IN ONDA: chiudendo Catorweb Broadcaster la diretta si ferma.\n\nUscire comunque?"),
+                "Catorweb Broadcaster", 0x30 | 0x4) != 6:      # 6 = Si'
+            return
+        log_activity("app", "uscita", "chiuso dall'icona vicino all'orologio")
+        threading.Thread(target=server.shutdown, daemon=True).start()
+
+    items = [("📻 " + ("Open the radio" if en else "Apri la radio"), lambda: _open_app_window(base)),
+             ("⚙ " + ("Settings" if en else "Impostazioni"), lambda: _open_app_window(base + "/impostazioni")),
+             None,
+             ("✕ " + ("Quit Catorweb Broadcaster" if en else "Esci da Catorweb Broadcaster"), quit_app)]
+    icon = APP_DIR / "icon.ico"
+    tray.start(icon if icon.exists() else None, f"Catorweb Broadcaster — {station}", items,
+               lambda: _open_app_window(base))
+    tray.balloon("Catorweb Broadcaster",
+                 ("Running here, next to the clock: double-click to open the radio, right-click → Quit to close it."
+                  if en else
+                  "È attivo qui, vicino all'orologio: doppio clic per aprire la radio, tasto destro → Esci per chiuderlo."))
+
+    def tip_loop():
+        while True:
+            state = (("🔴 ON AIR" if en else "🔴 IN ONDA") if on_air()
+                     else ("🎧 Rehearsing" if en else "🎧 In prova") if _prova["on"] and _liq_is_active()
+                     else ("Off air" if en else "Fuori onda"))
+            tray.set_tip(f"Catorweb Broadcaster — {station}\n{state}")
+            time.sleep(5)
+    threading.Thread(target=tip_loop, daemon=True, name="tray_tip").start()
+
+def _main():
     # Console di Windows con codifica vecchia: un carattere come "—" non deve chiudere l'app
     for _s in (sys.stdout, sys.stderr):
         try: _s.reconfigure(errors="replace")
@@ -6724,6 +6837,7 @@ def main():
     print(f"  DB    : {DB_PATH}")
     print(f"  Music : {MUSIC_DIR}")
     print(f"  URL   : http://127.0.0.1:{PORT}")
+    print(f"  Versione {_app_version()}")
     print("\n  Closing this window closes Catorweb Broadcaster and the broadcast." if _lang() == "en"
           else "\n  Chiudere questa finestra chiude Catorweb Broadcaster e la diretta.")
     if not INDEX_HTML.exists():
@@ -6802,6 +6916,7 @@ def main():
             time.sleep(5)
     threading.Thread(target=_monitor_server, daemon=True, name="monitor_server").start()
     threading.Thread(target=_liq_keepalive, daemon=True, name="liq_keepalive").start()
+    _start_tray(server)
 
     try:
         server.serve_forever()
@@ -6809,6 +6924,12 @@ def main():
         print("\nServer fermato.")
     finally:
         _liq_service("stop")
+        try:
+            import tray
+            tray.stop()
+        except Exception:
+            pass
+        os._exit(0)          # thread ancora vivi (scheduler, watcher): chiude tutto
 
 if __name__ == "__main__":
     main()

@@ -9,7 +9,11 @@ COS'E'
 
 PRIMO AVVIO
   1. Apri "Catorweb Broadcaster" (icona sul Desktop o menu Start).
-     Si aprono una finestra nera (il programma) e la finestra della radio.
+     Si apre la finestra della radio, e vicino all'orologio (in basso a
+     destra) compare l'icona del programma: doppio clic la riapre,
+     tasto destro -> Esci lo chiude. Se non la vedi e' tra le icone
+     nascoste (freccina accanto all'orologio): trascinala sulla barra
+     per averla sempre visibile.
   2. Compila la pagina Impostazioni:
      - La radio: nome, genere, indirizzo d'ascolto pubblico (facoltativo)
      - Server di streaming: tipo, indirizzo, porta, mount, password
@@ -24,7 +28,8 @@ PRIMO AVVIO
 ANDARE IN ONDA
   In alto "FUORI ONDA - Vai in onda" e conferma -> "IN ONDA".
   Per chiudere: "IN ONDA - Chiudi diretta".
-  Chiudere la finestra nera chiude anche la diretta.
+  Chiudere il programma (icona vicino all'orologio -> Esci) chiude anche
+  la diretta; chiudere solo la finestra della radio no.
   Finche' il programma e' aperto il PC non va in sospensione
   (chiudere il coperchio del portatile lo sospende comunque).
 

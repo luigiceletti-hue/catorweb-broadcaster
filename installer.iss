@@ -4,7 +4,7 @@
 ; %APPDATA%\CatorwebPC e NON vengono cancellati disinstallando.
 
 #define AppName "Catorweb Broadcaster"
-#define AppVersion "2.11"
+#define AppVersion "2.12"
 
 [Setup]
 AppId={{6F1C2B7E-5D2A-4C1B-9E33-CA70DE0B1C01}
@@ -22,6 +22,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\CatorwebBroadcaster.exe
+SetupIconFile=app\icon.ico
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 

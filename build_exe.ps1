@@ -20,8 +20,10 @@ py -3 (Join-Path $root "tools\i18n_py.py") extract (Join-Path $app "radio_broadc
 Write-Host "1/3  PyInstaller..."
 Remove-Item -Recurse -Force (Join-Path $root "app\__pycache__") -ErrorAction SilentlyContinue
 Push-Location $root
-py -3 -m PyInstaller --noconfirm --clean --onedir --console --name CatorwebBroadcaster `
-   --paths app --hidden-import mutagen --hidden-import edition_config `
+# --noconsole: niente finestra nera, il programma vive nell'icona vicino all'orologio (app\tray.py)
+py -3 -m PyInstaller --noconfirm --clean --onedir --noconsole --name CatorwebBroadcaster `
+   --icon (Join-Path $root "app\icon.ico") `
+   --paths app --hidden-import mutagen --hidden-import edition_config --hidden-import tray `
    --distpath build\pacchetto --workpath build\work --specpath build `
    app\radio_broadcaster_server.py
 if ($LASTEXITCODE -ne 0) { Pop-Location; throw "PyInstaller non riuscito" }
@@ -32,7 +34,10 @@ New-Item -ItemType Directory -Force (Join-Path $dist "app") | Out-Null
 Copy-Item (Join-Path $root "app\catorweb_radio.html"), (Join-Path $root "app\impostazioni.html"), `
           (Join-Path $root "app\catorweb_radio.en.html"), (Join-Path $root "app\impostazioni.en.html"), `
           (Join-Path $root "app\help.html"), (Join-Path $root "app\help.en.html"), `
-          (Join-Path $root "app\cwpc_edizione.liq") (Join-Path $dist "app")
+          (Join-Path $root "app\cwpc_edizione.liq"), (Join-Path $root "app\icon.ico") (Join-Path $dist "app")
+# Versione (da installer.iss): l'app la mostra e la confronta con l'ultima su GitHub
+$ver = [regex]::Match((Get-Content (Join-Path $root "installer.iss") -Raw), 'AppVersion "([\d.]+)"').Groups[1].Value
+[IO.File]::WriteAllText((Join-Path $dist "app\version.txt"), $ver)
 New-Item -ItemType Directory -Force (Join-Path $dist "app\i18n") | Out-Null
 Copy-Item (Join-Path $root "app\i18n\server_en.json") (Join-Path $dist "app\i18n")
 # Jingle di esempio: al primo avvio finiscono nella categoria "Jingle" (vedi _seed_demo_jingles)

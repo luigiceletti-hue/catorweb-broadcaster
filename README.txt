@@ -9,7 +9,10 @@ WHAT IT IS
 
 FIRST START
   1. Open "Catorweb Broadcaster" (Desktop icon or Start menu).
-     A black window (the program) and the radio window open.
+     The radio window opens, and the program's icon appears next to the
+     clock (bottom right): double-click reopens it, right-click -> Quit
+     closes it. If you don't see it, it's among the hidden icons (small
+     arrow next to the clock): drag it onto the taskbar to keep it visible.
   2. Fill in the Settings page:
      - Language: English or Italiano
      - The radio: name, genre, public listen address (optional)
@@ -25,7 +28,8 @@ FIRST START
 GOING ON AIR
   At the top press "OFF AIR - Go on air" and confirm -> "ON AIR".
   To stop: "ON AIR - End broadcast".
-  Closing the black window also ends the broadcast.
+  Quitting the program (icon next to the clock -> Quit) also ends the
+  broadcast; closing just the radio window does not.
   While the program is open the PC does not go to sleep
   (closing a laptop lid still puts it to sleep).
 

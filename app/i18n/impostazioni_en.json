@@ -109,5 +109,8 @@
 ", scaricalo da git-scm.com e installalo con le opzioni proposte. Ogni presentazione usa una piccola parte dei limiti di utilizzo del tuo abbonamento Claude.": ", download it from git-scm.com and install it with the suggested options. Each intro uses a small part of your Claude plan's usage limits.",
 "✓ Claude Code trovato su questo PC": "✓ Claude Code found on this PC",
 "✗ Claude Code non trovato su questo PC: vedi \"Come attivarlo\" qui sotto": "✗ Claude Code not found on this PC: see \"How to turn it on\" below",
-"raw:. Qui sopra deve comparire \"✓ Claude Code trovato\"; in Regia, sotto il prossimo brano, compare ": ". Above it should say \"✓ Claude Code found\"; in the Studio, below the next track, you get "
+"raw:. Qui sopra deve comparire \"✓ Claude Code trovato\"; in Regia, sotto il prossimo brano, compare ": ". Above it should say \"✓ Claude Code found\"; in the Studio, below the next track, you get ",
+"Avvisami quando esce una nuova versione": "Tell me when a new version is out",
+"All'avvio chiede a GitHub solo il numero dell'ultima versione.": "At start-up it only asks GitHub for the latest version number.",
+"Versione installata:": "Installed version:"
 }
