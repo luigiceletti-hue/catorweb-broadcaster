@@ -4,6 +4,10 @@
 
 🇮🇹 *[Leggi in italiano](README.it.md)*
 
+**Who is it for:** hobby and community internet radio stations, DJs and podcasters. Run a 24/7 station from your PC, or host live shows with jingles and a microphone.
+
+![The Studio: big countdown, next track, artist card, running order and jingle buttons](manuale/img/en/regia.webp)
+
 ## ⬇ Download
 
 👉 **[Latest release](../../releases/latest)** → `Setup_CatorwebBroadcaster.exe`
@@ -19,6 +23,16 @@ Windows 10 / 11 · free and open source · no admin rights needed
 - **🎧 Rehearsal mode**: the station plays only on your PC, to practise or record a podcast
 - **⏺ Recording** of the live show (voice only too, for editing)
 - Interface in **English and Italian** · full manual in [`manuale/`](manuale/) (`manual.html` in English)
+
+| Dashboard | Library |
+|---|---|
+| ![Dashboard: on air, next tracks, stream status, recording space](manuale/img/en/dashboard.webp) | ![Library with categories](manuale/img/en/libreria.webp) |
+
+## What you need
+
+- A PC with **Windows 10 or 11** and your music files (MP3, FLAC, M4A, OGG, WAV).
+- To **go on air** you need a **streaming server** account (Icecast or Shoutcast). Many providers offer one for a few euros a month, and you enter its address and password in the Settings.
+- **Without a server** you can still use everything else: rehearse your shows and record podcasts on your PC.
 
 ## Installing
 

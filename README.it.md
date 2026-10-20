@@ -4,6 +4,10 @@
 
 🇬🇧 *[Read in English](README.md)*
 
+**Per chi è:** web radio amatoriali e di comunità, DJ e podcaster. Fai andare una radio 24 ore su 24 dal PC, oppure conduci dirette con jingle e microfono.
+
+![La Regia: conto alla rovescia, prossimo brano, scheda dell'artista, scaletta e pulsanti jingle](manuale/img/it/regia.webp)
+
 ## ⬇ Scarica
 
 👉 **[Ultima versione](../../releases/latest)** → `Setup_CatorwebBroadcaster.exe`
@@ -19,6 +23,16 @@ Windows 10 / 11 · gratuito e open source · niente permessi di amministratore
 - **🎧 Prova**: la radio suona solo sul PC, per provare o registrare un podcast
 - **⏺ Registrazione** della diretta (anche la sola voce, per il montaggio)
 - Interfaccia in **italiano e inglese** · manuale completo in [`manuale/`](manuale/)
+
+| Dashboard | Libreria |
+|---|---|
+| ![Dashboard: in onda, prossimi brani, stato dello streaming, spazio per le registrazioni](manuale/img/it/dashboard.webp) | ![Libreria con le categorie](manuale/img/it/libreria.webp) |
+
+## Cosa serve
+
+- Un PC con **Windows 10 o 11** e i tuoi file musicali (MP3, FLAC, M4A, OGG, WAV).
+- Per **andare in onda** serve un account su un **server di streaming** (Icecast o Shoutcast). Molti fornitori lo offrono per pochi euro al mese: indirizzo e password si mettono nelle Impostazioni.
+- **Senza server** puoi usare tutto il resto: provare le trasmissioni e registrare podcast sul PC.
 
 ## Installare
 
