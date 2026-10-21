@@ -146,13 +146,47 @@ def _open_app_window(url):
     exe = next((c for c in candidates if c.exists()), None)
     if exe:
         try:
-            subprocess.Popen([str(exe), f"--app={url}", "--window-size=1600,960"],
+            before = set(_app_windows())
+            subprocess.Popen([str(exe), f"--app={url}", "--start-maximized"],
                              creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+            threading.Thread(target=_maximize_new_window, args=(before,), daemon=True).start()
             return
         except Exception:
             pass
     import webbrowser
     webbrowser.open(url)
+
+def _app_windows():
+    """Finestre visibili di Windows col titolo dell'app (Edge/Chrome in modalita' --app)."""
+    if os.name != "nt":
+        return []
+    import ctypes
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    found = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def cb(hwnd, _):
+        if u32.IsWindowVisible(hwnd):
+            buf = ctypes.create_unicode_buffer(256)
+            u32.GetWindowTextW(hwnd, buf, 256)
+            if "Catorweb Broadcaster" in buf.value:
+                found.append(hwnd)
+        return True
+    u32.EnumWindows(cb, 0)
+    return found
+
+def _maximize_new_window(before):
+    """A tutto schermo: con Edge gia' aperto --start-maximized non vale (ricorda l'ultima
+    dimensione), quindi si cerca la finestra nuova e la si ingrandisce."""
+    import ctypes
+    for _ in range(40):                       # fino a 20 s: Edge puo' metterci un po'
+        time.sleep(0.5)
+        new = [h for h in _app_windows() if h not in before]
+        if new:
+            for h in new:
+                ctypes.windll.user32.ShowWindow(h, 3)        # SW_MAXIMIZE
+            return
 
 # ── Versione e aggiornamenti ──────────────────────────────────────────────
 # La versione sta in installer.iss (#define AppVersion); build_exe.ps1 la scrive in app\version.txt.
@@ -332,11 +366,17 @@ def _liq_render(cfg):
         extra = (f'  user="{_liq_str(st.get("user") or "source")}", mount="{_liq_str(st.get("mount") or "/")}",\n'
                  f'  description="{_liq_str(stn["description"] or "")}", url="{_liq_str(stn["website"] or "")}",\n')
         output = "output.icecast(\n" + extra + common
+    fade = max(0.0, min(10.0, float(cfg["audio"].get("crossfade", 3) or 0)))
+    if fade > 0:
+        crossfade = f"radio = crossfade(duration={fade:.1f}, fade_in={fade:.1f}, fade_out={fade:.1f}, end_gate)"
+    else:
+        crossfade = "radio = end_gate"
     values = {
         "PORT":        str(int(st["port"])),
         "PASSWORD":    _liq_str(st["password"]),
         "REC_PREFIX":  _liq_str(_rec_prefix()),
         "MIC_INPUT":   mic_input,
+        "CROSSFADE":   crossfade,
         "OUTPUT":      output,
         "FX_TONE":     f"{max(-2.0, min(2.0, float(cfg['audio'].get('voice_tone', 0) or 0))):.2f}",
         "FX_BASS":     f"{max(0.0, min(6.0, float(cfg['audio'].get('voice_bass', 3.5) or 0))):.2f}",
@@ -3501,6 +3541,11 @@ class Handler(BaseHTTPRequestHandler):
         qs   = parse_qs(p.query)
         if path == "/api/edition/info":
             self._api_edition_info(); return
+        if path == "/api/edition/closing":
+            # le pagine aperte restano in attesa qui: quando si esce dall'icona
+            # rispondono "closing" e si chiudono da sole
+            _closing.wait(25)
+            self._json({"ok": True, "closing": _closing.is_set()}); return
         if path == "/api/edition/update":
             if not EC.load()["extras"].get("check_updates", True):
                 self._json({"ok": True, "disabled": True, "current": _app_version(), "newer": False}); return
@@ -6777,6 +6822,8 @@ def main():
             pass
         os._exit(1)
 
+_closing = threading.Event()          # uscita dall'icona: le pagine aperte si chiudono
+
 def _start_tray(server):
     """Icona vicino all'orologio al posto della finestra nera: Apri / Impostazioni / Esci."""
     if "--no-tray" in sys.argv or os.name != "nt":
@@ -6796,7 +6843,12 @@ def _start_tray(server):
                 "Catorweb Broadcaster", 0x30 | 0x4) != 6:      # 6 = Si'
             return
         log_activity("app", "uscita", "chiuso dall'icona vicino all'orologio")
-        threading.Thread(target=server.shutdown, daemon=True).start()
+        _closing.set()                  # avvisa le finestre aperte, poi si ferma
+
+        def stop():
+            time.sleep(1.5)
+            server.shutdown()
+        threading.Thread(target=stop, daemon=True).start()
 
     items = [("📻 " + ("Open the radio" if en else "Apri la radio"), lambda: _open_app_window(base)),
              ("⚙ " + ("Settings" if en else "Impostazioni"), lambda: _open_app_window(base + "/impostazioni")),

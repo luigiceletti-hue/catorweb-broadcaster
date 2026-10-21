@@ -6342,5 +6342,18 @@ async function noteDelete(id) {
 noteLoad();
 
 </script>
-</body>
+<script>
+// Uscita dall'icona vicino all'orologio: la finestra si chiude da sola;
+// se Edge non lo permette resta un messaggio chiaro al posto della pagina ferma
+(function waitClosing(){
+  fetch('/api/edition/closing', {cache:'no-store'}).then(r => r.json()).then(d => {
+    if (!d.closing) return waitClosing();
+    window.close();
+    setTimeout(() => {
+      document.body.innerHTML = '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#111827;color:#f3f4f6;font:17px/1.6 Segoe UI,sans-serif;text-align:center;padding:24px"><div><div style="font-size:46px">📻</div><b style="font-size:21px">' + 'Catorweb Broadcaster is closed' + '</b><br>' + 'You can close this window.' + '<br><span style="opacity:.7;font-size:14px">' + 'To open it again, use the icon on the desktop or in the Start menu.' + '</span></div></div>';
+      document.title = 'Catorweb Broadcaster';
+    }, 400);
+  }).catch(() => setTimeout(waitClosing, 3000));
+})();
+</script></body>
 </html>

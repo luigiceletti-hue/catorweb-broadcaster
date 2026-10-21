@@ -6,6 +6,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+/* barra di scorrimento sottile e scura, come nella radio */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#7d8590}
 .wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
 h1{font-size:22px;color:#79c0ff;margin-bottom:4px}
 .sub{color:#7d8590;margin-bottom:22px}
@@ -105,6 +110,23 @@ a{color:#79c0ff}
   <div class="path"><input id="paths.recordings"><button class="sec small" onclick="pick('paths.recordings')">Browse…</button></div>
   <label>Folder for playlist MP3 exports</label>
   <div class="path"><input id="paths.export"><button class="sec small" onclick="pick('paths.export')">Browse…</button></div>
+</div>
+
+<div class="card">
+  <h2>🎵 Music</h2>
+  <div class="hint">How much the end of a track overlaps the start of the next one. Jingles always start and end without a fade.</div>
+  <div class="row">
+    <div><label>Crossfade between tracks</label>
+      <select id="audio.crossfade">
+        <option value="0">0 — hard cut</option><option value="1">1 second</option>
+        <option value="2">2 seconds</option><option value="3">3 seconds (recommended)</option>
+        <option value="4">4 seconds</option><option value="5">5 seconds</option>
+        <option value="6">6 seconds</option><option value="7">7 seconds</option>
+        <option value="8">8 seconds</option><option value="9">9 seconds</option>
+        <option value="10">10 seconds</option>
+      </select></div>
+  </div>
+  <div class="hint">Vale dalla prossima volta che vai in onda; in 🎧 Prova si sente subito dopo il salvataggio.</div>
 </div>
 
 <div class="card">
@@ -275,4 +297,17 @@ async function save() {
 
 load();
 </script>
-</body></html>
+<script>
+// Uscita dall'icona vicino all'orologio: la finestra si chiude da sola;
+// se Edge non lo permette resta un messaggio chiaro al posto della pagina ferma
+(function waitClosing(){
+  fetch('/api/edition/closing', {cache:'no-store'}).then(r => r.json()).then(d => {
+    if (!d.closing) return waitClosing();
+    window.close();
+    setTimeout(() => {
+      document.body.innerHTML = '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#111827;color:#f3f4f6;font:17px/1.6 Segoe UI,sans-serif;text-align:center;padding:24px"><div><div style="font-size:46px">📻</div><b style="font-size:21px">' + 'Catorweb Broadcaster is closed' + '</b><br>' + 'You can close this window.' + '<br><span style="opacity:.7;font-size:14px">' + 'To open it again, use the icon on the desktop or in the Start menu.' + '</span></div></div>';
+      document.title = 'Catorweb Broadcaster';
+    }, 400);
+  }).catch(() => setTimeout(waitClosing, 3000));
+})();
+</script></body></html>

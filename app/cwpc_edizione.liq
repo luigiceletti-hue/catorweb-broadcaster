@@ -124,7 +124,8 @@ main_src = fallback(id="radio_main", track_sensitive=true, [q_gate, cw_gate])
 # il cancello "fine diretta" sta DOPO la scelta dei brani: sui cancelli di coda/clockwheel non bastava,
 # il clockwheel aveva gia' prenotato il brano successivo (prova 17/10: partiva lo stesso)
 end_gate = switch(id="end_gate", track_sensitive=true, [({not end_armed()}, main_src)])
-radio = crossfade(duration=3., end_gate)
+# Dissolvenza tra i brani: secondi da Impostazioni (0 = stacco secco, niente crossfade)
+@@CROSSFADE@@
 radio = rms(id="music_level", duration=0.2, radio)
 music_level = radio
 # quando la musica si ferma l'rms resta all'ultimo valore: conta anche is_ready

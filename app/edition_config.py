@@ -97,6 +97,7 @@ def defaults():
             "mic_device": "",          # nome DirectShow, "" = nessun microfono
             "voice_tone": 0.0,         # semitoni, -2..+2 (0 = voce naturale)
             "voice_bass": 3.5,         # dB di "voce piena" sotto 160 Hz, 0..6
+            "crossfade": 3.0,          # secondi di dissolvenza tra i brani, 0..10 (0 = stacco secco)
         },
         "extras": {
             "ntfy_topic": "",          # notifiche push su silenzio (facoltativo)
@@ -182,7 +183,8 @@ def validate(cfg):
                        ("recordings", "Cartella registrazioni"), ("export", "Cartella export")):
         if not str(cfg["paths"].get(key, "")).strip():
             err.append(f"{label} obbligatoria")
-    for key, lo, hi, label in (("voice_tone", -2, 2, "Tono della voce"), ("voice_bass", 0, 6, "Voce piena")):
+    for key, lo, hi, label in (("voice_tone", -2, 2, "Tono della voce"), ("voice_bass", 0, 6, "Voce piena"),
+                               ("crossfade", 0, 10, "Dissolvenza tra i brani")):
         try:
             v = float(cfg["audio"].get(key, 0))
             if not lo <= v <= hi: raise ValueError
