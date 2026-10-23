@@ -188,6 +188,33 @@ def _maximize_new_window(before):
                 ctypes.windll.user32.ShowWindow(h, 3)        # SW_MAXIMIZE
             return
 
+def _folder_to_front(name):
+    """Cartella aperta con 📂 (export, registrazioni): con la radio a tutto schermo Esplora
+    file restava dietro, o non tornava davanti se era gia' aperta. La si cerca per titolo
+    e la si porta in primo piano (Alt simulato: sblocca il primo piano, come per Sfoglia)."""
+    import ctypes
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    for _ in range(20):                       # fino a 5 s
+        time.sleep(0.25)
+        found = []
+        @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        def cb(h, _):
+            cls = ctypes.create_unicode_buffer(64); u32.GetClassNameW(h, cls, 64)
+            if cls.value == "CabinetWClass":
+                t = ctypes.create_unicode_buffer(260); u32.GetWindowTextW(h, t, 260)
+                if t.value == name or t.value.startswith(name + " - "):
+                    found.append(h)
+            return True
+        u32.EnumWindows(cb, 0)
+        if found:
+            h = found[0]
+            if u32.IsIconic(h):
+                u32.ShowWindow(h, 9)                          # SW_RESTORE
+            u32.keybd_event(0x12, 0, 0, 0); u32.keybd_event(0x12, 0, 2, 0)
+            u32.SetForegroundWindow(h)
+            return
+
 # ── Versione e aggiornamenti ──────────────────────────────────────────────
 # La versione sta in installer.iss (#define AppVersion); build_exe.ps1 la scrive in app\version.txt.
 GITHUB_REPO = "luigiceletti-hue/catorweb-broadcaster"
@@ -6082,6 +6109,7 @@ class Handler(BaseHTTPRequestHandler):
                 os.startfile(folder)
             except Exception as e:
                 self._json({"ok": False, "error": str(e)}); return
+            threading.Thread(target=_folder_to_front, args=(Path(folder).name,), daemon=True).start()
         self._json({"ok": True})
 
     def _api_tools_parse(self, data):
