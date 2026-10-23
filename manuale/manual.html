@@ -129,7 +129,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
   <h1>📻 Catorweb Broadcaster</h1>
   <p><b>Complete manual</b>: how to use it, how to start a web radio and how to record a podcast.</p>
   <p>A full radio studio on your Windows PC: music library, clockwheels, programming schedule, microphone, jingles, recording and live broadcasting to your streaming server.</p>
-  <div class="meta">Program version 2.13 · The pictures show a demo station ("Radio Demo").</div>
+  <div class="meta">Program version 3.0 · The pictures show a demo station ("Radio Demo").</div>
 </div>
 
 <!-- ───────────────────────── 1 ───────────────────────── -->
@@ -198,6 +198,10 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <p>If you change a folder the program restarts by itself (not during a broadcast).</p>
 <h3>Music</h3>
 <p><b>Crossfade between tracks</b>: how many seconds the end of a track overlaps the start of the next one, from 0 (hard cut) to 10; 3 is recommended. Jingles always start and end without a fade. It applies the next time you go on air; in 🎧 Rehearse you hear it right after saving.</p>
+<h3>Studio</h3>
+<p><b>Jingle buttons in the Studio</b>: 8, 12, 16, 24 or 32 buttons, always 4 per row. If you reduce them, the jingles assigned to the extra buttons stay saved and come back when you raise the number again. It can also be changed in the Studio, in the Jingle box.</p>
+<h3>Scheduler</h3>
+<p><b>Time zone for events</b>: the clock the Scheduler uses to start events. <b>PC time</b> is usually right; choose another zone (UTC, London, New York…) if you broadcast for listeners in another country or your schedule is written in UTC. Daylight saving time is followed automatically and the change applies at once.</p>
 <h3>Microphone</h3>
 <p>Pick the microphone from the list (<span class="b">↻</span> refreshes it if you just plugged it in). <b>Voice pitch</b> (−2…+2 semitones) and <b>Voice body</b> (bass, +3.5 dB recommended) adjust the voice processor, which compresses, removes sibilance and limits peaks.</p>
 <h3>Extras</h3>
@@ -212,7 +216,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <ol class="steps">
 <li><b>Settings</b>: station name, folders, the microphone if you have one. Save.</li>
 <li><b>Library → ⬆ Import → 📁 Folder</b>: <span class="b">📂 Browse…</span>, pick a music folder, leave "create automatically" and press <span class="b">⬇ Import</span>. Repeat for 2-3 folders of different genres: each becomes a category.</li>
-<li><b>Clockwheel → + New</b>: add slots, for example <i>Jingle, Rock, Blues, Rock, Jingle, 70s</i>. Save and press <span class="b">⚡ Activate</span>.</li>
+<li><b>Clockwheel → + New</b>: add slots, for example <i>Jingle, Rock, Blues, Rock, Jingle, 70s</i>. and save. The first clockwheel you create becomes the one the radio uses right away.</li>
 <li>At the top press <span class="b">🎧 Rehearse</span>, then <span class="b">🎧 Listen → Everything</span> to listen. The radio plays by itself!</li>
 <li>Open <b>🎛 Studio</b>, turn on the microphone with the <kbd>space bar</kbd> and do your first link.</li>
 <li>When you have the server details: Settings → server → <span class="b">🔌 Test connection</span>, then <span class="b">⚪ OFF AIR — Go on air</span>.</li>
@@ -251,7 +255,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <li><b>Search</b> and <b>sort</b> (artist, title, genre, duration, year, date added, random, manual order by dragging).</li>
 <li>Select tracks with the checkboxes (or <span class="b">✓ All</span>), then:
  <span class="b">➕ To queue</span> adds them to the end of the queue, <span class="b">↺ Replace queue</span> clears the queue and puts the selected ones in it, <span class="b">↗ Move</span> copies or moves them to another category, <span class="b">↩ Remove</span> takes them out of the category (they stay in the library), <span class="b">🗑 Delete from database</span> removes them from the library, every category, the queue and the jingle buttons (the files stay on disk), <span class="b">💾 Save M3U</span> saves a playlist.</li>
-<li><span class="b">+ Cat</span> creates a category. Hovering a category shows <span class="b">+sub</span> subcategory, <span class="b">✎</span> rename, <span class="b">✕</span> delete (you can delete only the category, or also all its tracks from the database, even if they are in other categories; the files stay on disk). Drag tracks onto a category to copy them there.</li>
+<li><span class="b">+ Category</span> creates a category. Hovering a category shows <span class="b">+sub</span> subcategory, <span class="b">✎</span> rename, <span class="b">✕</span> delete (you can delete only the category, or also all its tracks from the database, even if they are in other categories; the files stay on disk). Drag tracks onto a category to copy them there.</li>
 <li><span class="b">📊 Stats</span>: decades, genres and years of the category.</li>
 </ul>
 <figure class="tiny"><img src="img/en/eliminacategoria.webp" loading="lazy" alt="Deleting a category"><figcaption>✕ on a category: the three choices.</figcaption></figure>
@@ -333,6 +337,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><td><b>Stop mode</b></td><td>For generated playlists: Loop (finish the round), Exact (exact length), Over (first overrun).</td></tr>
 </table>
 <h3>The buttons</h3>
+<p>The <b>first clockwheel</b> you save becomes the default by itself: the radio uses it right away.</p>
 <p><span class="b">💾 Save</span> · <span class="b">⚡ Activate</span> forces it now (it overrides the scheduler; a banner at the top reminds you, <span class="b">✖ Release</span> removes it) · <span class="b">👁 Preview</span> shows what would play, even before saving · <span class="b">📀 Generate playlist</span> builds a playlist of the chosen length (minutes).</p>
 <div class="tip"><b>✅ A starter clockwheel</b>
 <ol>
@@ -350,12 +355,21 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <!-- ───────────────────────── 11 ───────────────────────── -->
 <section id="scheduler"><h2><span class="n">11</span>Scheduler and programming</h2>
 <figure><img src="img/en/scheduler.webp" loading="lazy" alt="Scheduler event"><figcaption>An event: from 06:00 for 840 minutes, every day, clockwheel "Mix generale".</figcaption></figure>
-<p>The <b>Scheduler</b> runs <b>timed events</b> (PC time). Each event has a name, start time, duration, repeat (every day, chosen days, once) and a <b>type</b>:</p>
+<p>The <b>Scheduler</b> runs <b>timed events</b> (PC time, or the time zone chosen in Settings → Scheduler). Each event has a name, start time, duration, repeat (every day, chosen days, once) and a <b>type</b>:</p>
 <ul>
 <li><b>Clockwheel</b>: during that slot the radio uses that clockwheel. This is how you build your <b>programming schedule</b>.</li>
 <li><b>Playlist</b>: adds to or replaces the queue with a playlist.</li>
-<li><b>Action</b>: skip the track, clear the queue, queue a category or a track, move tracks between categories, change the default clockwheel, <b>back up the database</b>…</li>
+<li><b>Action</b>: one or more actions, run in order:
+<ul>
+<li>skip the track, clear the queue, queue a category or a track (search the library by title or artist, or 📁 to pick it from the PC), move tracks between categories, empty a category, change the default clockwheel;</li>
+<li>turn the radio on only on the PC (🎧 Rehearse), <b>go on air</b>, <b>go off air</b> (the music keeps playing on the PC), turn off or restart the radio;</li>
+<li><b>start and stop recording</b>: to record a show by itself, for example every Saturday from 9 to 11 pm;</li>
+<li><b>wait a few seconds</b> before the next action;</li>
+<li><b>back up the database</b> and <b>delete recordings and backups older than N days</b>.</li>
+</ul></li>
 </ul>
+<p>Above the list of events a drop-down shows the time zone in use: changing it applies <b>only until the app is closed</b>, then the one in Settings comes back.</p>
+<div class="tip"><b>✅ The backup is already there</b>On the first start the Scheduler adds "Database backup" (every day at 04:00) and "Clean up old backups" (Sundays, keeps the last 30 days). If the PC is off at night, the backup is made at start-up. You can change the times or remove them.</div>
 <p><span class="b">▶ Run now</span> tests an event immediately. The 🗓 button shows the week's <b>timeline</b>:</p>
 <figure><img src="img/en/timeline.webp" loading="lazy" alt="Weekly timeline"><figcaption>The timeline: the week's blocks, the red "now" line and the ON AIR block.</figcaption></figure>
 <div class="tip"><b>✅ A simple schedule</b>
@@ -363,7 +377,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <tr><td>06:00–20:00</td><td>"Day" clockwheel (varied music)</td></tr>
 <tr><td>20:00–24:00</td><td>"Evening" clockwheel (a narrower genre)</td></tr>
 <tr><td>Sat and Sun 10:00</td><td>Special show (playlist or dedicated clockwheel)</td></tr>
-<tr><td>04:00 every day</td><td>"Back up the database" action</td></tr>
+<tr><td>Sat 21:00 and 23:00</td><td>"Start recording" and "Stop recording" actions to archive the show</td></tr>
 </table></div>
 </section>
 
@@ -411,11 +425,13 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <h3>✍ Suggest intro (optional)</h3>
 <p>If <b>Claude Code</b> is installed on the PC and signed in to your account, Claude writes 2-3 sentences to read on the mic using only the facts on the card. Choose Opus (writes better) or Sonnet (uses less). The text appears in the <b>🎙 TO READ</b> box.</p>
 <h3>Jingle buttons</h3>
-<p>8 buttons: assign them from search with 🎵, one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom):</p>
+<p>From 8 to 32 buttons (drop-down in the Jingle box or Settings → Studio): assign them from search with 🎵, one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom):</p>
 <table>
 <tr><td><b>≋ OVER</b></td><td>The jingle plays over the music, which ducks. For short effects, applause, laughs.</td></tr>
 <tr><td><b>⏏ BREAK</b></td><td>The music fades in ~1 s and the jingle plays alone; then in Automatic the next track starts, in Manual silence until START.</td></tr>
 </table>
+<p><b>⌨ From the keyboard</b>: with the Studio open, the letter in the corner of each button plays it. The keys follow the grid: <kbd>1 2 3 4</kbd>, <kbd>Q W E R</kbd>, <kbd>A S D F</kbd>, <kbd>Z X C V</kbd> for the first 16, <kbd>5 6 7 8</kbd>, <kbd>T Y U I</kbd>, <kbd>G H J K</kbd>, <kbd>B N M ,</kbd> for the others. They don't fire while you type in a box; the <span class="b">⌨</span> button turns them off and on. The <kbd>space bar</kbd> stays for the microphone.</p>
+<p>On a wide screen the jingles sit in the right-hand column of the Studio and stay visible while you scroll.</p>
 </section>
 
 <!-- ───────────────────────── 14 ───────────────────────── -->
@@ -468,6 +484,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <tr><td><b>🎧 Music only</b> + output</td><td>Music only, without your voice, ~1 s delay.</td><td>In your headphones while presenting. Choose the output of the headphones plugged into the PC.</td></tr>
 <tr><td><b>📡 Like the listeners</b></td><td>The public stream, with the server's delay (5-30 s).</td><td>Checking what listeners hear. Works if Settings has a public listen address.</td></tr>
 </table>
+<p>If listening stops (the radio restarts, the network has a hiccup) it starts again by itself within a few seconds.</p>
 </section>
 
 <!-- ───────────────────────── 17 ───────────────────────── -->
@@ -500,7 +517,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 </table>
 <p>To open <code>%APPDATA%</code> paste it into the File Explorer address bar.</p>
 <div class="tip"><b>✅ Backups in 3 moves</b>
-<ol><li>In the Scheduler, a "Back up the database" action every night.</li>
+<ol><li>The nightly backup is already there: on the first start the Scheduler adds "Database backup" (every day at 04:00) and "Clean up old backups" (Sundays, keeps the last 30 days). If the PC is off at night, the backup is made at start-up. You can change the times or remove them.</li>
 <li>Every now and then copy the Database folder and <code>%APPDATA%\CatorwebPC</code> to an external drive or the cloud.</li>
 <li>Before big cleanups in Maintenance: <b>Backup &amp; Restore → Create backup</b>.</li></ol></div>
 <p>The program uses ports <b>8767, 8001 and 1235</b> only inside the PC: nothing needs opening on the router.</p>
@@ -520,6 +537,8 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <p>You're listening on 🎧 Listen → Everything while talking: use Music only.</p>
 <h4>"SILENCE DETECTED"</h4>
 <p>No audio has gone on air for more than 20 seconds. The engine restarts by itself; if it persists, end and restart the broadcast. In Manual, silence between tracks is normal.</p>
+<h4>The track title doesn't show in players</h4>
+<p>In the Dashboard the <b>Title to server</b> row tells you whether the server accepted the title (<b>✓ Sent</b>) or refused it (<b>✗ Rejected</b>, with the reason). If it was sent but doesn't show, it depends on how your provider displays it: some panels with AutoDJ only show their own titles.</p>
 <h4>A track won't play / "File not found"</h4>
 <p>The file was moved or renamed: Maintenance → Files missing from disk.</p>
 <h4>"Catorweb Broadcaster is already open"</h4>
@@ -648,7 +667,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <tr><td><b>Sweeper</b></td><td>Short effect with voice between two tracks.</td></tr>
 <tr><td><b>Voice track</b></td><td>A spoken link recorded in advance and placed in the running order.</td></tr>
 </table>
-<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manual for version 2.13. The quick guide is also inside the app: <span class="b">❓ Help</span>.</p>
+<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manual for version 3.0. The quick guide is also inside the app: <span class="b">❓ Help</span>.</p>
 </section>
 </main>
 </div>

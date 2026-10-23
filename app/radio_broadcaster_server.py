@@ -722,10 +722,20 @@ _liq_queue_lock = threading.Lock()
 # Scheduler auto-esecuzione: tiene traccia dell'ultimo run per evento
 _sched_last_run = {}
 
+# Fuso cambiato dalla pagina Scheduler: vale finche' l'app resta aperta e non si
+# salva (quello fisso e' in Impostazioni → Scheduler). None = usa le Impostazioni.
+_sched_tz_temp = {"tz": None}
+
+def _sched_tz_name():
+    return _sched_tz_temp["tz"] or CFG.get("scheduler", {}).get("timezone") or "local"
+
 def _sched_now():
-    """Orologio dello Scheduler. Edizione: ora locale del PC (la versione originale
-    usa UTC come il suo VPS)."""
-    return datetime.now()
+    """Orologio dello Scheduler. Edizione: ora del PC, oppure il fuso scelto in
+    Impostazioni → Scheduler o, solo per questa sessione, dalla pagina Scheduler
+    (la versione originale usa sempre UTC come il suo VPS).
+    Senza tzinfo, come prima: gli orari degli eventi sono "HH:MM" senza fuso."""
+    tz = EC.scheduler_tz(_sched_tz_name())
+    return datetime.now(tz).replace(tzinfo=None) if tz else datetime.now()
 
 # ── Clockwheel dinamico ────────────────────────────────────────────────
 _cw_state: dict = {"cw_name": "", "slot_idx": 0, "history": []}
@@ -2353,6 +2363,51 @@ def _server_error_text():
         why = "collegamento non riuscito"
     return f"{why} ({e[:120]})"
 
+def _title_status():
+    """Ultimo titolo mandato al server di streaming e se l'ha accettato (Dashboard).
+    Il .liq scrive "<secondi> <titolo>" in title_sent.txt; Liquidsoap non scrive niente
+    quando il server accetta, ma logga "[stream_out:2] Metadata update may have failed
+    with error: ..." quando rifiuta (22/10: Torontocast Shoutcast "400, Bad Request").
+    {} se non c'e' niente da mostrare; state: wait (appena mandato) | ok | err."""
+    try:
+        raw = (DATA_DIR / "title_sent.txt").read_text(encoding="utf-8", errors="replace").strip()
+        sent_s, _, title = raw.partition(" ")
+        sent = float(sent_s)
+    except Exception:
+        return {}
+    err = ""
+    try:
+        with open(LOG_DIR / "liquidsoap.log", "rb") as f:
+            f.seek(0, 2)
+            f.seek(max(0, f.tell() - 65536))
+            tail = f.read().decode("utf-8", errors="replace").splitlines()
+        for line in tail:
+            if "[stream_out:" not in line or "Metadata update may have failed" not in line:
+                continue
+            try:
+                t = time.mktime(time.strptime(line[:19], "%Y/%m/%d %H:%M:%S"))
+            except ValueError:
+                continue
+            if t >= int(sent) - 1:          # rifiuto arrivato dopo questo invio
+                err = line.split("with error:", 1)[-1].strip()
+    except Exception:
+        pass
+    out = {"title": title, "age": max(0, int(time.time() - sent))}
+    if err:
+        low = err.lower()
+        if "401" in low or "403" in low:
+            why = "password non accettata per il titolo (alcuni server vogliono quella di amministratore)"
+        elif "timeout" in low:
+            why = "il server non ha risposto"
+        elif "400" in low:
+            why = "il server l'ha rifiutato (400 Bad Request)"
+        else:
+            why = f"il server l'ha rifiutato ({err[:80]})"
+        out.update(state="err", why=_tr_msg(why))   # "why" non passa dalla traduzione automatica di error/msg
+    else:
+        out["state"] = "wait" if out["age"] < 8 else "ok"
+    return out
+
 def _prova_start():
     if _liq_is_active():
         return {"ok": False, "error": "In onda: chiudi prima la diretta" if not _prova["on"] else "Prova gia' attiva"}
@@ -2372,6 +2427,51 @@ def _prova_go_live():
     _prova["on"] = False
     threading.Thread(target=_liq_output_start, daemon=True).start()
     log_activity("liquidsoap", "on_air", "da Prova: IN ONDA sul server di streaming")
+    return True, "ok"
+
+def _radio_control(action):
+    """VAI IN ONDA / Chiudi diretta / Riavvia: stessa strada per i pulsanti e per lo
+    Scheduler (prima le azioni dello Scheduler chiamavano _liq_service e saltavano
+    Prova, keepalive e coda). Ritorna (ok, messaggio)."""
+    try:
+        # Edizione PC: Liquidsoap acceso = IN ONDA sul VPS. "Riavvia" da fuori
+        # onda non deve mandare in diretta per sbaglio: per entrare c'e' VAI IN ONDA.
+        if action == "restart" and not _liq_is_active():
+            return False, "Fuori onda: per andare in diretta usa VAI IN ONDA"
+        # Vai in onda senza server (anche da 🎧 Prova): si spiega cosa manca
+        if action == "start" and not EC.server_configured(EC.load()):
+            return False, _NO_SERVER_MSG
+        # 🎧 Prova -> Vai in onda: Liquidsoap e' gia' acceso, si accende solo l'uscita
+        if action == "start" and _liq_is_active() and _prova["on"]:
+            return _prova_go_live()
+        if action == "stop":
+            _prova["on"] = False
+        # Ferma/Avvia manuale: lo ricorda il keepalive, che altrimenti lo riavvierebbe
+        LIQ_STATE_FILE.write_text("stopped" if action == "stop" else "running")
+        ok, msg = _liq_service(action)
+        if not ok and action == "start":
+            LIQ_STATE_FILE.write_text("stopped")  # es. server non configurato: niente tentativi a vuoto
+        if ok and action in ("start", "restart"):
+            log_activity("liquidsoap", "on_air", f"{action}: IN ONDA sul server di streaming")
+            threading.Thread(target=_push_queue_after_start, daemon=True).start()
+        elif ok and action == "stop":
+            _start_sync_last[0] = 0.0  # la prossima VAI IN ONDA deve riallineare la coda
+            log_activity("liquidsoap", "off_air", "diretta chiusa: FUORI ONDA")
+        return ok, msg
+    except Exception as e:
+        return False, str(e)
+
+def _air_to_prova():
+    """IN ONDA -> 🎧 Prova: chiude solo l'uscita verso il server, la musica continua sul PC."""
+    if not _liq_is_active():
+        return False, "La radio è spenta"
+    if _prova["on"]:
+        return True, "già fuori onda"
+    _liq_telnet(["uscita.stop"])
+    _prova["on"] = True
+    try: HARBOR_LIVE_FILE.write_text("off")
+    except Exception: pass
+    log_activity("liquidsoap", "prova", "fuori onda: la radio continua solo sul PC (🎧 Prova)")
     return True, "ok"
 
 def _air_stop_now(reason):
@@ -2634,6 +2734,34 @@ def _create_db_backup():
     size_kb = round(dest.stat().st_size / 1024, 1) if dest.exists() else 0
     return name, size_kb
 
+_REC_EXT    = {".mp3", ".ogg", ".wav", ".flac", ".m4a", ".aac"}
+_BACKUP_RE  = re.compile(r"^radio_\d{8}_\d{6}\.db$")   # solo i backup di _create_db_backup
+
+def _cleanup_old_files(days, recordings=True, backups=True):
+    """🧹 Elimina registrazioni ⏺ REC e backup del database piu' vecchi di N giorni.
+    Solo file audio nella cartella delle registrazioni (non nelle sottocartelle, mai
+    quello in registrazione) e solo radio_AAAAMMGG_HHMMSS.db nei backup: niente
+    track_trims, niente file messi li' a mano. Ritorna (registrazioni, backup)."""
+    days = max(1, int(days))
+    limit = time.time() - days * 86400
+    current = _read_rec_file()
+    def sweep(folder, keep):
+        n = 0
+        if not folder.is_dir():
+            return 0
+        for f in folder.iterdir():
+            try:
+                if f.is_file() and keep(f) and f.stat().st_mtime < limit \
+                        and not (current and Path(current).name == f.name):
+                    f.unlink()
+                    n += 1
+            except Exception:
+                pass
+        return n
+    n_rec = sweep(REC_DIR, lambda f: f.suffix.lower() in _REC_EXT) if recordings else 0
+    n_bk  = sweep(BK_DIR, lambda f: bool(_BACKUP_RE.match(f.name))) if backups else 0
+    return n_rec, n_bk
+
 def _sched_run_one_action(item, ev_name):
     """Esegue una singola azione (dict con almeno la chiave 'action') di un evento scheduler."""
     action = item.get("action", "")
@@ -2671,12 +2799,44 @@ def _sched_run_one_action(item, ev_name):
                         ("default_clockwheel", json.dumps(cw))
                     )
         elif action in ("start_liquidsoap", "stop_liquidsoap", "restart_liquidsoap"):
-            cmd = action.replace("_liquidsoap", "")
-            _liq_service(cmd)
-            if action == "start_liquidsoap":
-                LIQ_STATE_FILE.write_text("running")
-            elif action == "stop_liquidsoap":
-                LIQ_STATE_FILE.write_text("stopped")
+            # start = 📡 Vai in onda (anche da 🎧 Prova), stop = ⏹ Spegni, restart = ↺ Riavvia
+            ok, msg = _radio_control(action.replace("_liquidsoap", ""))
+            if not ok:
+                log_activity("scheduler", f"auto:{ev_name}", f"ERRORE azione {action}: {msg}")
+                return
+        elif action == "start_prova":
+            # ▶ Accendi solo sul PC: se e' gia' accesa (in onda o in Prova) non cambia niente
+            if not _liq_is_active():
+                r = _prova_start()
+                if not r.get("ok"):
+                    log_activity("scheduler", f"auto:{ev_name}", f"ERRORE azione {action}: {r.get('error')}")
+                    return
+        elif action == "go_off_air":
+            ok, msg = _air_to_prova()
+            if not ok:
+                log_activity("scheduler", f"auto:{ev_name}", f"ERRORE azione {action}: {msg}")
+                return
+        elif action in ("rec_start", "rec_stop"):
+            if not _liq_is_active():
+                log_activity("scheduler", f"auto:{ev_name}", f"ERRORE azione {action}: la radio è spenta")
+                return
+            if action == "rec_start" and _read_rec_file():
+                log_activity("scheduler", f"auto:{ev_name}", "registrazione già in corso")
+                return
+            REC_DIR.mkdir(parents=True, exist_ok=True)
+            resp = (_liq_telnet(["rec.start" if action == "rec_start" else "rec.stop"]) or [""])[0]
+            resp = resp.replace("\r", "").replace("END", "").strip()
+            log_activity("rec", f"auto:{ev_name}", ("registrazione fermata" if resp == "off" else resp) or "Liquidsoap non risponde")
+            return
+        elif action == "cleanup_old":
+            n_rec, n_bk = _cleanup_old_files(_to_int(item.get("days")) or 30,
+                                             item.get("recordings", True), item.get("backups", True))
+            log_activity("scheduler", f"auto:{ev_name}",
+                         f"pulizia: {n_rec} registrazioni e {n_bk} backup più vecchi di {_to_int(item.get('days')) or 30} giorni eliminati")
+            return
+        elif action == "wait":
+            # ⏸ Le azioni di un evento girano in fila nello stesso thread: qui si aspetta e basta
+            time.sleep(max(1, min(600, _to_int(item.get("seconds")) or 5)))
         elif action == "add_category_to_queue":
             cat_id     = _to_int(item.get("category_id"))
             qmode      = item.get("queue_mode", "append")
@@ -2773,9 +2933,46 @@ def _sched_check_events():
         _sched_last_run[ev_id] = now
         threading.Thread(target=_sched_execute, args=(ev,), daemon=True).start()
 
+def _sched_seed_backup():
+    """Backup già pronto (3.0): una volta sola, se lo Scheduler non ha nessun evento
+    di backup, aggiunge il backup di ogni notte e la pulizia settimanale dei backup
+    vecchi. Se l'utente poi li elimina non tornano (segno in backup_seeded.txt).
+    In più, all'avvio, se l'ultimo backup ha più di un giorno ne fa uno subito:
+    di notte il PC può essere spento."""
+    mark = DATA_DIR / "backup_seeded.txt"
+    path = DATA_DIR / "scheduler_events.json"
+    try:
+        if not mark.exists():
+            events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+            if not any(a.get("action") == "backup" for e in events for a in e.get("actions", [])):
+                base = {"type": "action", "repeat": "daily", "weekdays": [], "date": "", "enabled": True}
+                en = _lang() == "en"
+                events += [
+                    {**base, "id": "autobk01", "time": "04:00",
+                     "name": "Database backup" if en else "Backup del database",
+                     "notes": "Added automatically: a copy of the library every night" if en
+                              else "Creato da solo al primo avvio: copia della libreria ogni notte",
+                     "actions": [{"action": "backup"}]},
+                    {**base, "id": "autobk02", "time": "04:10", "repeat": "weekdays", "weekdays": ["sun"],
+                     "name": "Clean up old backups" if en else "Pulizia backup vecchi",
+                     "notes": "Added automatically: keeps the backups of the last 30 days" if en
+                              else "Creato da solo al primo avvio: tiene i backup degli ultimi 30 giorni",
+                     "actions": [{"action": "cleanup_old", "days": 30, "recordings": False, "backups": True}]},
+                ]
+                path.write_text(json.dumps(events, ensure_ascii=False, indent=2), encoding="utf-8")
+                log_activity("scheduler", "backup", "aggiunti il backup di ogni notte e la pulizia settimanale")
+            mark.write_text(datetime.now().strftime("%Y-%m-%d %H:%M"), encoding="utf-8")
+        newest = max((f.stat().st_mtime for f in BK_DIR.glob("radio_*.db")), default=0)
+        if time.time() - newest > 86400:
+            name, size_kb = _create_db_backup()
+            log_activity("scheduler", "backup", f"backup all'avvio (l'ultimo aveva più di un giorno): {name} ({size_kb} KB)")
+    except Exception as e:
+        log_activity("scheduler", "backup", f"ERRORE backup automatico: {e}")
+
 def _scheduler_runner():
     """Thread: controlla ogni 30s se ci sono eventi da eseguire."""
     time.sleep(15)  # Attendi avvio server
+    _sched_seed_backup()
     while True:
         try:
             _sched_check_events()
@@ -3772,11 +3969,13 @@ class Handler(BaseHTTPRequestHandler):
             "/api/carts/clear":                          lambda: self._api_carts_clear(data),
             "/api/carts/play":                           lambda: self._api_carts_play(data),
             "/api/carts/stop":                           lambda: self._api_carts_stop(),
+            "/api/carts/count":                          lambda: self._api_carts_count(data),
             "/api/carts/mode":                           lambda: self._api_carts_mode(data),
             "/api/trackinfo":                            lambda: self._json(_trackinfo(data.get("filename", ""), bool(data.get("refresh")))),
             "/api/trackinfo/intro":                      lambda: self._json(_intro_generate(data.get("filename", ""), bool(data.get("refresh")), data.get("model"))),
             "/api/onair/end_after_track":                lambda: self._json(_end_after_set(bool(data.get("on")))),
             "/api/onair/prova":                          lambda: self._api_prova(bool(data.get("on"))),
+            "/api/scheduler/timezone":                   lambda: self._api_sched_tz_temp(data),
             "/api/rec/start":                            lambda: self._api_rec("start"),
             "/api/rec/stop":                             lambda: self._api_rec("stop"),
             "/api/rec/auto":                             lambda: self._api_rec_auto(data),
@@ -4717,7 +4916,9 @@ class Handler(BaseHTTPRequestHandler):
         events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
         ev = next((e for e in events if str(e.get("id","")) == event_id), None)
         if not ev:
-            self._json({"ok": False, "error": "Event not found"}); return
+            # es. eliminato da un'altra finestra: la pagina ricarica l'elenco (gone)
+            self._json({"ok": False, "gone": True,
+                        "error": "Evento non trovato: forse è stato eliminato. Elenco aggiornato."}); return
         # Segna l'evento come "appena eseguito" con un margine di un minuto: _sched_check_events()
         # gira ogni 30s e lo eviterebbe rieseguire subito dopo automaticamente, causando brani
         # duplicati in coda — vogliamo una finestra di ~2 minuti, non il solo minuto corrente.
@@ -4761,7 +4962,16 @@ class Handler(BaseHTTPRequestHandler):
             json.dumps({"name": name, "slots": slots}, ensure_ascii=False, indent=2),
             encoding="utf-8"
         )
-        self._json({"ok": True, "name": name})
+        # Primo clockwheel (3.0): se la radio non ne usa ancora nessuno diventa quello di
+        # default, altrimenti chi lo ha appena creato lo vede ignorato (brani a caso)
+        active = _cw_get_active_name()
+        made_default = not (active and (CW_DIR / f"{active}.json").exists())
+        if made_default:
+            with get_db() as conn:
+                conn.execute("INSERT OR REPLACE INTO automation_config(key,value) VALUES(?,?)",
+                             ("default_clockwheel", json.dumps(name)))
+            log_activity("clockwheel", "default", f'"{name}" è il clockwheel di default (primo creato)')
+        self._json({"ok": True, "name": name, "made_default": made_default})
 
     def _api_cw_load(self, data):
         name = (data.get("name") or data.get("file","")).strip()
@@ -5613,6 +5823,19 @@ class Handler(BaseHTTPRequestHandler):
         log_activity("rec", cmd, rec_file or "registrazione fermata")
         self._json({"ok": True, "rec_file": rec_file})
 
+    def _api_sched_tz_temp(self, data):
+        """Fuso dello Scheduler solo per questa sessione (non salvato). "" = torna
+        a quello delle Impostazioni."""
+        tz = str(data.get("tz") or "").strip()
+        if tz and tz != "local" and EC.scheduler_tz(tz) is None:
+            self._json({"ok": False, "error": f"Fuso orario sconosciuto: {tz}"}); return
+        saved = CFG.get("scheduler", {}).get("timezone") or "local"
+        _sched_tz_temp["tz"] = tz if tz and tz != saved else None
+        log_activity("scheduler", "fuso", f"{_sched_tz_name()} (fino alla chiusura dell'app)"
+                     if _sched_tz_temp["tz"] else f"{saved} (dalle Impostazioni)")
+        self._json({"ok": True, "sched_tz": _sched_tz_name(), "sched_tz_temp": bool(_sched_tz_temp["tz"]),
+                    "sched_offset_min": round((_sched_now() - datetime.now()).total_seconds() / 60)})
+
     def _api_rec_auto(self, data):
         on = bool(data.get("on"))
         (DATA_DIR / "rec_auto.txt").write_text("on" if on else "off")
@@ -5651,19 +5874,34 @@ class Handler(BaseHTTPRequestHandler):
     def _carts_save(self, carts):
         (DATA_DIR / "carts.json").write_text(json.dumps(carts, ensure_ascii=False, indent=1), encoding="utf-8")
 
+    def _carts_count(self):
+        """Tasti jingle mostrati in Regia (Impostazioni → Regia, 8 di partenza). Riducendo,
+        i jingle dei tasti in piu' restano in carts.json: solo nascosti."""
+        n = _to_int(CFG.get("regia", {}).get("jingle_buttons"))
+        return n if n in EC.JINGLE_BUTTONS else 8
+
+    def _api_carts_count(self, data):
+        n = _to_int(data.get("count"))
+        if n not in EC.JINGLE_BUTTONS:
+            self._json({"ok": False, "error": "Parametri non validi"}); return
+        cfg = EC.load(); cfg["regia"]["jingle_buttons"] = n
+        EC.save(cfg); CFG.clear(); CFG.update(cfg)
+        log_activity("regia", "jingle", f"{n} tasti")
+        self._json({"ok": True, "count": n})
+
     def _api_carts_list(self):
         carts = self._carts_load()
         out = []
-        for i in range(1, 9):
+        for i in range(1, self._carts_count() + 1):
             c = carts.get(str(i)) or {}
             out.append({"slot": i, "title": c.get("title", ""), "artist": c.get("artist", ""),
                         "filename": c.get("filename", ""), "mode": c.get("mode", "sopra"),
                         "missing":bool(c.get("filename")) and not Path(c.get("filename", "")).exists()})
-        self._json({"ok": True, "carts": out})
+        self._json({"ok": True, "carts": out, "count": len(out), "choices": list(EC.JINGLE_BUTTONS)})
 
     def _api_carts_set(self, data):
         slot = _to_int(data.get("slot")); tid = _to_int(data.get("track_id"))
-        if not slot or not 1 <= slot <= 8 or not tid:
+        if not slot or not 1 <= slot <= self._carts_count() or not tid:
             self._json({"ok": False, "error": "Parametri non validi"}); return
         with get_db() as conn:
             row = conn.execute("SELECT filename, title, artist FROM tracks WHERE id=?", (tid,)).fetchone()
@@ -6134,6 +6372,11 @@ class Handler(BaseHTTPRequestHandler):
                     "stream":     (EC.STREAM_TYPES[cfg["stream"]["type"]]["label"] + " — "
                                    + f'{cfg["stream"]["host"]}:{cfg["stream"]["port"]}') if EC.server_configured(cfg) else "",
                     "server_configured": EC.server_configured(cfg),
+                    # Orologio dello Scheduler: la timeline lo ricava dall'ora del PC + offset
+                    "sched_tz":   _sched_tz_name(),
+                    "sched_tz_saved": CFG.get("scheduler", {}).get("timezone", "local"),
+                    "sched_tz_temp":  bool(_sched_tz_temp["tz"]),
+                    "sched_offset_min": round((_sched_now() - datetime.now()).total_seconds() / 60),
                     # _claude_exe() da' "" se manca: prima "is not None" mostrava il pulsante anche senza Claude Code
                     "claude_available": bool(cfg["extras"].get("claude_intro")) and bool(_claude_exe())})
 
@@ -6261,9 +6504,23 @@ class Handler(BaseHTTPRequestHandler):
                                "$f.SelectedPath"))
 
     def _api_edition_pick_file(self, data):
-        """Finestra di Windows per scegliere una playlist M3U/M3U8."""
+        """Finestra di Windows per scegliere un file: playlist M3U/M3U8 (predefinito),
+        un brano ("audio") o tutti e due ("any"). I brani della libreria possono stare
+        in qualsiasi cartella del disco (Libreria → Importa), non solo nella cartella musica."""
+        audio = "*.mp3;*.aac;*.ogg;*.flac;*.wav;*.m4a"
+        en = _lang() == "en"
+        filters = {"audio":    f"{'Tracks' if en else 'Brani'} ({audio})|{audio}",
+                   "any":      f"{'Playlists and tracks' if en else 'Playlist e brani'} (*.m3u;*.m3u8;{audio})|*.m3u;*.m3u8;{audio}",
+                   "playlist": "Playlist (*.m3u;*.m3u8)|*.m3u;*.m3u8"}
+        flt = filters.get(data.get("kind"), filters["playlist"])
+        start = str(data.get("start") or "").strip()
+        if start and not Path(start).is_dir():
+            start = str(Path(start).parent)          # dal file scelto prima: la sua cartella
+        if not start or not Path(start).is_dir():
+            start = str(MUSIC_DIR)
         self._json(_win_dialog("$f=New-Object System.Windows.Forms.OpenFileDialog;"
-                               "$f.Filter='Playlist (*.m3u;*.m3u8)|*.m3u;*.m3u8';",
+                               f"$f.Filter='{flt}';"
+                               f"$f.InitialDirectory='{start.replace(chr(39), chr(39) * 2)}';",
                                "$f.FileName"))
 
     def _api_edition_restart(self):
@@ -6347,33 +6604,7 @@ class Handler(BaseHTTPRequestHandler):
 
     # ── Liquidsoap control ────────────────────────────────────────────────
     def _systemctl(self, action):
-        try:
-            # Edizione PC: Liquidsoap acceso = IN ONDA sul VPS. "Riavvia" da fuori
-            # onda non deve mandare in diretta per sbaglio: per entrare c'e' VAI IN ONDA.
-            if action == "restart" and not _liq_is_active():
-                return False, "Fuori onda: per andare in diretta usa VAI IN ONDA"
-            # Vai in onda senza server (anche da 🎧 Prova): si spiega cosa manca
-            if action == "start" and not EC.server_configured(EC.load()):
-                return False, _NO_SERVER_MSG
-            # 🎧 Prova -> Vai in onda: Liquidsoap e' gia' acceso, si accende solo l'uscita
-            if action == "start" and _liq_is_active() and _prova["on"]:
-                return _prova_go_live()
-            if action == "stop":
-                _prova["on"] = False
-            # Ferma/Avvia manuale: lo ricorda il keepalive, che altrimenti lo riavvierebbe
-            LIQ_STATE_FILE.write_text("stopped" if action == "stop" else "running")
-            ok, msg = _liq_service(action)
-            if not ok and action == "start":
-                LIQ_STATE_FILE.write_text("stopped")  # es. server non configurato: niente tentativi a vuoto
-            if ok and action in ("start", "restart"):
-                log_activity("liquidsoap", "on_air", f"{action}: IN ONDA sul server di streaming")
-                threading.Thread(target=_push_queue_after_start, daemon=True).start()
-            elif ok and action == "stop":
-                _start_sync_last[0] = 0.0  # la prossima VAI IN ONDA deve riallineare la coda
-                log_activity("liquidsoap", "off_air", "diretta chiusa: FUORI ONDA")
-            return ok, msg
-        except Exception as e:
-            return False, str(e)
+        return _radio_control(action)
 
     def _api_liquidsoap_next_track(self):
         """Endpoint interno chiamato da Liquidsoap via request.dynamic — no sessione richiesta."""
@@ -6426,6 +6657,7 @@ class Handler(BaseHTTPRequestHandler):
             "active": active,
             "prova": active and _prova["on"],
             "server_error": _server_error_text() if active and not _prova["on"] else "",
+            "title_status": _title_status() if active and not _prova["on"] and _liq_harbor_connected() else {},
             "sched_running": _liq_scheduled_running(),
             "live_on": _liq_harbor_connected() if active else False,
             "mic_on":  active and (DATA_DIR / "mic_on.txt").exists()

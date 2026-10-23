@@ -210,16 +210,21 @@ server.register(namespace="manual", description="on|off playing|idle", "status",
   fun (_) -> "#{if manual_mode() then 'on' else 'off' end} #{if is_playing() then 'playing' else 'idle' end}")
 
 # ── Nowplaying (letto dalla dashboard locale) ──────────────────────────────
-def write_nowplaying(m) =
+def np_text(m) =
   fname  = m["filename"]
   title  = m["title"]
   artist = m["artist"]
-  np = if artist != "" and title != "" then
-         "#{artist} - #{title}"
-       elsif title != "" then title
-       elsif fname != "" then path.remove_extension(path.basename(fname))   # mai il percorso intero
-       else "In onda"
-       end
+  if artist != "" and title != "" then
+    "#{artist} - #{title}"
+  elsif title != "" then title
+  elsif fname != "" then path.remove_extension(path.basename(fname))   # mai il percorso intero
+  else "In onda"
+  end
+end
+
+def write_nowplaying(m) =
+  fname = m["filename"]
+  np = np_text(m)
   log("NOWPLAYING: #{np}")
   file.write(data=np,    "#{data_dir}/nowplaying.txt")
   file.write(data=fname, "#{data_dir}/current_track.txt")
@@ -499,10 +504,26 @@ server.register(namespace="uscita", description="on|off", "status",
   fun (_) -> if out_on() then "on" else "off" end)
 out_src = switch(id="out_gate", track_sensitive=false, [({out_on()}, radio)])
 
+# Titolo mandato al server: "<secondi> <titolo>" in title_sent.txt. Il server Python guarda
+# se subito dopo nel log c'e' "Metadata update may have failed" (il motore non scrive niente
+# quando il server accetta) e mostra in Dashboard "titolo inviato ✓ / rifiutato ✗".
+def title_sent(np) =
+  file.write(data="#{time()} #{np}", "#{data_dir}/title_sent.txt")
+end
+# Al ricollegamento (connessione caduta, server riavviato) Liquidsoap NON rimanda il titolo
+# del brano in corso: il server restava senza titolo fino al brano dopo (22/10, provato con
+# Icecast e il server finto). Si tengono gli ultimi metadati e li si reinserisce a ogni collegamento.
+last_meta = ref([])
+out_meta = insert_metadata(id="out_meta", out_src)
+out_src = source.on_metadata(out_meta, fun (m) -> begin last_meta := m; title_sent(np_text(m)) end)
+
 def on_vps_connect() =
   log("SERVER: collegato a #{vps_host}:#{vps_port}")
   file.write(data="on", "#{data_dir}/harbor_live.txt")
   file.write(data="", "#{data_dir}/server_error.txt")
+  if list.length(last_meta()) > 0 then
+    out_meta.insert_metadata(last_meta())   # titolo in corso di nuovo al server
+  end
 end
 
 def on_vps_disconnect() =

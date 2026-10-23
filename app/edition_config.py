@@ -63,6 +63,8 @@ def windows_language():
 
 LANGUAGES = {"it": "Italiano", "en": "English"}
 
+JINGLE_BUTTONS = (8, 12, 16, 24, 32)   # sempre 4 per fila in Regia
+
 
 def defaults():
     docs = _user_dir("Documents", "Documenti")
@@ -98,6 +100,12 @@ def defaults():
             "voice_tone": 0.0,         # semitoni, -2..+2 (0 = voce naturale)
             "voice_bass": 3.5,         # dB di "voce piena" sotto 160 Hz, 0..6
             "crossfade": 3.0,          # secondi di dissolvenza tra i brani, 0..10 (0 = stacco secco)
+        },
+        "scheduler": {
+            "timezone": "local",       # "local" = ora del PC, "UTC" o un fuso come "Europe/Rome"
+        },
+        "regia": {
+            "jingle_buttons": 8,       # tasti jingle in Regia: uno di JINGLE_BUTTONS
         },
         "extras": {
             "ntfy_topic": "",          # notifiche push su silenzio (facoltativo)
@@ -191,9 +199,34 @@ def validate(cfg):
             cfg["audio"][key] = v
         except Exception:
             err.append(f"{label}: valore non valido")
+    try:
+        jb = int(cfg["regia"].get("jingle_buttons", 8))
+        if jb not in JINGLE_BUTTONS: raise ValueError
+        cfg["regia"]["jingle_buttons"] = jb
+    except Exception:
+        err.append("Tasti jingle: valore non valido")
+    tz = str(cfg["scheduler"].get("timezone") or "local").strip()
+    cfg["scheduler"]["timezone"] = tz
+    if tz != "local" and scheduler_tz(tz) is None:
+        err.append(f"Fuso orario sconosciuto: {tz}")
     if not Path(cfg["paths"]["music"]).is_dir():
         err.append(f"La cartella musica non esiste: {cfg['paths']['music']}")
     return err
+
+
+def scheduler_tz(name):
+    """Fuso dello Scheduler: None = ora del PC (anche per un nome sconosciuto).
+    Su Windows zoneinfo funziona solo col pacchetto tzdata (incluso nel build)."""
+    if not name or name == "local":
+        return None
+    if name == "UTC":
+        from datetime import timezone
+        return timezone.utc
+    try:
+        from zoneinfo import ZoneInfo
+        return ZoneInfo(name)
+    except Exception:
+        return None
 
 
 def list_microphones():

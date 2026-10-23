@@ -130,6 +130,52 @@ a{color:#79c0ff}
 </div>
 
 <div class="card">
+  <h2>🎛 Regia</h2>
+  <label>Tasti jingle in Regia</label>
+  <select id="regia.jingle_buttons">
+    <option value="8">8 tasti</option><option value="12">12 tasti</option><option value="16">16 tasti</option>
+    <option value="24">24 tasti</option><option value="32">32 tasti</option>
+  </select>
+  <div class="hint">Sempre 4 per fila. Se li riduci, i jingle assegnati ai tasti in più restano salvati e ricompaiono quando li rialzi. Si può cambiare anche dalla Regia, nel riquadro Jingle.</div>
+</div>
+
+<div class="card">
+  <h2>📅 Scheduler</h2>
+  <div class="hint">L'orologio con cui lo Scheduler fa partire gli eventi. Di solito va bene l'ora del PC. Scegli un altro fuso se trasmetti per ascoltatori di un altro paese o se il palinsesto è scritto in UTC.</div>
+  <label>Fuso orario degli eventi</label>
+  <select id="scheduler.timezone">
+    <option value="local">Ora del PC (consigliata)</option>
+    <option value="UTC">UTC</option>
+    <optgroup label="Europa">
+      <option value="Europe/London">Londra, Dublino, Lisbona</option>
+      <option value="Europe/Rome">Roma, Parigi, Berlino, Madrid</option>
+      <option value="Europe/Athens">Atene, Bucarest, Helsinki</option>
+      <option value="Europe/Moscow">Mosca, Istanbul</option>
+    </optgroup>
+    <optgroup label="Americhe">
+      <option value="America/New_York">New York, Toronto (Est)</option>
+      <option value="America/Chicago">Chicago, Città del Messico (Centro)</option>
+      <option value="America/Denver">Denver (Montagne)</option>
+      <option value="America/Los_Angeles">Los Angeles, Vancouver (Pacifico)</option>
+      <option value="America/Sao_Paulo">San Paolo, Rio de Janeiro</option>
+      <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+    </optgroup>
+    <optgroup label="Africa e Asia">
+      <option value="Africa/Johannesburg">Johannesburg, Il Cairo</option>
+      <option value="Asia/Dubai">Dubai</option>
+      <option value="Asia/Kolkata">India</option>
+      <option value="Asia/Shanghai">Pechino, Hong Kong, Singapore</option>
+      <option value="Asia/Tokyo">Tokyo, Seul</option>
+    </optgroup>
+    <optgroup label="Oceania">
+      <option value="Australia/Sydney">Sydney, Melbourne</option>
+      <option value="Pacific/Auckland">Auckland</option>
+    </optgroup>
+  </select>
+  <div class="hint">Gli eventi già creati mantengono il loro orario scritto (es. 08:00): con un fuso diverso partono alle 08:00 di quel fuso. L'ora legale è seguita da sola. Vale subito, senza riavviare.</div>
+</div>
+
+<div class="card">
   <h2>🎙 Microfono</h2>
   <div class="hint">Il microfono per parlare in diretta. Se non lo usi lascia "Nessun microfono".</div>
   <div class="path">
@@ -227,6 +273,8 @@ async function load() {
     const v = get(el.id, CFG);
     if (el.type === 'checkbox') el.checked = !!v;
     else if (v !== undefined && el.id !== 'audio.mic_device') el.value = String(v);
+    // valore scritto a mano in config.json che non e' in elenco (es. un altro fuso): lo aggiunge
+    if (el.tagName === 'SELECT' && v && el.value !== String(v)) { el.add(new Option(String(v), String(v))); el.value = String(v); }
   });
   document.getElementById('pw-hint').textContent = CFG.stream.has_password ? '(lascia vuoto per tenere quella salvata)' : '';
   fetch('/api/edition/info').then(r => r.json()).then(i => { if (i.version) document.getElementById('app-version').textContent = 'Versione installata: ' + i.version; }).catch(() => {});

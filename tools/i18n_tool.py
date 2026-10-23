@@ -55,7 +55,7 @@ def _fragments(src):
     for m in re.finditer(r">([^<>]+)<", src):
         if in_block(m.start(1)) is None:
             out.append((m.start(1), m.end(1), m.group(1), "html"))
-    for m in re.finditer(r'\b(?:title|placeholder|aria-label)="([^"]*)"', src):
+    for m in re.finditer(r'\b(?:title|placeholder|aria-label|label)="([^"]*)"', src):   # label: <optgroup>
         if in_block(m.start(1)) is None:
             out.append((m.start(1), m.end(1), m.group(1), "html"))
 

@@ -168,7 +168,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
  <li><span class="b">🗑 Elimina dal database</span> li toglie dalla libreria e da tutte le categorie, dalla coda e dai pulsanti jingle (i file restano sul disco, si possono reimportare);</li>
  <li><span class="b">💾 Salva M3U</span> salva una playlist.</li>
  </ul></li>
-<li><span class="b">+ Cat</span> crea una categoria. Passando il mouse su una categoria compaiono <span class="b">+sub</span> (sottocategoria), <span class="b">✎</span> (rinomina) e <span class="b">✕</span> (elimina: scegli se eliminare solo la categoria o anche tutti i suoi brani dal database, pure se sono in altre categorie). Trascinando dei brani su una categoria li copi lì.</li>
+<li><span class="b">+ Categoria</span> crea una categoria. Passando il mouse su una categoria compaiono <span class="b">+sub</span> (sottocategoria), <span class="b">✎</span> (rinomina) e <span class="b">✕</span> (elimina: scegli se eliminare solo la categoria o anche tutti i suoi brani dal database, pure se sono in altre categorie). Trascinando dei brani su una categoria li copi lì.</li>
 <li><span class="b">⚙ Crea dalle cartelle</span> crea le categorie partendo dalle cartelle della musica.</li>
 <li><span class="b">📊 Stats</span>: statistiche della categoria (decenni, generi, anni).</li>
 <li>Clic sull'<b>anno</b> di un brano per modificarlo (anche per tutto l'album).</li>
@@ -216,12 +216,15 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </section>
 
 <section id="scheduler"><h2>Scheduler</h2>
-<p>Eventi a orario, nell'ora del PC. Ogni evento ha ora di inizio, durata, ripetizione (ogni giorno, giorni specifici, una volta) e una o più <b>azioni</b>:</p>
+<p>Eventi a orario, nell'ora del PC (o nel fuso scelto in Impostazioni → Scheduler). Ogni evento ha ora di inizio, durata, ripetizione (ogni giorno, giorni specifici, una volta) e una o più <b>azioni</b>:</p>
 <ul>
 <li>usare un clockwheel per quella fascia (il palinsesto);</li>
 <li>aggiungere o sostituire la coda con una playlist, una categoria o un brano;</li>
 <li>saltare il brano, svuotare la coda, spostare brani tra categorie, svuotare una categoria;</li>
-<li>cambiare il clockwheel di default, fare il backup del database.</li>
+<li>cambiare il clockwheel di default;</li>
+<li>accendere la radio solo sul PC (🎧 Prova), andare in onda, uscire dall'onda, spegnere o riavviare la radio;</li>
+<li>avviare e fermare la registrazione, aspettare qualche secondo tra un'azione e l'altra;</li>
+<li>fare il backup del database, eliminare registrazioni e backup vecchi.</li>
 </ul>
 <p><span class="b">Mostra timeline</span> fa vedere la settimana con la linea rossa "adesso" e il blocco in onda. <span class="b">▶ Esegui ora</span> prova subito un evento.</p>
 <div class="tip">Un clockwheel forzato (⚡ Attiva) copre il palinsesto: un avviso in alto lo ricorda. Usa ✖ Libera per tornare allo scheduler.</div>
@@ -240,11 +243,12 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </section>
 
 <section id="jingle"><h2>Jingle</h2>
-<p>8 pulsanti nella scheda Regia. Si assegnano dalla ricerca (🎵), un clic li fa partire, <span class="b">⏹ Ferma jingle</span> li ferma. Funzionano anche in Automatico. Ogni pulsante ha il suo modo (clic sull'etichetta in basso per cambiarlo):</p>
+<p>Da 8 a 32 pulsanti nella scheda Regia (tendina nel riquadro Jingle o Impostazioni → Regia). Si assegnano dalla ricerca (🎵), un clic li fa partire, <span class="b">⏹ Ferma jingle</span> li ferma. Funzionano anche in Automatico. Ogni pulsante ha il suo modo (clic sull'etichetta in basso per cambiarlo):</p>
 <table>
 <tr><td><b>≋ SOPRA</b></td><td>Il jingle suona sopra la musica, che si abbassa. Per effetti brevi.</td></tr>
 <tr><td><b>⏏ STACCO</b></td><td>La musica sfuma (circa 1 s), il brano finisce e il jingle suona da solo. Poi in Automatico riparte il brano successivo, in Manuale silenzio fino ad AVVIA.</td></tr>
 </table>
+<p><b>⌨ Dalla tastiera:</b> con la Regia aperta, la lettera nell'angolo di ogni pulsante lo fa partire (1234, QWER, ASDF, ZXCV, poi 5678, TYUI, GHJK, BNM,). Il pulsante ⌨ le spegne e riaccende.</p>
 <p><b>Niente dissolvenze:</b> un brano messo in una categoria il cui nome contiene <i>jingle</i> (o <i>sweeper</i>, <i>liner</i>, <i>station id</i>, <i>imaging</i>) diventa un jingle e va in onda senza fade e senza crossfade, dalla coda, dal clockwheel e dai pulsanti. Lo stesso per le categorie <i>intro</i>, <i>promo</i>, <i>news</i>, <i>spot</i>, <i>voice track</i>.</p>
 <p><b>Jingle di esempio:</b> al primo avvio la Libreria ha già la categoria <b>Jingle</b> con 3 jingle di prova, per vedere subito come funzionano (in un clockwheel o sui pulsanti). Quando hai i tuoi, toglili dalla categoria e importa i tuoi.</p>
 </section>
@@ -305,6 +309,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <tr><td>cartelle scelte</td><td>database della libreria, registrazioni, export</td></tr>
 </table>
 <p>Disinstallando il programma questi dati restano.</p>
+<p>Il <b>backup della libreria</b> è già attivo: nello Scheduler trovi "Backup del database" ogni notte e "Pulizia backup vecchi" la domenica (tiene gli ultimi 30 giorni). Se di notte il PC è spento, il backup si fa all'avvio.</p>
 <p><b>Aggiornamenti</b>: quando esce una nuova versione compare in alto la fascia <span class="b">🆕 È disponibile…</span> con <span class="b">⬇ Scarica</span>: scarichi il Setup e lo installi sopra, i tuoi dati restano. Si spegne in Impostazioni → Extra, dove vedi anche la versione installata.</p>
 <p><b>Licenze</b>: nella cartella del programma, in <code>licenze</code>, trovi l'elenco dei componenti (Liquidsoap, mutagen, Python…) con le loro licenze e i link al codice sorgente.</p>
 </section>

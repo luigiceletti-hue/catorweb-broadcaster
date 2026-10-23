@@ -168,7 +168,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
  <li><span class="b">🗑 Delete from database</span> removes them from the library and every category, the queue and the jingle buttons (the files stay on disk and can be re-imported);</li>
  <li><span class="b">💾 Save M3U</span> saves a playlist.</li>
  </ul></li>
-<li><span class="b">+ Cat</span> creates a category. Hovering over a category shows <span class="b">+sub</span> (subcategory), <span class="b">✎</span> (rename) and <span class="b">✕</span> (delete: choose whether to delete only the category or also all its tracks from the database, even if they are in other categories). Dragging tracks onto a category copies them there.</li>
+<li><span class="b">+ Category</span> creates a category. Hovering over a category shows <span class="b">+sub</span> (subcategory), <span class="b">✎</span> (rename) and <span class="b">✕</span> (delete: choose whether to delete only the category or also all its tracks from the database, even if they are in other categories). Dragging tracks onto a category copies them there.</li>
 <li><span class="b">⚙ Create from folders</span> creates categories from your music folders.</li>
 <li><span class="b">📊 Stats</span>: category statistics (decades, genres, years).</li>
 <li>Click a track's <b>year</b> to edit it (also for the whole album).</li>
@@ -216,12 +216,15 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </section>
 
 <section id="scheduler"><h2>Scheduler</h2>
-<p>Timed events, in the PC's local time. Each event has a start time, a duration, a repeat (every day, specific days, once) and one or more <b>actions</b>:</p>
+<p>Timed events, in the PC's local time (or the time zone chosen in Settings → Scheduler). Each event has a start time, a duration, a repeat (every day, specific days, once) and one or more <b>actions</b>:</p>
 <ul>
 <li>use a clockwheel for that time slot (your schedule);</li>
 <li>add to or replace the queue with a playlist, a category or a track;</li>
 <li>skip the track, clear the queue, move tracks between categories, empty a category;</li>
-<li>change the default clockwheel, back up the database.</li>
+<li>change the default clockwheel;</li>
+<li>turn the radio on only on the PC (🎧 Rehearse), go on air, go off air, turn off or restart the radio;</li>
+<li>start and stop recording, wait a few seconds between actions;</li>
+<li>back up the database, delete old recordings and backups.</li>
 </ul>
 <p><span class="b">Show timeline</span> shows the week with a red "now" line and the block on air. <span class="b">▶ Run now</span> tries an event straight away.</p>
 <div class="tip">A forced clockwheel (⚡ Activate) overrides the schedule: a banner at the top reminds you. Use ✖ Release to go back to the scheduler.</div>
@@ -240,11 +243,12 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </section>
 
 <section id="jingles"><h2>Jingles</h2>
-<p>8 buttons in the Studio tab. Assign them from search (🎵), one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom to change it):</p>
+<p>From 8 to 32 buttons in the Studio tab (drop-down in the Jingle box or Settings → Studio). Assign them from search (🎵), one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom to change it):</p>
 <table>
 <tr><td><b>≋ OVER</b></td><td>The jingle plays over the music, which ducks. For short effects.</td></tr>
 <tr><td><b>⏏ BREAK</b></td><td>The music fades out (about 1 s), the track ends and the jingle plays alone. Then in Automatic the next track starts, in Manual silence until START.</td></tr>
 </table>
+<p><b>⌨ From the keyboard:</b> with the Studio open, the letter in the corner of each button plays it (1234, QWER, ASDF, ZXCV, then 5678, TYUI, GHJK, BNM,). The ⌨ button turns them off and on.</p>
 <p><b>No fades:</b> a track placed in a category whose name contains <i>jingle</i> (or <i>sweeper</i>, <i>liner</i>, <i>station id</i>, <i>imaging</i>) becomes a jingle and goes on air with no fade and no crossfade, from the queue, the clockwheel and the buttons. The same for categories named <i>intro</i>, <i>promo</i>, <i>news</i>, <i>spot</i>, <i>voice track</i>.</p>
 <p><b>Sample jingles:</b> on first start the Library already has a <b>Jingle</b> category with 3 sample jingles, so you can see how they work right away (in a clockwheel or on the buttons). When you have your own, remove them from the category and import yours.</p>
 </section>
@@ -305,6 +309,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <tr><td>folders you chose</td><td>library database, recordings, exports</td></tr>
 </table>
 <p>Uninstalling the program keeps this data.</p>
+<p>The <b>library backup</b> is already on: in the Scheduler you find "Database backup" every night and "Clean up old backups" on Sundays (keeps the last 30 days). If the PC is off at night, the backup is made at start-up.</p>
 <p><b>Updates</b>: when a new version is out, a <span class="b">🆕 Available…</span> strip appears at the top with <span class="b">⬇ Download</span>: download the Setup and install it over the old one, your data is kept. It can be turned off in Settings → Extra, where you also see the installed version.</p>
 <p><b>Licenses</b>: in the program folder, under <code>licenze</code>, you'll find the list of components (Liquidsoap, mutagen, Python…) with their licenses and links to their source code.</p>
 </section>

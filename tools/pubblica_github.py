@@ -22,7 +22,7 @@ def api(method, path, body=None):
 
 files = []
 for d, dirs, fs in os.walk(ROOT):
-    dirs[:] = [x for x in dirs if x not in SKIP_DIRS]
+    dirs[:] = [x for x in dirs if x not in SKIP_DIRS and not x.startswith("_")]   # _prova, _nuovo...: copie di prova
     for f in fs:
         if f.endswith((".pyc", ".zip", ".pdf")):
             continue

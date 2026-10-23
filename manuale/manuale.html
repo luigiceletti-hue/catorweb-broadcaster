@@ -129,7 +129,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
   <h1>📻 Catorweb Broadcaster</h1>
   <p><b>Manuale completo</b>: come si usa, come creare una web radio e come registrare un podcast.</p>
   <p>Una regia radio completa sul tuo PC Windows: libreria musicale, clockwheel, palinsesto, microfono, jingle, registrazione e diretta verso il tuo server di streaming.</p>
-  <div class="meta">Versione del programma 2.13 · Le immagini mostrano una radio di prova ("Radio Demo").</div>
+  <div class="meta">Versione del programma 3.0 · Le immagini mostrano una radio di prova ("Radio Demo").</div>
 </div>
 
 <!-- ───────────────────────── 1 ───────────────────────── -->
@@ -198,6 +198,10 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <p>Se cambi una cartella il programma si riavvia da solo (non durante una diretta).</p>
 <h3>Musica</h3>
 <p><b>Dissolvenza tra i brani</b>: quanti secondi si sovrappongono la fine di un brano e l'inizio del successivo, da 0 (stacco secco) a 10; consigliati 3. I jingle partono e finiscono sempre senza dissolvenza. Vale dalla prossima volta che vai in onda; in 🎧 Prova si sente subito dopo il salvataggio.</p>
+<h3>Regia</h3>
+<p><b>Tasti jingle in Regia</b>: 8, 12, 16, 24 o 32 tasti, sempre 4 per fila. Se li riduci, i jingle assegnati ai tasti in più restano salvati e ricompaiono quando li rialzi. Si cambia anche dalla Regia, nel riquadro Jingle.</p>
+<h3>Scheduler</h3>
+<p><b>Fuso orario degli eventi</b>: l'orologio con cui lo Scheduler fa partire gli eventi. Di solito va bene l'<b>ora del PC</b>; scegli un altro fuso (UTC, Londra, New York…) se trasmetti per ascoltatori di un altro paese o se il palinsesto è scritto in UTC. L'ora legale è seguita da sola e il cambio vale subito.</p>
 <h3>Microfono</h3>
 <p>Scegli il microfono dall'elenco (<span class="b">↻</span> aggiorna l'elenco se l'hai appena collegato). <b>Tono della voce</b> (−2…+2 semitoni) e <b>voce piena</b> (bassi, consigliato +3,5 dB) regolano il processore della voce, che comprime, toglie le sibilanti e limita i picchi.</p>
 <h3>Extra</h3>
@@ -212,7 +216,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <ol class="steps">
 <li><b>Impostazioni</b>: nome della radio, cartelle, eventualmente il microfono. Salva.</li>
 <li><b>Libreria → ⬆ Import → 📁 Cartella</b>: <span class="b">📂 Sfoglia…</span>, scegli una cartella di musica, lascia "crea automaticamente" e premi <span class="b">⬇ Importa</span>. Ripeti per 2-3 cartelle di generi diversi: ognuna diventa una categoria.</li>
-<li><b>Clockwheel → + Nuovo</b>: aggiungi gli slot, per esempio <i>Jingle, Rock, Blues, Rock, Jingle, Anni 70</i>. Salva e premi <span class="b">⚡ Attiva</span>.</li>
+<li><b>Clockwheel → + Nuovo</b>: aggiungi gli slot, per esempio <i>Jingle, Rock, Blues, Rock, Jingle, Anni 70</i>, e salva. Il primo clockwheel che crei diventa subito quello che la radio usa.</li>
 <li>In alto premi <span class="b">🎧 Prova</span>, poi <span class="b">🎧 Ascolto → Tutto</span> per ascoltare. La radio suona da sola!</li>
 <li>Apri <b>🎛 Regia</b>, accendi il microfono con la <kbd>barra spaziatrice</kbd> e fai il tuo primo intervento.</li>
 <li>Quando hai i dati del server: Impostazioni → server → <span class="b">🔌 Prova collegamento</span>, poi <span class="b">⚪ FUORI ONDA — Vai in onda</span>.</li>
@@ -251,7 +255,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <li><b>Cerca</b> e <b>ordina</b> (artista, titolo, genere, durata, anno, data di inserimento, casuale, ordine manuale trascinando).</li>
 <li>Seleziona i brani con le caselle (o <span class="b">✓ Tutti</span>) e poi:
  <span class="b">➕ In coda</span> li aggiunge in fondo alla coda, <span class="b">↺ Sostituisci coda</span> svuota la coda e ci mette quelli selezionati, <span class="b">↗ Sposta</span> li copia o sposta in un'altra categoria, <span class="b">↩ Rimuovi</span> li toglie dalla categoria (restano in libreria), <span class="b">🗑 Elimina dal database</span> li toglie dalla libreria, da tutte le categorie, dalla coda e dai pulsanti jingle (i file restano sul disco), <span class="b">💾 Salva M3U</span> salva una playlist.</li>
-<li><span class="b">+ Cat</span> crea una categoria. Passando il mouse su una categoria: <span class="b">+sub</span> sottocategoria, <span class="b">✎</span> rinomina, <span class="b">✕</span> elimina (puoi eliminare solo la categoria, oppure anche tutti i suoi brani dal database, pure se sono in altre categorie; i file restano sul disco). Trascina dei brani su una categoria per copiarli lì.</li>
+<li><span class="b">+ Categoria</span> crea una categoria. Passando il mouse su una categoria: <span class="b">+sub</span> sottocategoria, <span class="b">✎</span> rinomina, <span class="b">✕</span> elimina (puoi eliminare solo la categoria, oppure anche tutti i suoi brani dal database, pure se sono in altre categorie; i file restano sul disco). Trascina dei brani su una categoria per copiarli lì.</li>
 <li><span class="b">📊 Stats</span>: decenni, generi e anni della categoria.</li>
 </ul>
 <figure class="tiny"><img src="img/it/eliminacategoria.webp" loading="lazy" alt="Eliminare una categoria"><figcaption>✕ su una categoria: le tre scelte.</figcaption></figure>
@@ -333,6 +337,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <tr><td><b>Stop mode</b></td><td>Per le playlist generate: Loop (completa il giro), Exact (durata esatta), Over (primo sforamento).</td></tr>
 </table>
 <h3>I pulsanti</h3>
+<p>Il <b>primo clockwheel</b> che salvi diventa da solo quello di default: la radio lo usa subito.</p>
 <p><span class="b">💾 Salva</span> · <span class="b">⚡ Attiva</span> lo forza subito (ha la precedenza sullo scheduler; un avviso in alto lo ricorda, <span class="b">✖ Libera</span> lo toglie) · <span class="b">👁 Anteprima</span> mostra cosa suonerebbe, anche prima di salvare · <span class="b">📀 Genera playlist</span> crea una playlist della durata scelta (minuti).</p>
 <div class="tip"><b>✅ Un clockwheel di partenza</b>
 <ol>
@@ -350,12 +355,21 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <!-- ───────────────────────── 11 ───────────────────────── -->
 <section id="scheduler"><h2><span class="n">11</span>Scheduler e palinsesto</h2>
 <figure><img src="img/it/scheduler.webp" loading="lazy" alt="Evento dello scheduler"><figcaption>Un evento: dalle 06:00 per 840 minuti, ogni giorno, clockwheel "Mix generale".</figcaption></figure>
-<p>Lo <b>Scheduler</b> esegue <b>eventi a orario</b> (ora del PC). Ogni evento ha nome, ora d'inizio, durata, ripetizione (ogni giorno, giorni scelti, una volta sola) e un <b>tipo</b>:</p>
+<p>Lo <b>Scheduler</b> esegue <b>eventi a orario</b> (ora del PC, oppure il fuso scelto in Impostazioni → Scheduler). Ogni evento ha nome, ora d'inizio, durata, ripetizione (ogni giorno, giorni scelti, una volta sola) e un <b>tipo</b>:</p>
 <ul>
 <li><b>Clockwheel</b>: in quella fascia la radio usa quel clockwheel. È il modo di costruire il <b>palinsesto</b>.</li>
 <li><b>Playlist</b>: aggiunge o sostituisce la coda con una playlist.</li>
-<li><b>Azione</b>: salta il brano, svuota la coda, mette in coda una categoria o un brano, sposta brani tra categorie, cambia il clockwheel di default, fa il <b>backup del database</b>…</li>
+<li><b>Azione</b>: una o più azioni, eseguite in ordine:
+<ul>
+<li>salta il brano, svuota la coda, mette in coda una categoria o un brano (lo cerchi nella libreria scrivendo titolo o artista, oppure 📁 per sceglierlo dal PC), sposta brani tra categorie, svuota una categoria, cambia il clockwheel di default;</li>
+<li>accende la radio solo sul PC (🎧 Prova), <b>va in onda</b>, <b>esce dall'onda</b> (la musica continua sul PC), spegne o riavvia la radio;</li>
+<li><b>avvia e ferma la registrazione</b>: per registrare da solo un programma, per esempio ogni sabato dalle 21 alle 23;</li>
+<li><b>aspetta qualche secondo</b> prima dell'azione successiva;</li>
+<li>fa il <b>backup del database</b> ed <b>elimina registrazioni e backup più vecchi di N giorni</b>.</li>
+</ul></li>
 </ul>
+<p>Sopra l'elenco degli eventi una tendina mostra il fuso in uso: cambiandola, il fuso vale <b>solo fino alla chiusura</b> dell'app, poi torna quello delle Impostazioni.</p>
+<div class="tip"><b>✅ Il backup c'è già</b>Al primo avvio lo Scheduler crea da solo "Backup del database" (ogni giorno alle 04:00) e "Pulizia backup vecchi" (la domenica, tiene gli ultimi 30 giorni). Se di notte il PC è spento, il backup si fa all'avvio. Puoi cambiare gli orari o toglierli.</div>
 <p><span class="b">▶ Esegui ora</span> prova subito un evento. Il pulsante 🗓 mostra la <b>timeline</b> della settimana:</p>
 <figure><img src="img/it/timeline.webp" loading="lazy" alt="Timeline settimanale"><figcaption>La timeline: i blocchi della settimana, la linea rossa "adesso" e il blocco IN ONDA.</figcaption></figure>
 <div class="tip"><b>✅ Un palinsesto semplice</b>
@@ -363,7 +377,7 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <tr><td>06:00–20:00</td><td>Clockwheel "Giorno" (musica varia)</td></tr>
 <tr><td>20:00–24:00</td><td>Clockwheel "Sera" (genere più specifico)</td></tr>
 <tr><td>Sab e Dom 10:00</td><td>Programma speciale (playlist o clockwheel dedicato)</td></tr>
-<tr><td>04:00 ogni giorno</td><td>Azione "Backup del database"</td></tr>
+<tr><td>Sab 21:00 e 23:00</td><td>Azioni "Avvia registrazione" e "Ferma registrazione" per archiviare il programma</td></tr>
 </table></div>
 </section>
 
@@ -411,11 +425,13 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <h3>✍ Proponi presentazione (facoltativa)</h3>
 <p>Se sul PC c'è <b>Claude Code</b> collegato al tuo account, Claude scrive 2-3 frasi da leggere al microfono usando solo i fatti della scheda. Scegli Opus (scrive meglio) o Sonnet (consuma meno). Il testo compare nel riquadro <b>🎙 DA LEGGERE</b>.</p>
 <h3>Pulsanti jingle</h3>
-<p>8 pulsanti: assegnali dalla ricerca con 🎵, un clic li fa partire, <span class="b">⏹ Ferma jingle</span> li ferma. Funzionano anche in Automatico. Ogni pulsante ha il suo modo (clic sull'etichetta in basso):</p>
+<p>Da 8 a 32 pulsanti (tendina nel riquadro Jingle o Impostazioni → Regia): assegnali dalla ricerca con 🎵, un clic li fa partire, <span class="b">⏹ Ferma jingle</span> li ferma. Funzionano anche in Automatico. Ogni pulsante ha il suo modo (clic sull'etichetta in basso):</p>
 <table>
 <tr><td><b>≋ SOPRA</b></td><td>Il jingle suona sopra la musica, che si abbassa. Per effetti brevi, applausi, risate.</td></tr>
 <tr><td><b>⏏ STACCO</b></td><td>La musica sfuma in ~1 s e il jingle suona da solo; poi in Automatico riparte il brano successivo, in Manuale silenzio fino ad AVVIA.</td></tr>
 </table>
+<p><b>⌨ Dalla tastiera</b>: con la Regia aperta, la lettera nell'angolo di ogni pulsante lo fa partire. I tasti ricalcano la griglia: <kbd>1 2 3 4</kbd>, <kbd>Q W E R</kbd>, <kbd>A S D F</kbd>, <kbd>Z X C V</kbd> per i primi 16, <kbd>5 6 7 8</kbd>, <kbd>T Y U I</kbd>, <kbd>G H J K</kbd>, <kbd>B N M ,</kbd> per gli altri. Non scattano mentre scrivi in una casella; il pulsante <span class="b">⌨</span> le spegne e riaccende. La <kbd>barra spaziatrice</kbd> resta per il microfono.</p>
+<p>Su uno schermo largo i jingle stanno nella colonna a destra della Regia e restano visibili mentre scorri.</p>
 </section>
 
 <!-- ───────────────────────── 14 ───────────────────────── -->
@@ -468,6 +484,7 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <tr><td><b>🎧 Solo musica</b> + uscita</td><td>Solo la musica, senza la tua voce, ~1 s di ritardo.</td><td>In cuffia mentre conduci. Scegli l'uscita delle cuffie collegate al PC.</td></tr>
 <tr><td><b>📡 Come gli ascoltatori</b></td><td>Lo stream pubblico, con il ritardo del server (5-30 s).</td><td>Verificare cosa sentono gli ascoltatori. Funziona se in Impostazioni c'è l'indirizzo d'ascolto.</td></tr>
 </table>
+<p>Se l'ascolto si interrompe (la radio si riavvia, la rete ha un attimo di vuoto) riparte da solo in pochi secondi.</p>
 </section>
 
 <!-- ───────────────────────── 17 ───────────────────────── -->
@@ -500,7 +517,7 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 </table>
 <p>Per aprire <code>%APPDATA%</code> incollalo nella barra degli indirizzi di Esplora file.</p>
 <div class="tip"><b>✅ Backup in 3 mosse</b>
-<ol><li>Nello Scheduler, un'azione "Backup del database" ogni notte.</li>
+<ol><li>Il backup di ogni notte c'è già: al primo avvio lo Scheduler crea da solo "Backup del database" (ogni giorno alle 04:00) e "Pulizia backup vecchi" (la domenica, tiene gli ultimi 30 giorni). Se di notte il PC è spento, il backup si fa all'avvio. Puoi cambiare gli orari o toglierli.</li>
 <li>Copia ogni tanto su un disco esterno o nel cloud la cartella Database e <code>%APPDATA%\CatorwebPC</code>.</li>
 <li>Prima di grandi pulizie in Manutenzione: <b>Backup &amp; Restore → Crea backup</b>.</li></ol></div>
 <p>Il programma usa le porte <b>8767, 8001 e 1235</b> solo dentro il PC: non serve aprire niente sul router.</p>
@@ -520,6 +537,8 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <p>Stai ascoltando 🎧 Ascolto → Tutto mentre parli: usa Solo musica.</p>
 <h4>"SILENZIO RILEVATO"</h4>
 <p>In onda non arriva audio da più di 20 secondi. Il motore si riavvia da solo; se resta, chiudi e riapri la diretta. In Manuale il silenzio tra un brano e l'altro è normale.</p>
+<h4>Il titolo del brano non compare nei player</h4>
+<p>Nella Dashboard la riga <b>Titolo al server</b> dice se il server ha accettato il titolo (<b>✓ Inviato</b>) o lo ha rifiutato (<b>✗ Rifiutato</b>, con il motivo). Se risulta inviato ma non si vede, dipende da come il fornitore lo mostra: per esempio alcuni pannelli con AutoDJ mostrano solo i propri titoli.</p>
 <h4>Un brano non parte / "File non trovato"</h4>
 <p>Il file è stato spostato o rinominato: Manutenzione → File mancanti.</p>
 <h4>"Catorweb Broadcaster è già aperto"</h4>
@@ -648,7 +667,7 @@ Sono circa 25-30 minuti: due giri all'ora, con un'identificazione ogni ~12 minut
 <tr><td><b>Sweeper</b></td><td>Breve effetto con voce tra due brani.</td></tr>
 <tr><td><b>Voice track</b></td><td>Un intervento parlato registrato prima e messo in scaletta.</td></tr>
 </table>
-<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manuale per la versione 2.13. La guida rapida è anche dentro l'app: <span class="b">❓ Aiuto</span>.</p>
+<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manuale per la versione 3.0. La guida rapida è anche dentro l'app: <span class="b">❓ Aiuto</span>.</p>
 </section>
 </main>
 </div>

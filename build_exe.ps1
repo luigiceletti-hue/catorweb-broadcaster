@@ -24,6 +24,7 @@ Push-Location $root
 py -3 -m PyInstaller --noconfirm --clean --onedir --noconsole --name CatorwebBroadcaster `
    --icon (Join-Path $root "app\icon.ico") `
    --paths app --hidden-import mutagen --hidden-import edition_config --hidden-import tray `
+   --collect-data tzdata `
    --distpath build\pacchetto --workpath build\work --specpath build `
    app\radio_broadcaster_server.py
 if ($LASTEXITCODE -ne 0) { Pop-Location; throw "PyInstaller non riuscito" }

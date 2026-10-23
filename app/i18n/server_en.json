@@ -158,5 +158,22 @@
 "Apri la radio": "=",
 "Esci da Catorweb Broadcaster": "=",
 "🔴 IN ONDA": "=",
-"🎧 In prova": "="
+"🎧 In prova": "=",
+"La radio è spenta": "The radio is off",
+"già fuori onda": "already off air",
+"fuori onda: la radio continua solo sul PC (🎧 Prova)": "off air: the radio keeps playing on this PC only (🎧 Rehearse)",
+"registrazione già in corso": "recording already running",
+"Fuso orario sconosciuto": "Unknown time zone",
+"Evento non trovato: forse è stato eliminato. Elenco aggiornato": "Event not found: it may have been deleted. List refreshed",
+"Brani": "=",
+"Playlist e brani": "=",
+"Tasti jingle: valore non valido": "Jingle buttons: invalid value",
+"password non accettata per il titolo (alcuni server vogliono quella di amministratore)": "password not accepted for the title (some servers want the admin password)",
+"il server non ha risposto": "the server did not answer",
+"il server l'ha rifiutato (400 Bad Request)": "the server rejected it (400 Bad Request)",
+"il server l'ha rifiutato": "the server rejected it",
+"Backup del database": "",
+"Creato da solo al primo avvio: copia della libreria ogni notte": "",
+"Creato da solo al primo avvio: tiene i backup degli ultimi 30 giorni": "",
+"aggiunti il backup di ogni notte e la pulizia settimanale": ""
 }

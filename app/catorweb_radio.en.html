@@ -150,7 +150,25 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 .rg-row .rg-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rg-row .rg-a{color:var(--mut)}
 .rg-row button{padding:2px 7px;font-size:11px}
-.rg-carts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rg-carts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;--rows:2}
+.rg-info-i{cursor:help;color:var(--mut);font-size:13px;padding:0 2px}
+.rg-info-i:hover{color:var(--blue)}
+#rg-kbd-btn.off{opacity:.45;text-decoration:line-through}
+.rg-cart .rg-key{position:absolute;top:4px;left:8px;font-size:10px;font-family:monospace;color:var(--mut);border:1px solid var(--brd);border-radius:3px;padding:0 4px;line-height:14px}
+.rg-cart.has-key{padding-top:20px}
+/* Jingle sotto la Regia; da 1500px nella colonna a destra, fissi mentre la Regia scorre */
+.rg-layout{display:grid;grid-template-columns:minmax(0,1200px)}
+.rg-side{padding:0 16px 24px}
+@media(min-width:1500px){
+  /* jingle almeno il 38% dello schermo: a 1600 px tasti larghi ~140 px, non stretti e alti */
+  .rg-layout{grid-template-columns:minmax(0,1200px) minmax(38%,1fr);align-items:start}
+  .rg-side{position:sticky;top:0;padding:14px 16px 24px 0}
+  .rg-side .rg-card{max-height:calc(100vh - 120px);display:flex;flex-direction:column}
+  .rg-side .rg-carts{overflow-y:auto;min-height:0;
+    /* pochi tasti = piu' alti (riempiono la colonna), tanti = compatti; --rows = tasti / 4 */
+    grid-auto-rows:clamp(62px, calc((100vh - 230px) / var(--rows) - 8px), 130px)}
+  .rg-side .rg-cart b{font-size:14px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+}
 @media(max-width:700px){.rg-carts{grid-template-columns:repeat(2,1fr)}}
 .rg-cart{position:relative;min-height:62px;border:1px solid var(--brd);border-radius:8px;background:var(--bg);padding:8px 10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center}
 .rg-cart:hover{border-color:var(--blue)}
@@ -788,6 +806,18 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
   </div>
 </div>
 
+<!-- Conferma dei pulsanti della barra (askConfirm) -->
+<div class="modal-overlay" id="modal-ask" style="display:none">
+  <div class="modal" style="max-width:460px">
+    <h2 id="ask-title"></h2>
+    <div id="ask-text" style="font-size:13px;color:var(--mut);line-height:1.6;white-space:pre-line"></div>
+    <div class="modal-acts">
+      <button id="ask-ok" onclick="_askDone(true)">OK</button>
+      <button class="sec" onclick="_askDone(false)">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL TUTTE LE PLAYLIST GENERATE -->
 <div class="modal-overlay" id="modal-all-playlists">
   <div class="modal" style="max-width:520px">
@@ -1014,9 +1044,9 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
     </div>
     <div class="card">
       <div class="clabel" style="display:flex;justify-content:space-between;align-items:center">
-        <span>Liquidsoap log</span>
+        <span>Radio log</span>
         <span style="display:flex;gap:4px">
-          <button class="sec sm icon-btn" onclick="copyLog('liquidsoap')" title="Copy the full Liquidsoap log"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <button class="sec sm icon-btn" onclick="copyLog('liquidsoap')" title="Copy the full radio log"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <button class="sec sm" onclick="loadDashLiqLog()" title="Refresh">↺</button>
         </span>
       </div>
@@ -1045,7 +1075,7 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
       <div class="pane-hdr">
         <span>Categories</span>
         <div style="display:flex;gap:4px">
-          <button class="sec sm" onclick="openNewCatModal(0)" title="New category">+ Cat</button>
+          <button class="sec sm" onclick="openNewCatModal(0)" title="New category">+ Category</button>
           <button class="sec sm" onclick="openImportModal()" title="Import tracks">⬆ Import</button>
         </div>
       </div>
@@ -1185,6 +1215,12 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
           <button class="sm" onclick="schedNew()">+ New</button>
         </div>
       </div>
+      <div id="sched-tzbar" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)">
+        <span id="sched-clock" title="Time used by the Scheduler"></span>
+        <select id="sched-tz" onchange="schedTzTemp(this.value)" style="flex:1;min-width:120px;font-size:11px;padding:2px 4px" title="Change the time zone for now only: next time the app opens it goes back to the one in Settings"></select>
+        <span id="sched-tz-temp" style="display:none;color:var(--amber)">⏳ only until you close the app
+          <button class="sm sec" style="font-size:10px;padding:1px 6px;margin-left:4px" onclick="schedTzTemp('')" title="Back to the time zone saved in Settings">↺</button></span>
+      </div>
       <div class="pane-scroll" id="sched-list"></div>
     </div>
     <div class="right-pane" style="overflow:hidden;display:flex;flex-direction:column">
@@ -1229,7 +1265,7 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
               <label>Playlist file or track on this PC</label>
               <div style="display:flex;gap:6px">
                 <input id="sn-pl-path" type="text" placeholder="e.g. D:\Playlists\my.m3u" style="flex:1" oninput="plPathHint()">
-                <button class="sec sm" style="white-space:nowrap" onclick="fsBrOpen('music','sn-pl-path')">📁 Browse</button>
+                <button class="sec sm" style="white-space:nowrap" onclick="pickFileInto('sn-pl-path','any')">📁 Browse</button>
               </div>
               <div id="sn-pl-hint" style="font-size:11px;color:var(--mut);margin-top:3px">Supports .m3u/.m3u8 (playlists) or a single .mp3 audio file</div>
             </div>
@@ -1489,7 +1525,7 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
         <option value="500">500 lines</option>
       </select>
       <button onclick="loadLogs()">↻ Refresh</button>
-      <button class="icon-btn" onclick="copyLog('liquidsoap')" title="Copy the full Liquidsoap log"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy</button>
+      <button class="icon-btn" onclick="copyLog('liquidsoap')" title="Copy the full radio log"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy</button>
     </div>
     <div class="log-lines" id="log-liq"></div>
   </div>
@@ -1510,6 +1546,7 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
 
 <!-- MANUTENZIONE -->
 <section id="tab-regia" class="tab" style="overflow-y:auto">
+ <div class="rg-layout">
   <div class="rg-wrap">
     <div class="rg-top">
       <div class="rg-mode">
@@ -1553,13 +1590,21 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
         <div id="rg-results" class="rg-list"></div>
       </div>
     </div>
+  </div>
 
+  <!-- Jingle: sotto la Regia; su schermi larghi nella colonna a destra (prima vuota) -->
+  <div class="rg-side">
     <div class="rg-card">
-      <div class="rg-card-hdr"><b>🎵 Jingles</b><span class="rg-hint">click = plays now · ≋ OVER = over the music · ⏏ BREAK = the music fades and the jingle plays alone · assign from search with &quot;🎵&quot;</span>
+      <div class="rg-card-hdr"><b>🎵 Jingles</b>
+        <select id="rg-cart-count" onchange="rgCartCount(this.value)" title="How many jingle buttons (always 4 per row). If you reduce them, the jingles on the extra buttons stay saved" style="width:auto;font-size:11px;padding:1px 4px"></select>
+        <span class="rg-info-i" title="Click = plays now · ≋ OVER = plays over the music (lowered) · ⏏ BREAK = the music fades and the jingle plays alone · To assign a jingle: Quick search → 🎵 menu · ⌨ Keyboard: the letter in the corner of each button plays it (with the Studio open, not while typing in a box)">ⓘ</span>
+        <span style="flex:1"></span>
+        <button class="sec sm" id="rg-kbd-btn" onclick="rgKbdToggle()" title="Keyboard shortcuts for jingles: on / off">⌨</button>
         <button class="sec sm" onclick="rgCartStop()" title="Stop the jingle that is playing">⏹ Stop jingle</button></div>
       <div id="rg-carts" class="rg-carts"></div>
     </div>
   </div>
+ </div>
 </section>
 
 <section id="tab-tools" class="tab" style="overflow-y:auto">
@@ -1854,6 +1899,27 @@ const base = p => (p||'').split('/').pop().replace(/\.[^.]+$/,'');
 const trackLabel = t => t.artist ? `${t.artist} — ${t.title||base(t.filename)}` : (t.title||base(t.filename));
 const fmtDur = s => { if (!s) return ''; const m=Math.floor(s/60),ss=Math.floor(s%60); return `${m}:${String(ss).padStart(2,'0')}`; };
 
+// Domanda di conferma dentro la pagina: confirm() di Edge blocca la pagina e
+// l'ascolto in cuffia si fermava (22/10/2026). Uso: if (!await askConfirm(...)) return;
+let _askResolve = null;
+function askConfirm(title, text, okLabel, danger) {
+  if (_askResolve) _askDone(false);
+  document.getElementById('ask-title').textContent = title;
+  document.getElementById('ask-text').textContent = text || '';
+  const ok = document.getElementById('ask-ok');
+  ok.textContent = okLabel || 'OK';
+  ok.className = danger ? 'danger' : '';
+  openModal('modal-ask');
+  setTimeout(() => ok.focus(), 0);
+  return new Promise(res => { _askResolve = res; });
+}
+function _askDone(v) {
+  closeModal('modal-ask');
+  const r = _askResolve; _askResolve = null;
+  if (r) r(v);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _askResolve) _askDone(false); });
+
 function openModal(id)  { const el = document.getElementById(id); el.style.display = ''; el.classList.add('vis'); }
 function closeModal(id) {
   const el = document.getElementById(id);
@@ -1861,7 +1927,10 @@ function closeModal(id) {
   el.classList.remove('vis');
   el.style.display = 'none';
 }
-document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target===o) o.classList.remove('vis'); }));
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => {
+  if (e.target !== o) return;
+  if (o.id === 'modal-ask') _askDone(false); else o.classList.remove('vis');
+}));
 
 // ── TABS ──────────────────────────────────────────────────────────────
 const loaded = {};
@@ -2029,6 +2098,7 @@ const LISTEN = {   // modo -> elemento audio, pulsante, scheda, nome corto per i
   live:  { au: 'live-audio',  btn: 'lp-btn', card: 'live-player', name: 'Listeners' },
 };
 let _listenOn = null;   // modo che sta suonando
+let _listenSrc = '', _listenLastT = -1, _listenStuck = 0;   // per ricollegarsi da solo (vedi sotto)
 function listenMenu(force) {
   const p = document.getElementById('listen-panel');
   p.classList.toggle('open', force !== undefined ? force : !p.classList.contains('open'));
@@ -2043,12 +2113,35 @@ function listenStop(mode) {
 function listenStart(mode, src, volume) {
   Object.keys(LISTEN).forEach(k => { if (k !== mode && _listenOn === k) listenStop(k); });
   const au = document.getElementById(LISTEN[mode].au);
+  au.onerror = null;   // gli errori del flusso li gestisce il controllo qui sotto
   au.src = src;
   if (volume != null) au.volume = volume;
-  au.onerror = () => { if (_listenOn !== mode) return; listenStop(mode); toast('Listening stopped: the audio stream can\'t be reached', 'err'); };
+  _listenSrc = src; _listenLastT = -1; _listenStuck = 0;
   _listenOn = mode; listenRender();
-  return au.play().catch(e => { listenStop(mode); toast('Monitoring not started: ' + e.message, 'err'); });
+  return au.play().catch(e => {
+    if (e.name !== 'NotAllowedError') return;   // flusso non ancora pronto: ci riprova il controllo
+    listenStop(mode); toast('Monitoring not started: ' + e.message, 'err');
+  });
 }
+// L'ascolto riparte da solo: se il lettore resta muto (domanda di conferma aperta, motore
+// riavviato, rete) si ricollega; dopo 30 s senza audio si arrende (22/10/2026).
+setInterval(() => {
+  const mode = _listenOn;
+  if (!mode) return;
+  const au = document.getElementById(LISTEN[mode].au);
+  if (!au.paused && !au.ended && !au.error && au.currentTime !== _listenLastT) {
+    _listenLastT = au.currentTime; _listenStuck = 0; return;
+  }
+  _listenLastT = au.currentTime;
+  _listenStuck += 2;
+  if (mode !== 'live' && !_micActive && _listenStuck >= 10) {
+    listenStop(mode); toast('Listening stopped: the radio is off', 'inf'); return;
+  }
+  if (_listenStuck >= 30) {
+    listenStop(mode); toast('Listening stopped: the audio stream can\'t be reached', 'err'); return;
+  }
+  if (_listenStuck % 6 === 0) { au.src = _listenSrc; au.play().catch(() => {}); }
+}, 2000);
 function listenRender() {
   Object.entries(LISTEN).forEach(([k, m]) => {
     const on = _listenOn === k, b = document.getElementById(m.btn);
@@ -2127,6 +2220,17 @@ async function provaToggle() {
   else if (on) toast('🎧 Rehearse: the radio plays only on this PC — listen with 🎧 Listen (starts in a few seconds)', 'ok', 5000);
   onAirPoll();
 }
+// Dashboard: l'ultimo titolo mandato al server di streaming e se l'ha accettato
+function titleStatusRow(ts) {
+  if (!ts || !ts.state) return '';
+  const t = esc(ts.title || '');
+  const [color, text, tip] = ts.state === 'err'
+    ? ['var(--red)', '✗ Rejected', 'The server did not accept the title «' + t + '»: ' + esc(ts.why || '')]
+    : ts.state === 'wait'
+      ? ['var(--mut)', '… Sending', 'Title just sent to the server: «' + t + '»']
+      : ['var(--green)', '✓ Sent', 'The server received the title «' + t + '» without errors. If it doesn\'t show in players, it depends on how the provider displays it (e.g. panels with AutoDJ).'];
+  return `<div class="irow"><span class="ikey">Title to server</span><span class="ival" style="color:${color}" title="${tip}">${text}</span></div>`;
+}
 async function onAirPoll() {
   try {
     const s = await GET('/api/liquidsoap/status');
@@ -2140,6 +2244,11 @@ async function onAirPoll() {
     } else if (s.ok) {
       document.getElementById('onair-btn').title = 'Live broadcast from this PC to the streaming server';
       if (s.live_on || !s.active) window._lastSrvErr = '';
+    }
+    // titolo rifiutato dal server: avviso una volta per titolo (la riga fissa e' nella Dashboard)
+    const ts = (s.ok && s.title_status) || {};
+    if (ts.state === 'err' && ts.title + ts.why !== window._lastTitleErr) {
+      toast('🎵 Title not accepted by the server: ' + ts.why, 'err', 8000); window._lastTitleErr = ts.title + ts.why;
     }
     if (s.ok && !_endAfterBusy) endAfterRender(!!s.active, !!s.end_armed);
     if (s.ok && !_micBusy && !_micPtt) micRender(s.active, !!s.mic_on);
@@ -2196,7 +2305,7 @@ function airRecTick() {
 setInterval(airRecTick, 1000);
 async function airRecToggle() {
   if (!_airRecActive) { toast('Recording works only ON AIR or in Rehearse', 'inf'); return; }
-  if (_airRecFile && !confirm('Stop recording?')) return;
+  if (_airRecFile && !await askConfirm('Stop recording?', 'What has been recorded so far is saved in the recordings folder.', '⏹ Stop')) return;
   _airRecBusy = true;
   try {
     const r = await POST('/api/rec/' + (_airRecFile ? 'stop' : 'start'), {});
@@ -2451,7 +2560,7 @@ setInterval(rgTick, 250);
 async function pmToggle() {
   if (!_micActive) { toast('Manual mode works only ON AIR or in Rehearse', 'inf'); return; }
   const want = !(_oiLast && _oiLast.manual);
-  if (want && !confirm('Switch to MANUAL?\n\nThe track on air finishes normally, then nothing plays until you press ▶ START.\nWarning: if you don\'t talk and don\'t start anything, there is silence on air.')) return;
+  if (want && !await askConfirm('Switch to manual control?', 'The track on air ends normally, then nothing starts until you press ▶ START.\nCareful: if you don\'t talk or start anything, there is silence on air.', '✋ Manual')) return;
   const r = await POST('/api/manual/mode', { on: want });
   if (r.ok) {
     if (_oiLast) _oiLast.manual = r.manual;
@@ -2473,7 +2582,14 @@ async function rgLoad() {
       <span class="rg-t">${i === 0 ? '▶ ' : (i + 1) + '. '}${esc(t.title || base(t.filename))} <span class="rg-a">${esc(t.artist || '')}</span></span>
       <button class="sec sm" onclick="rgRemove(${t.id})" title="Remove from running order">✕</button></div>`).join('')
     : '<div class="empty">Running order empty: add tracks from the search next to it or from the Library</div>';
-  if (c.ok && Array.isArray(c.carts)) { _rgCarts = c.carts; rgRenderCarts(); }
+  if (c.ok && Array.isArray(c.carts)) {
+    _rgCarts = c.carts; rgRenderCarts();
+    const sel = document.getElementById('rg-cart-count');
+    if (sel && document.activeElement !== sel) {
+      sel.innerHTML = (c.choices || [8]).map(n => `<option value="${n}">${n} buttons</option>`).join('');
+      sel.value = String(c.count || _rgCarts.length);
+    }
+  }
 }
 async function rgRemove(id) {
   const r = await POST('/api/liquidsoap/queue/remove', { id });
@@ -2492,7 +2608,7 @@ async function rgSearch() {
     return `<div class="rg-row">${emb}<span class="rg-t">${esc(t.title || base(t.filename))} <span class="rg-a">${esc(t.artist || '')}</span></span>
       <button onclick="rgAdd(${i})" ${t.embargo_until ? 'disabled' : ''} title="Add to the end of the running order">+ Running order</button>
       <select onchange="rgAssign(${i}, this.value); this.value=''" title="Assign to a jingle button" style="width:auto;font-size:11px;padding:1px 3px">
-        <option value="">🎵</option>${[1,2,3,4,5,6,7,8].map(n => `<option value="${n}">→ ${n}</option>`).join('')}</select></div>`;
+        <option value="">🎵</option>${(_rgCarts.length ? _rgCarts.map(c => c.slot) : [1,2,3,4,5,6,7,8]).map(n => `<option value="${n}">→ ${n}</option>`).join('')}</select></div>`;
   }).join('') : '<div class="empty">No tracks found</div>';
 }
 async function rgAdd(i) {
@@ -2507,14 +2623,43 @@ async function rgAssign(i, slot) {
   if (r.ok) { toast(`🎵 Button ${slot}: ${t.title || base(t.filename)}`, 'ok'); rgLoad(); }
   else toast('Error: ' + r.error, 'err');
 }
+// ⌨ Jingle da tastiera: i tasti ricalcano la griglia (4 per fila). Tasti 1-16 sulla meta'
+// sinistra della tastiera (1234/QWER/ASDF/ZXCV), 17-32 sulla destra (5678/TYUI/GHJK/BNM,).
+// e.code = posizione fisica: vale con tastiera italiana o inglese.
+const RG_KEYS = ['Digit1','Digit2','Digit3','Digit4', 'KeyQ','KeyW','KeyE','KeyR', 'KeyA','KeyS','KeyD','KeyF', 'KeyZ','KeyX','KeyC','KeyV',
+                 'Digit5','Digit6','Digit7','Digit8', 'KeyT','KeyY','KeyU','KeyI', 'KeyG','KeyH','KeyJ','KeyK', 'KeyB','KeyN','KeyM','Comma'];
+const rgKeyLabel = code => code === 'Comma' ? ',' : code.replace(/^(Digit|Key)/, '');
+let _rgKbdOn = true;
+try { _rgKbdOn = localStorage.getItem('rg_kbd') !== 'off'; } catch (e) {}
+function rgKbdToggle() {
+  _rgKbdOn = !_rgKbdOn;
+  try { localStorage.setItem('rg_kbd', _rgKbdOn ? 'on' : 'off'); } catch (e) {}
+  rgRenderCarts();
+  toast(_rgKbdOn ? '⌨ Keyboard jingles on' : '⌨ Keyboard jingles off', 'inf');
+}
+document.addEventListener('keydown', e => {
+  if (!_rgKbdOn || e.repeat || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+  if (!document.querySelector('#nav button[data-tab="regia"].on')) return;   // solo con la Regia aperta
+  const t = e.target;
+  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;   // mai mentre scrivi
+  const slot = RG_KEYS.indexOf(e.code) + 1;
+  if (!slot || slot > _rgCarts.length) return;
+  e.preventDefault();
+  const c = _rgCarts[slot - 1];
+  if (c && c.filename) rgCartPlay(slot);
+});
 function rgRenderCarts() {
-  document.getElementById('rg-carts').innerHTML = _rgCarts.map(c => c.filename
-    ? `<div class="rg-cart ${c.mode === 'stacco' ? 'stacco' : ''}" id="rg-cart-${c.slot}" onclick="rgCartPlay(${c.slot})" title="${esc(c.filename)}">
-         <span class="rg-n">${c.slot}</span><b>${esc(c.title)}</b><span>${esc(c.artist)}${c.missing ? ' ⚠ missing file' : ''}</span>
+  const box = document.getElementById('rg-carts');
+  box.style.setProperty('--rows', Math.max(2, Math.ceil(_rgCarts.length / 4)));
+  const kb = document.getElementById('rg-kbd-btn'); if (kb) kb.classList.toggle('off', !_rgKbdOn);
+  const key = slot => _rgKbdOn && RG_KEYS[slot - 1] ? `<span class="rg-key" title="Keyboard key">${rgKeyLabel(RG_KEYS[slot - 1])}</span>` : '';
+  box.innerHTML = _rgCarts.map(c => c.filename
+    ? `<div class="rg-cart ${c.mode === 'stacco' ? 'stacco' : ''} ${_rgKbdOn ? 'has-key' : ''}" id="rg-cart-${c.slot}" onclick="rgCartPlay(${c.slot})" title="${esc(c.filename)}">
+         ${key(c.slot)}<span class="rg-n">${c.slot}</span><b>${esc(c.title)}</b><span>${esc(c.artist)}${c.missing ? ' ⚠ missing file' : ''}</span>
          <button class="rg-mode" onclick="event.stopPropagation();rgCartMode(${c.slot}, '${c.mode === 'stacco' ? 'sopra' : 'stacco'}')"
            title="${c.mode === 'stacco' ? 'BREAK: the music fades and the jingle plays alone. Click = switch to OVER' : 'OVER: the jingle plays over the (lowered) music. Click = switch to BREAK'}">${c.mode === 'stacco' ? '⏏ STACCO' : '≋ SOPRA'}</button>
          <button class="rg-x" onclick="event.stopPropagation();rgCartClear(${c.slot})" title="Clear button">✕</button></div>`
-    : `<div class="rg-cart empty"><span class="rg-n">${c.slot}</span><span>empty — assign from search 🎵</span></div>`).join('');
+    : `<div class="rg-cart empty ${_rgKbdOn ? 'has-key' : ''}" title="To assign a jingle: Quick search → 🎵 menu">${key(c.slot)}<span class="rg-n">${c.slot}</span><span>empty</span></div>`).join('');
 }
 async function rgCartPlay(slot) {
   const r = await POST('/api/carts/play', { slot });
@@ -2529,6 +2674,13 @@ async function rgCartMode(slot, mode) {
 async function rgCartClear(slot) {
   if (!confirm(`Clear button ${slot}?`)) return;
   await POST('/api/carts/clear', { slot }); rgLoad();
+}
+// Numero di tasti jingle (8/12/16/24/32, 4 per fila): salvato nelle Impostazioni → Regia.
+// Riducendo, i jingle dei tasti in piu' restano salvati e ricompaiono rialzando il numero.
+async function rgCartCount(n) {
+  const r = await POST('/api/carts/count', { count: Number(n) });
+  if (r.ok) { toast(`🎵 ${r.count} jingle buttons`, 'ok'); rgLoad(); }
+  else toast('Error: ' + (r.error || '?'), 'err');
 }
 async function rgCartStop() { await POST('/api/carts/stop', {}); toast('⏹ Jingle stopped', 'inf'); }
 setInterval(() => { if (document.querySelector('#nav button[data-tab="regia"].on')) rgLoad(); }, 4000);
@@ -2598,15 +2750,16 @@ async function onAirToggle() {
   if (_onAirBusy) return;
   if (_onAirState === 'off' || _onAirState === 'prova') {
     const srv = (window.EDITION && EDITION.stream) ? '\nServer: ' + EDITION.stream : '';
-    if (!confirm(_onAirState === 'prova'
-        ? '🔴 GO ON AIR?\n\nYou are leaving Rehearse: from now on listeners can hear you.' + srv + '\n\nThe music doesn\'t stop: the track you are listening to goes on air as it is.'
-        : '🔴 GO ON AIR?\n\nThe PC connects to the streaming server and listeners can hear you.' + srv + '\n\nThe broadcast starts from the first track in the queue (or from the clockwheel).\n(To listen without going on air use 🎧 Rehearse.)')) return;
+    if (!await askConfirm('🔴 Go on air?', _onAirState === 'prova'
+        ? 'You are leaving Test mode: from now on listeners hear you.' + srv + '\n\nThe music doesn\'t stop: the track you are listening to goes on air as it is.'
+        : 'The PC connects to the streaming server and listeners hear you.' + srv + '\n\nThe broadcast starts from the first track in the queue (or from the clockwheel).\n(To listen without going on air use 🎧 Rehearse.)',
+        '🔴 Go on air', true)) return;
     _onAirBusy = true; onAirRender('wait');
     const r = await POST('/api/liquidsoap/start', {});
     _onAirBusy = false;
     if (!r.ok) toast('Error: ' + (r.msg || r.error || 'start failed'), 'err');
   } else {
-    if (!confirm('End the broadcast?\n\nThe PC disconnects from the streaming server right away.')) return;
+    if (!await askConfirm('End the broadcast?', 'The PC disconnects from the streaming server right away.', '⏹ End broadcast', true)) return;
     _onAirBusy = true;
     const r = await POST('/api/liquidsoap/stop', {});
     _onAirBusy = false;
@@ -2629,7 +2782,7 @@ function endAfterRender(active, armed) {
 async function endAfterToggle() {
   if (_endAfterBusy) return;
   const on = !_endArmed;
-  if (on && !confirm('End the broadcast AFTER THIS TRACK?\n\nThe track on air finishes normally, then nothing else plays and the broadcast ends by itself (if you are talking, it waits until you switch the microphone off). You can cancel until then.')) return;
+  if (on && !await askConfirm('End the broadcast after this track?', 'The track on air ends normally, then nothing else starts and the broadcast ends by itself (if you are talking, it waits until you turn the mic off). You can cancel until then.', '⏹ After this track')) return;
   _endAfterBusy = true;
   const r = await POST('/api/onair/end_after_track', { on });
   _endAfterBusy = false;
@@ -2639,6 +2792,7 @@ async function endAfterToggle() {
 }
 setInterval(onAirPoll, 3000);
 onAirPoll();
+
 
 async function dashLoad() {
   const [np, liq, cfg, q, cwa] = await Promise.all([
@@ -2672,9 +2826,10 @@ async function dashLoad() {
   if (cfg.ok && cfg.config) {
     const c = cfg.config;
     document.getElementById('dash-stream').innerHTML = `
-      <div class="irow"><span class="ikey">Liquidsoap</span><span class="ival" style="color:${liq.active?'var(--green)':'var(--red)'}">${liq.active?'● Running':'● Stopped'}</span></div>
+      <div class="irow"><span class="ikey">Radio engine</span><span class="ival" style="color:${liq.active?'var(--green)':'var(--red)'}">${liq.active?'● Running':'● Stopped'}</span></div>
       <div class="irow"><span class="ikey">Streaming server</span><span class="ival" style="color:${liq.live_on?'var(--green)':liq.prova?'var(--mut)':liq.active?'var(--amber)':'var(--red)'}" title="${esc(liq.server_error||'')}">${liq.live_on?'● Connected':liq.prova?'● Not used (🎧 Rehearse)':liq.active?(liq.server_error?'● Cannot connect':'● Connecting…'):'● Disconnected'}</span></div>
-      <div class="irow"><span class="ikey">Live Broadcast</span><span class="ival" style="color:${liq.live_on?'var(--green)':'var(--mut)'}">${liq.live_on?'● On':'● Off'}</span></div>
+      <div class="irow"><span class="ikey">On air</span><span class="ival" style="color:${liq.live_on?'var(--green)':'var(--mut)'}">${liq.live_on?'● Yes':'● No'}</span></div>
+      ${titleStatusRow(liq.title_status)}
       <div class="irow"><span class="ikey">Silence</span><span class="ival" style="color:${liq.silence?'var(--red)':'var(--green)'}">${liq.silence?'⚠️ Detected':'● None'}</span></div>
 <div class="irow"><span class="ikey">Host</span><span class="ival">${esc(c.host||'—')}</span></div>
       <div class="irow"><span class="ikey">Port</span><span class="ival">${esc(c.port||'—')}</span></div>
@@ -4653,7 +4808,8 @@ async function cwSave() {
   const slots = collectSlots();
   const r = await POST('/api/clockwheel/save', { name, slots });
   if (r.ok) {
-    toast(`✓ "${name}" saved`, 'ok');
+    if (r.made_default) toast(`✓ "${name}" saved: this is the clockwheel the radio will use`, 'ok', 5000);
+    else toast(`✓ "${name}" saved`, 'ok');
     cwEditing = name;
     if (!cwNames.includes(name)) cwNames.push(name);
     renderCwList();
@@ -4835,10 +4991,16 @@ const SCHED_ACTIONS = {
   move_category_tracks:  { label: '↔ Move tracks between categories' },
   empty_category:        { label: '🧹 Empty a category/playlist' },
   set_clockwheel:        { label: '🎡 Change default clockwheel' },
-  start_liquidsoap:      { label: '▶ Start Liquidsoap' },
-  stop_liquidsoap:       { label: '⏹ Stop Liquidsoap' },
-  restart_liquidsoap:    { label: '↺ Restart Liquidsoap' },
+  start_prova:           { label: '▶ Start the radio on this PC only (🎧 Rehearse)' },
+  start_liquidsoap:      { label: '📡 Go on air (connect to the server)' },
+  go_off_air:            { label: '📴 Go off air (music keeps playing on the PC)' },
+  stop_liquidsoap:       { label: '⏹ Turn off the radio' },
+  restart_liquidsoap:    { label: '↺ Restart the radio' },
+  rec_start:             { label: '⏺ Start recording' },
+  rec_stop:              { label: '⏹ Stop recording' },
+  wait:                  { label: '⏸ Wait a few seconds' },
   backup:                { label: '💾 Create database backup' },
+  cleanup_old:           { label: '🧹 Delete old recordings and backups' },
 };
 
 let _schedActions = [];
@@ -4860,9 +5022,18 @@ function schedCatOptions(selectedId) {
 function schedActionParamsHtml(item, i) {
   const a = item.action;
   if (a === 'add_to_queue') {
-    return `<input type="text" id="sa-file-${i}" style="flex:1;min-width:200px" placeholder="e.g. D:\\Music\\Rock\\track.mp3"
-              value="${esc(item.filename||'')}" oninput="_schedActions[${i}].filename=this.value">
-            <button class="sa-btn" onclick="fsBrOpen('music','sa-file-${i}')" title="Browse">📁</button>`;
+    return `<div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:4px">
+              <div style="position:relative">
+                <input type="text" style="width:100%" placeholder="🔎 Search the library (title or artist)"
+                       oninput="schedTrackSearchDelay(${i}, this.value)" onblur="setTimeout(()=>schedTrackClose(${i}),200)">
+                <div id="sa-res-${i}" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:50;max-height:240px;overflow:auto;background:var(--sur2);border:1px solid var(--brd);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.4)"></div>
+              </div>
+              <div style="display:flex;gap:4px;align-items:center">
+                <input type="text" id="sa-file-${i}" style="flex:1" placeholder="…or the file path"
+                       value="${esc(item.filename||'')}" oninput="_schedActions[${i}].filename=this.value">
+                <button class="sa-btn" onclick="pickFileInto('sa-file-${i}','audio')" title="Choose a file from disk">📁</button>
+              </div>
+            </div>`;
   }
   if (a === 'set_clockwheel') {
     return `<select onchange="_schedActions[${i}].clockwheel_file=this.value">
@@ -4894,8 +5065,59 @@ function schedActionParamsHtml(item, i) {
   if (a === 'empty_category') {
     return `<select onchange="_schedActions[${i}].category_id=this.value">${schedCatOptions(item.category_id)}</select>`;
   }
+  if (a === 'wait') {
+    if (item.seconds == null) item.seconds = 5;
+    return `<input type="number" min="1" max="600" style="width:70px" value="${esc(item.seconds)}"
+              oninput="_schedActions[${i}].seconds=parseInt(this.value)||5">
+            <span style="font-size:11px;color:var(--mut)">seconds, then the next action</span>`;
+  }
+  if (a === 'cleanup_old') {
+    if (item.days == null) item.days = 30;
+    if (item.recordings == null) item.recordings = true;
+    if (item.backups == null) item.backups = true;
+    return `<span style="font-size:11px;color:var(--mut)">older than</span>
+            <input type="number" min="1" max="3650" style="width:70px" value="${esc(item.days)}"
+              oninput="_schedActions[${i}].days=parseInt(this.value)||30">
+            <span style="font-size:11px;color:var(--mut)">days:</span>
+            <label style="font-size:11px;color:var(--mut);display:flex;align-items:center;gap:4px;white-space:nowrap">
+              <input type="checkbox" ${item.recordings?'checked':''} onchange="_schedActions[${i}].recordings=this.checked"> ⏺ REC recordings
+            </label>
+            <label style="font-size:11px;color:var(--mut);display:flex;align-items:center;gap:4px;white-space:nowrap">
+              <input type="checkbox" ${item.backups?'checked':''} onchange="_schedActions[${i}].backups=this.checked"> database backups
+            </label>`;
+  }
+  if (a === 'start_liquidsoap')
+    return `<span style="font-size:11px;color:var(--mut)">if it is off it starts and goes on air, if it is in 🎧 Rehearse it goes on air without stopping the music</span>`;
+  if (a === 'go_off_air')
+    return `<span style="font-size:11px;color:var(--mut)">disconnects from the server, the radio keeps going in 🎧 Rehearse</span>`;
+  if (a === 'rec_start')
+    return `<span style="font-size:11px;color:var(--mut)">records what is playing (the radio must be on)</span>`;
   return '';
 }
+
+// ➕ Aggiungi brano: ricerca nella libreria come nella Regia (titolo o artista)
+let _saSearchT = null, _saResults = {};
+const _saName = t => t.title || (t.filename || '').split(/[\\\/]/).pop().replace(/\.[^.]+$/, '');
+function schedTrackSearchDelay(i, q) { clearTimeout(_saSearchT); _saSearchT = setTimeout(() => schedTrackSearch(i, q.trim()), 300); }
+async function schedTrackSearch(i, q) {
+  const box = document.getElementById('sa-res-' + i); if (!box) return;
+  if (q.length < 2) { box.style.display = 'none'; return; }
+  const r = await POST('/api/database/search', { query: q });
+  const list = _saResults[i] = ((r.ok && r.results) || []).slice(0, 40);
+  box.innerHTML = list.length ? list.map((t, k) => `<div onmousedown="schedTrackPick(${i}, ${k})"
+      style="padding:5px 8px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--brd)" onmouseover="this.style.background='var(--sur)'" onmouseout="this.style.background=''">
+      ${t.embargo_until ? '🔒 ' : ''}<b>${esc(_saName(t))}</b> <span style="color:var(--mut)">${esc(t.artist || '')}</span></div>`).join('')
+    : '<div style="padding:6px 8px;font-size:12px;color:var(--mut)">No tracks found</div>';
+  box.style.display = '';
+}
+function schedTrackPick(i, k) {
+  const t = (_saResults[i] || [])[k]; if (!t) return;
+  _schedActions[i].filename = t.filename;
+  const inp = document.getElementById('sa-file-' + i); if (inp) inp.value = t.filename;
+  schedTrackClose(i);
+  toast('🎵 ' + _saName(t) + (t.embargo_until ? ' — 🔒 under embargo: it won\'t be queued while it lasts' : ''), t.embargo_until ? 'err' : 'ok');
+}
+function schedTrackClose(i) { const box = document.getElementById('sa-res-' + i); if (box) box.style.display = 'none'; }
 
 function renderSchedActions() {
   const el = document.getElementById('sn-actions-list');
@@ -4942,7 +5164,7 @@ function schedNew() {
   document.getElementById('sn-enabled').checked = true;
   document.getElementById('sched-delbtn').style.display = 'none';
   document.getElementById('sn-repeat').value  = 'daily';
-  document.getElementById('sn-date').value    = new Date().toISOString().slice(0,10);
+  document.getElementById('sn-date').value    = tlFmtISO(tlNowUtc());   // non toISOString: e' la data UTC
   document.getElementById('sn-dur').value     = '60';
   document.getElementById('sn-qmode').value   = 'replace';
   document.getElementById('sn-cw-clearforced').checked = false;
@@ -5127,6 +5349,12 @@ async function schedRunNow() {
   const r = await POST('/api/scheduler/run', { id: schedEditing });
   if (r.ok) toast('✓ Done', 'ok');
   else toast('Error: '+(r.error||'?'), 'err');
+  if (r.gone) {   // evento non piu' nel file (eliminato altrove): elenco aggiornato, editor chiuso
+    schedEditing = null;
+    document.getElementById('sched-ed').style.display = 'none';
+    document.getElementById('sched-empty').style.display = '';
+    await initSched();
+  }
 }
 
 async function schedDel() {
@@ -5144,6 +5372,16 @@ async function schedDel() {
 let _fsBrTargetId = null;  // ID dell'input da riempire
 let _fsBrRoot     = 'music';
 let _fsBrSel      = null;  // path assoluto selezionato
+
+// Finestra di Windows "Apri" (Scheduler): i brani della libreria possono stare in
+// qualsiasi cartella del disco, il selezionatore interno vedeva solo la cartella musica.
+async function pickFileInto(targetInputId, kind) {
+  const inp = document.getElementById(targetInputId);
+  toast('Choose the file in the window that opened (if you can\'t see it, look in the taskbar)', 'ok');
+  const r = await POST('/api/edition/pick_file', { kind, start: (inp && inp.value.trim()) || '' });
+  if (r.ok && r.path && inp) { inp.value = r.path; inp.dispatchEvent(new Event('input', {bubbles:true})); }
+  else if (!r.ok && r.error) toast(r.error, 'err');
+}
 
 function fsBrOpen(root, targetInputId) {
   _fsBrTargetId = targetInputId;
@@ -5246,8 +5484,53 @@ function toggleSchedView() {
   }
 }
 
-// Edizione: lo Scheduler ragiona nell'ora del PC (la versione originale usa UTC come il suo server).
-function tlNowUtc() { return new Date(); }
+// Edizione: lo Scheduler ragiona nell'ora del PC o nel fuso scelto in Impostazioni → Scheduler
+// (la versione originale usa UTC come il suo server). getHours() di questa data = ora dello Scheduler.
+function tlNowUtc() { return new Date(Date.now() + ((window.EDITION || {}).sched_offset_min || 0) * 60000); }
+// Stessi fusi della pagina Impostazioni → Scheduler
+const SCHED_TZ = [
+  ['local', 'PC time'], ['UTC', 'UTC'],
+  ['Europe/London', 'London, Dublin, Lisbon'], ['Europe/Rome', 'Rome, Paris, Berlin, Madrid'],
+  ['Europe/Athens', 'Athens, Bucharest, Helsinki'], ['Europe/Moscow', 'Moscow, Istanbul'],
+  ['America/New_York', 'New York, Toronto (Eastern)'], ['America/Chicago', 'Chicago, Mexico City (Central)'],
+  ['America/Denver', 'Denver (Mountain)'], ['America/Los_Angeles', 'Los Angeles, Vancouver (Pacific)'],
+  ['America/Sao_Paulo', 'São Paulo, Rio de Janeiro'], ['America/Argentina/Buenos_Aires', 'Buenos Aires'],
+  ['Africa/Johannesburg', 'Johannesburg, Cairo'], ['Asia/Dubai', 'Dubai'], ['Asia/Kolkata', 'India'],
+  ['Asia/Shanghai', 'Beijing, Hong Kong, Singapore'], ['Asia/Tokyo', 'Tokyo, Seoul'],
+  ['Australia/Sydney', 'Sydney, Melbourne'], ['Pacific/Auckland', 'Auckland'],
+];
+function schedClockShow() {
+  const el = document.getElementById('sched-clock'); if (!el) return;
+  const d = tlNowUtc(), E = window.EDITION || {}, tz = E.sched_tz || 'local';
+  el.textContent = '🕒 ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  const sel = document.getElementById('sched-tz');
+  if (sel && document.activeElement !== sel) {
+    const list = SCHED_TZ.some(z => z[0] === tz) ? SCHED_TZ : SCHED_TZ.concat([[tz, tz]]);
+    sel.innerHTML = list.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}${v === (E.sched_tz_saved || 'local') ? ' ✓' : ''}</option>`).join('');
+    sel.value = tz;
+  }
+  document.getElementById('sched-tz-temp').style.display = E.sched_tz_temp ? '' : 'none';
+}
+function schedClockApply(d) {
+  window.EDITION = window.EDITION || {};
+  ['sched_tz', 'sched_tz_saved', 'sched_tz_temp', 'sched_offset_min'].forEach(k => { if (k in d) window.EDITION[k] = d[k]; });
+  schedClockShow();
+  if (document.getElementById('sched-tl-pane').style.display !== 'none') renderTimeline();
+}
+// Riletto ogni minuto: il fuso fisso si cambia nelle Impostazioni, in un'altra finestra
+function schedClockRefresh() {
+  fetch('/api/edition/info').then(r => r.json()).then(d => { if (d && d.ok) schedClockApply(d); else schedClockShow(); })
+    .catch(schedClockShow);
+}
+// Fuso solo per questa sessione: non salvato, alla prossima apertura torna quello delle Impostazioni
+async function schedTzTemp(tz) {
+  const r = await POST('/api/scheduler/timezone', { tz });
+  if (!r.ok) { toast(r.error || 'Error', 'err'); schedClockShow(); return; }
+  schedClockApply(r);
+  toast(r.sched_tz_temp ? '🕒 Time zone changed until you close the app' : '🕒 Time zone from Settings', 'ok');
+}
+schedClockRefresh();
+setInterval(schedClockRefresh, 60000);
 function tlMonday(offsetWeeks) {
   const now = tlNowUtc();
   const dow = now.getDay(); // 0=Dom..6=Sab
