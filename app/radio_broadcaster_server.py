@@ -307,7 +307,89 @@ if ($ok -eq 'OK') { @@RESULT@@ }
 $o.Close()
 '''
 
+# 3.0: sui PC più lenti "Sfoglia" si apriva con molto ritardo: a ogni clic partiva
+# PowerShell da zero (avvio, Windows Forms, compilazione di CwFg, controllo dell'antivirus).
+# Ora un PowerShell resta pronto in attesa (_dlg_helper) e riceve solo il pezzo della finestra;
+# se non è pronto o è già occupato da un'altra finestra si usa il metodo di prima.
+_DLG_HELPER_PS = _DLG_PS.split("$o = New-Object", 1)[0] + r'''
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+while ($true) {
+  $line = [Console]::In.ReadLine()
+  if ($line -eq $null) { break }
+  $res = ''
+  try { $res = & ([ScriptBlock]::Create([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($line)))) } catch {}
+  [Console]::Out.WriteLine('@@RES@@' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$res)))
+  [Console]::Out.Flush()
+}
+'''
+_dlg_helper = {"proc": None, "busy": False}
+
+def _dlg_helper_start():
+    """Avvia (in sottofondo) il PowerShell che tiene pronte le finestre Sfoglia."""
+    if os.name != "nt":
+        return
+    with _dlg_lock:
+        p = _dlg_helper["proc"]
+        if p is not None and p.poll() is None:
+            return
+        enc = base64.b64encode(_DLG_HELPER_PS.encode("utf-16-le")).decode()
+        try:
+            _dlg_helper["proc"] = subprocess.Popen(
+                ["powershell", "-NoProfile", "-STA", "-EncodedCommand", enc],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            _dlg_helper["busy"] = False
+        except Exception:
+            _dlg_helper["proc"] = None
+
+def _dlg_helper_run(body):
+    """Mostra la finestra con il PowerShell già pronto. None = non disponibile."""
+    with _dlg_lock:
+        p = _dlg_helper["proc"]
+        if p is None or p.poll() is not None or _dlg_helper["busy"]:
+            return None
+        _dlg_helper["busy"] = True
+    try:
+        p.stdin.write(base64.b64encode(body.encode("utf-8")) + b"\n"); p.stdin.flush()
+    except Exception:
+        with _dlg_lock:
+            _dlg_helper["busy"] = False
+        return None
+    try:
+        while True:
+            line = p.stdout.readline()
+            if not line:
+                return ""                        # chiuso da un altro clic: come "Annulla"
+            line = line.decode("utf-8", errors="replace").strip()
+            if line.startswith("@@RES@@"):
+                return base64.b64decode(line[7:]).decode("utf-8", errors="replace").strip()
+    except Exception:
+        return ""
+    finally:
+        with _dlg_lock:
+            _dlg_helper["busy"] = False
+
 def _win_dialog(setup_ps, result_ps):
+    body = _DLG_PS.split("$o = New-Object", 1)[1]
+    body = ("$o = New-Object" + body).replace("[Console]::OutputEncoding = [Text.Encoding]::UTF8\n", "")
+    body = body.replace("@@SETUP@@", setup_ps).replace("if ($ok -eq 'OK') { @@RESULT@@ }",
+                                                       "$r = ''; if ($ok -eq 'OK') { $r = @@RESULT@@ }")
+    body = body.replace("@@RESULT@@", result_ps) + "\n$r\n"
+    with _dlg_lock:
+        helper_busy = _dlg_helper["busy"]
+    if helper_busy:
+        # finestra rimasta aperta da un clic precedente: la si chiude come prima
+        with _dlg_lock:
+            hp = _dlg_helper["proc"]
+        if hp is not None:
+            try: hp.kill()
+            except Exception: pass
+    else:
+        path = _dlg_helper_run(body)
+        if path is not None:
+            threading.Thread(target=_dlg_helper_start, daemon=True).start()   # pronto per il prossimo
+            return {"ok": True, "path": path}
+    threading.Thread(target=_dlg_helper_start, daemon=True).start()
     script = _DLG_PS.replace("@@SETUP@@", setup_ps).replace("@@RESULT@@", result_ps)
     enc = base64.b64encode(script.encode("utf-16-le")).decode()
     with _dlg_lock:
@@ -7136,6 +7218,7 @@ def _main():
     threading.Thread(target=_startup_push_queue, daemon=True, name="startup_push_queue").start()
     threading.Thread(target=_queue_watchdog,    daemon=True, name="queue_watchdog").start()
     threading.Thread(target=_scheduler_runner,   daemon=True, name="scheduler_runner").start()
+    threading.Thread(target=_dlg_helper_start,   daemon=True, name="dlg_helper").start()   # Sfoglia subito pronto
     threading.Thread(target=_silence_watcher,    daemon=True, name="silence_watcher").start()
 
     # Solo locale: sul PC l'app non deve essere raggiungibile da altri.
