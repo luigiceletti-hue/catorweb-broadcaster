@@ -30,7 +30,7 @@ Windows 10 / 11 · gratuito e open source · niente permessi di amministratore
 
 ## Cosa serve
 
-- Un PC con **Windows 10 o 11** e i tuoi file musicali (MP3, FLAC, M4A, OGG, WAV).
+- Un PC con **Windows 10 o 11** e la tua musica in **MP3**.
 - Per **andare in onda** serve un account su un **server di streaming** (Icecast o Shoutcast). Molti fornitori lo offrono per pochi euro al mese: indirizzo e password si mettono nelle Impostazioni.
 - **Senza server** puoi usare tutto il resto: provare le trasmissioni e registrare podcast sul PC.
 
