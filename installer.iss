@@ -4,7 +4,7 @@
 ; %APPDATA%\CatorwebPC e NON vengono cancellati disinstallando.
 
 #define AppName "Catorweb Broadcaster"
-#define AppVersion "3.0"
+#define AppVersion "3.5"
 
 [Setup]
 AppId={{6F1C2B7E-5D2A-4C1B-9E33-CA70DE0B1C01}

@@ -78,33 +78,51 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 #forced-cover-banner{background:#f59e0b;color:#000;text-align:center;font-weight:600;font-size:13px;padding:6px}
 /* REGIA MANUALE */
 .rg-wrap{padding:14px 16px 24px;display:flex;flex-direction:column;gap:14px;max-width:1200px}
-.rg-top{display:grid;grid-template-columns:220px 1fr 240px;gap:14px}
-@media(max-width:900px){.rg-top{grid-template-columns:1fr}}
-.rg-mode,.rg-now,.rg-go{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px}
+/* flex invece di griglia: chiudendo una sezione le altre si allargano a riempire il posto */
+.rg-top{display:flex;gap:14px}
+.rg-top>#rg-modebox{flex:0 0 200px}
+.rg-top>.rg-deck{flex:1 1 0}
+@media(max-width:900px){.rg-top{flex-direction:column}.rg-top>*{flex:none!important}}
+.rg-mode,.rg-deck{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px}
 .rg-lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 .rg-hint{font-size:11.5px;color:var(--mut);margin-top:6px}
 #rg-pm-btn{width:100%;font-weight:700;font-size:14px;padding:9px}
 #rg-pm-btn.man,#pm-btn.man{background:var(--amber);border-color:var(--amber);color:#000}
-.rg-now-title{font-size:18px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
 .rg-clock{display:flex;align-items:baseline;gap:10px;margin-top:6px}
 .rg-cd{font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:var(--txt)}
 .rg-cd.idle{color:var(--mut)}
+.rg-deck{display:flex;flex-direction:column;gap:4px;min-width:0;transition:border-color .2s}
+.rg-deck.on{border:2px solid var(--red);padding:13px}
+.rg-deck.ready{border-color:var(--green)}
+.rg-deck.over{border:2px dashed var(--blue);padding:13px;background:var(--sur2)}
+.rg-deck-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
+.rg-deck-lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--bg);color:var(--mut);white-space:nowrap}
+.rg-deck.on .rg-deck-lbl{background:rgba(248,81,73,.18);color:var(--red)}
+.rg-deck.ready .rg-deck-lbl{background:rgba(63,185,80,.15);color:var(--green)}
+.rg-deck .rg-cd{font-size:40px}
+.rg-deck-title{font-size:18px;font-weight:700;line-height:1.3;overflow-wrap:anywhere;margin-top:4px}
+.rg-deck-main{display:flex;gap:12px;align-items:center;margin-top:4px}
+.rg-deck-txt{min-width:0;flex:1}
+.rg-deck-txt .rg-deck-title{margin-top:0}
+.rg-deck-cov{width:72px;height:72px;flex:none;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;color:var(--mut)}
+.rg-deck-cov img{width:100%;height:100%;object-fit:cover}
+.rg-deck-art{font-size:13px;color:var(--mut);min-height:17px}
+.rg-deck-note{font-size:12px;color:var(--mut);min-height:16px;margin-top:2px}
+.rg-deck-btn{margin-top:auto;align-self:flex-start;font-weight:700}
+.rg-deck.ready .rg-deck-btn{background:var(--green);border-color:var(--green);color:#fff}
+.rg-deck-btn:disabled{opacity:.4}
+.rg-row[draggable=true]{cursor:grab}
+.rg-row.drop-before{box-shadow:inset 0 3px 0 var(--blue)}
+.rg-list.drop-end{box-shadow:inset 0 -3px 0 var(--blue)}
+#rg-list{min-height:70px;padding-bottom:18px}
 .rg-cd.warn{color:var(--amber)}
 .rg-cd.end{color:var(--red);animation:rgPulse 1s ease-in-out infinite}
 @keyframes rgPulse{50%{opacity:.35}}
 .rg-cd-lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
 .rg-bar{height:8px;border-radius:4px;background:var(--bg);border:1px solid var(--brd);margin-top:10px;overflow:hidden}
-#rg-bar-fill{height:100%;width:0;background:var(--blue);transition:width .25s linear}
-.rg-bar.warn #rg-bar-fill{background:var(--amber)}
-.rg-bar.end #rg-bar-fill{background:var(--red)}
-.rg-nextbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--sur);border:1px solid var(--brd);border-left:5px solid var(--blue);border-radius:10px;padding:12px 16px}
-.rg-nextbar.manual{border-left-color:var(--green)}
-.rg-nextbar.empty{border-left-color:var(--amber)}
-.rg-next-lbl{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--blue);white-space:nowrap}
-.rg-nextbar.manual .rg-next-lbl{color:var(--green)}
-.rg-nextbar.empty .rg-next-lbl{color:var(--amber)}
-.rg-next-title{font-size:24px;font-weight:700;line-height:1.25;overflow-wrap:anywhere;flex:1;min-width:200px}
-.rg-next-note{font-size:12.5px;color:var(--mut);white-space:nowrap}
+.rg-bar-fill{height:100%;width:0;background:var(--red);transition:width .25s linear}
+.rg-bar.warn .rg-bar-fill{background:var(--amber)}
+.rg-bar.end .rg-bar-fill{background:var(--red)}
 .rg-info{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;display:flex;gap:16px;align-items:flex-start}
 .rg-info-empty{color:var(--mut);font-size:13px}
 .rg-info img{width:120px;height:120px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--bg)}
@@ -135,11 +153,11 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 @media(max-width:700px){.rg-info{flex-direction:column}.rg-info img{width:90px;height:90px}}
 .rg-silence{margin-top:8px;padding:6px 9px;border-radius:6px;background:rgba(210,153,34,.15);color:var(--amber);font-weight:700;font-size:12.5px}
 .rg-silence.danger{background:rgba(248,81,73,.18);color:var(--red)}
-.rg-go{display:flex;flex-direction:column;justify-content:center}
-#rg-go-btn{font-size:22px;font-weight:800;padding:16px;background:var(--green);border-color:var(--green);color:#fff;border-radius:10px}
-#rg-go-btn:disabled{opacity:.4}
-.rg-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:900px){.rg-cols{grid-template-columns:1fr}}
+/* minmax(0,1fr): sempre metà e metà, i titoli lunghi della ricerca non schiacciano la scaletta vuota */
+.rg-cols{display:flex;gap:14px}
+.rg-cols>.rg-card{flex:1 1 0;min-width:0}
+#rg-list{min-height:200px}
+@media(max-width:900px){.rg-cols{flex-direction:column}}
 .rg-card{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:12px 14px}
 .rg-card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .rg-card-hdr .rg-hint{flex:1;margin:0}
@@ -159,7 +177,8 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 /* Jingle sotto la Regia; da 1500px nella colonna a destra, fissi mentre la Regia scorre */
 .rg-layout{display:grid;grid-template-columns:minmax(0,1200px)}
 .rg-side{padding:0 16px 24px}
-@media(min-width:1500px){
+/* da 1200 px (anche i portatili 1366) i jingle stanno a destra invece che sotto, fuori dallo schermo */
+@media(min-width:1200px){
   /* jingle almeno il 38% dello schermo: a 1600 px tasti larghi ~140 px, non stretti e alti */
   .rg-layout{grid-template-columns:minmax(0,1200px) minmax(38%,1fr);align-items:start}
   .rg-side{position:sticky;top:0;padding:14px 16px 24px 0}
@@ -169,7 +188,55 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
     grid-auto-rows:clamp(62px, calc((100vh - 230px) / var(--rows) - 8px), 130px)}
   .rg-side .rg-cart b{font-size:14px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 }
+@media(min-width:1200px) and (max-width:1499px){
+  .rg-layout{grid-template-columns:minmax(0,1fr) minmax(340px,34%)}
+}
 @media(max-width:700px){.rg-carts{grid-template-columns:repeat(2,1fr)}}
+/* Disposizione libera: maniglia in alto per spostare, angolo in basso a destra per allargare */
+.rg-mid{display:flex;flex-direction:column;gap:14px}
+.rg-mov{position:relative}
+.rg-grip{position:absolute;top:1px;left:50%;transform:translateX(-50%);width:48px;height:12px;border-radius:6px;cursor:move;touch-action:none;user-select:none;
+  display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:var(--mut);opacity:.35;z-index:3}
+.rg-grip:hover,.rg-mov.moving .rg-grip{opacity:1;background:var(--sur2)}
+.rg-lay-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 16px 0;font-size:12.5px;color:var(--mut);position:relative;z-index:100000}
+.rg-lay-free{display:none}
+#tab-regia.rg-free .rg-lay-free{display:inline-flex}
+.rg-lay-mine{display:none}
+#tab-regia.rg-hasmine:not(.rg-free) .rg-lay-mine{display:inline-flex}
+.rg-closed{display:none!important}
+.rg-x{position:absolute;top:1px;right:4px;width:16px;height:12px;line-height:12px;text-align:center;font-size:11px;cursor:pointer;color:var(--mut);opacity:.35;border-radius:4px;z-index:3;user-select:none}
+.rg-x:hover{opacity:1;color:var(--red);background:var(--sur2)}
+/* menu 🗂 Schede: quali sezioni vedere in Regia */
+.rg-tabs-wrap{position:relative}
+.rg-tabs-menu{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--sur);border:1px solid var(--brd);border-radius:8px;padding:6px 12px 10px;min-width:250px;box-shadow:0 10px 28px rgba(0,0,0,.4);color:var(--txt)}
+.rg-tabs-menu.vis{display:block}
+.rg-tabs-grp{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px}
+.rg-tabs-menu label{display:flex;gap:8px;align-items:center;padding:3px 0;cursor:pointer;font-size:13px}
+.rg-tabs-menu input{width:auto;margin:0}
+/* schede della Dashboard aperte in Regia: copie che si aggiornano da sole */
+/* Jingle chiusi: la colonna di destra sparisce e la Regia torna larga */
+.rg-side:has(#rg-jcard.rg-closed){display:none}
+.rg-layout:has(#rg-jcard.rg-closed){grid-template-columns:minmax(0,1200px)}
+.rg-dash{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;align-items:start}
+.rg-dash:not(:has(.rg-card:not(.rg-closed))){display:none}
+/* pagine della Regia */
+.rg-pages{display:flex;gap:4px}
+.rg-pages button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+/* schede nuove: prossimi eventi, recenti, orologio, appunti */
+.rg-nlist{max-height:260px;overflow-y:auto;font-size:13px}
+.rg-nrow{display:flex;gap:10px;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--brd)}
+.rg-nrow b{font-variant-numeric:tabular-nums;flex:none}
+.rg-nrow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rg-nrow i{font-style:normal;color:var(--mut);font-size:11.5px;flex:none}
+.rg-nrow.soon i{color:var(--amber);font-weight:700}
+.rg-clock{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;text-align:center}
+.rg-clock-sub{text-align:center;color:var(--mut);font-size:13px;margin-top:4px}
+.rg-clock-top{text-align:center;font-size:15px;margin-top:8px;font-variant-numeric:tabular-nums}
+#rg-notes-txt{width:100%;min-height:160px;height:calc(100% - 34px);resize:none;background:var(--sur2);border:1px solid var(--brd);border-radius:6px;color:var(--txt);padding:8px 10px;font-size:14px;line-height:1.45}
+#tab-regia.rg-free .rg-layout{display:block;position:relative;flex:none}
+#tab-regia.rg-free .rg-wrap,#tab-regia.rg-free .rg-top,#tab-regia.rg-free .rg-cols,#tab-regia.rg-free .rg-side,#tab-regia.rg-free .rg-dash{display:contents}
+#tab-regia.rg-free .rg-mov{position:absolute;margin:0;resize:both;overflow:auto;max-height:none;min-width:160px;min-height:60px}
+.rg-mov.moving{box-shadow:0 10px 28px rgba(0,0,0,.4);opacity:.93}
 .rg-cart{position:relative;min-height:62px;border:1px solid var(--brd);border-radius:8px;background:var(--bg);padding:8px 10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center}
 .rg-cart:hover{border-color:var(--blue)}
 .rg-cart.empty{cursor:default;color:var(--mut);border-style:dashed}
@@ -216,13 +283,15 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 #onair-btn.prova{border-color:var(--green);color:var(--green)}
 #prova-btn{flex-shrink:0;white-space:nowrap}
 #prova-btn.on{background:var(--green);border-color:var(--green);color:#fff}
+#prova-btn.wait{border-color:var(--amber);color:var(--amber)}
 #endafter-btn{flex-shrink:0;border:2px solid var(--brd);background:var(--bg);color:var(--txt);font-weight:700;font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
 #endafter-btn:hover{border-color:var(--amber);color:var(--amber)}
 #endafter-btn.armed{background:var(--amber);border-color:var(--amber);color:#000;animation:onair-pulse 1.4s infinite}
 @keyframes onair-pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.5)}50%{box-shadow:0 0 0 5px rgba(248,81,73,0)}}
 #logout-btn{background:none;border:none;color:var(--mut);cursor:pointer;font-size:12px;padding:3px 8px;border-radius:4px;flex-shrink:0;transition:.15s}
 #logout-btn:hover{color:var(--red);background:rgba(248,81,73,.1)}
-#nav{background:var(--sur);border-bottom:1px solid var(--brd);display:flex;flex-shrink:0;overflow-x:auto}
+/* schermi stretti: le schede vanno a capo come la barra in alto, invece di scorrere di lato (28/10/2026) */
+#nav{background:var(--sur);border-bottom:1px solid var(--brd);display:flex;flex-wrap:wrap;flex-shrink:0}
 #nav button{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer;padding:9px 16px;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s}
 #nav button:hover{color:var(--txt)}
 #nav button.on{color:var(--txt);border-bottom-color:var(--blue)}
@@ -321,6 +390,8 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
 .cat-item.on{background:var(--sur2);border-left-color:var(--blue)}
 .cat-item.subcat{padding-left:22px;font-size:12px;border-left-color:transparent}
 .cat-item.subcat.on{border-left-color:var(--blue)}
+.cat-tog{width:14px;flex-shrink:0;color:var(--mut);font-size:11px;text-align:center;cursor:pointer;user-select:none}
+.cat-tog:hover{color:var(--txt)}
 .cat-item .cat-name{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
 .cat-dur{display:none}
 .cat-info-bar{padding:4px 12px;font-size:11px;color:var(--mut);border-bottom:1px solid var(--brd);background:var(--bg2);flex-shrink:0}
@@ -328,6 +399,11 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
    tagliavano i nomi; ora esistono solo al passaggio del mouse */
 .cat-actions{display:none;gap:3px;flex-shrink:0}
 .cat-item:hover .cat-actions{display:flex}
+/* 28/10/2026: i pulsanti compaiono SOPRA la parte destra della riga (al posto del numero):
+   prima prendevano spazio, il nome andava a capo e la riga diventava alta il doppio */
+.cat-item{position:relative}
+.cat-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:1;padding-left:10px;
+  background:var(--sur2);box-shadow:-12px 0 10px -4px var(--sur2)}
 .cat-count{flex-shrink:0}
 #cats-resizer{width:5px;cursor:col-resize;flex-shrink:0;background:transparent;margin-left:-3px;z-index:2}
 #cats-resizer:hover,#cats-resizer.drag{background:var(--blue)}
@@ -480,6 +556,33 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
 @media(max-width:1100px){
   .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+/* Schermi piccoli (28/10/2026): barra in alto su una riga sola fino a ~1000 px, schede senza scorrimento */
+@media(max-width:1180px){
+  #hdr{gap:6px 8px;padding:6px 10px}
+  #hdr-np{display:none}
+  #nav button{padding:9px 11px}
+  #nav a.navlink{padding:9px 10px}
+}
+@media(max-width:1060px){
+  #mic-vol{width:56px!important}
+  #hdr .logo{max-width:110px;overflow:hidden;text-overflow:ellipsis}
+  #nav button{padding:9px 9px}
+}
+/* Schermi bassi (portatili 768 px): Regia più compatta, si vede di più senza scorrere */
+@media(max-height:820px){
+  .rg-wrap{padding:10px 12px 16px;gap:10px}
+  .rg-top,.rg-cols,.rg-mid,.rg-dash{gap:10px}
+  .rg-mode,.rg-deck{padding:10px}
+  .rg-deck.on,.rg-deck.over{padding:9px}
+  .rg-deck .rg-cd{font-size:30px}
+  .rg-deck-hd{min-height:34px}
+  .rg-deck-cov{width:54px;height:54px;font-size:24px}
+  .rg-deck-title{font-size:16px}
+  .rg-info{padding:10px 12px}
+  .rg-info img{width:90px;height:90px}
+  .rg-card{padding:10px 12px}
+  .rg-lay-bar{padding-top:8px}
+}
 @media(max-width:640px){
   .two-pane{flex-direction:column}
   .left-pane{width:100%;max-height:160px;border-right:none;border-bottom:1px solid var(--brd)}
@@ -527,6 +630,37 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
   </div>
 </div>
 
+<!-- MODAL DIVIDI PER VOCE (27/10/2026) -->
+<div class="modal-overlay" id="modal-voice">
+  <div class="modal" style="max-width:680px">
+    <h2>🎤 Dividi per voce — <span id="voice-cat"></span></h2>
+    <div style="font-size:12px;color:var(--mut)">Cerca ogni artista su MusicBrainz (serve internet, circa uno al secondo). Gli artisti già cercati, anche in altre categorie, non vengono richiesti di nuovo. Gruppi e non trovati puoi deciderli tu dalla lista.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button id="voice-go" onclick="voiceScan()">🔍 Cerca le voci</button>
+      <button id="voice-stop" onclick="voiceStop()" class="sec" style="display:none">⏹ Ferma</button>
+      <span id="voice-prog" style="font-size:12px;color:var(--mut)"></span>
+    </div>
+    <div id="voice-sum" style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px"></div>
+    <input type="search" id="voice-q" placeholder="Filtra artisti…" oninput="voiceRender()">
+    <div class="modal-cat-list" id="voice-list" style="max-height:300px;min-height:180px;flex-shrink:0"></div>
+    <div style="font-size:12px;display:flex;flex-direction:column;gap:6px">
+      <div><b>Dove metterli</b> (i brani restano anche nella categoria di partenza)</div>
+      <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="voice-mode" value="sub" checked> Sottocategorie di questa categoria (al nome si aggiunge quello della categoria)</label>
+      <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="voice-mode" value="root"> Categorie generali (si riempiono con tutte le categorie che dividi)</label>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center">
+        <span>♂ Maschile</span><input id="voice-nM" type="text">
+        <span>♀ Femminile</span><input id="voice-nF" type="text">
+        <span>⚥ Misti</span><input id="voice-nX" type="text" placeholder="vuoto = non dividere i duetti">
+        <span>👥 Gruppi</span><input id="voice-nG" type="text" placeholder="vuoto = non dividere i gruppi">
+      </div>
+    </div>
+    <div class="modal-acts">
+      <button onclick="voiceApply()">✓ Metti nelle categorie</button>
+      <button onclick="voiceClose()" class="sec">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-import">
   <div class="modal">
     <h2>Importa brani</h2>
@@ -555,12 +689,13 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
     </div>
     <!-- Upload -->
     <div id="ipanel-upload" style="display:none">
-      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+      <div class="upload-zone" id="upload-zone" onclick="pickUploadFiles()"
            ondragover="event.preventDefault();this.classList.add('drag')"
            ondragleave="this.classList.remove('drag')"
            ondrop="handleDrop(event)">
         <div style="font-size:24px;margin-bottom:8px">📂</div>
-        <div>Clicca o trascina file MP3 qui</div>
+        <div>Clicca per scegliere i brani sul PC, oppure trascina qui dei file MP3</div>
+        <div style="font-size:11px;color:var(--mut);margin-top:4px">Quelli scelti col clic restano dove sono: nessuna copia</div>
       </div>
       <input type="file" id="file-input" accept=".mp3" multiple style="display:none" onchange="handleFiles(this.files)">
       <div class="upload-file-list" id="upload-file-list"></div>
@@ -705,6 +840,7 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
       <div style="grid-column:1/-1"><label>Album</label><input id="te-falbum"  type="text"></div>
       <div><label>Anno</label><input id="te-fyear" type="text" maxlength="4"></div>
       <div><label>Genere</label><input id="te-fgenre" type="text"></div>
+      <div style="grid-column:1/-1"><label>Compositore <span style="color:var(--mut);font-weight:400">(spesso il profilo social dell'artista, es. @nomeartista)</span></label><input id="te-fcomposer" type="text"></div>
       <div style="grid-column:1/-1">
         <label>Tipo</label>
         <select id="te-ftype">
@@ -807,10 +943,12 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
 </div>
 
 <!-- Conferma dei pulsanti della barra (askConfirm) -->
-<div class="modal-overlay" id="modal-ask" style="display:none">
+<div class="modal-overlay" id="modal-ask" style="display:none;z-index:9000">
   <div class="modal" style="max-width:460px">
-    <h2 id="ask-title"></h2>
+    <h2 id="ask-title" style="white-space:pre-line"></h2>
     <div id="ask-text" style="font-size:13px;color:var(--mut);line-height:1.6;white-space:pre-line"></div>
+    <input id="ask-input" type="text" style="display:none;width:100%;margin-top:10px"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();_askDone(true)}">
     <div class="modal-acts">
       <button id="ask-ok" onclick="_askDone(true)">OK</button>
       <button class="sec" onclick="_askDone(false)">Annulla</button>
@@ -872,9 +1010,9 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
 <header id="hdr">
   <span class="logo" id="hdr-logo">📻 Catorweb Broadcaster</span>
   <button id="onair-btn" class="off" onclick="onAirToggle()" title="Diretta dal PC verso il server di streaming">⚪ FUORI ONDA</button>
-  <button id="prova-btn" class="sec sm" onclick="provaToggle()" title="La radio suona solo sul PC (coda, clockwheel, jingle, microfono) senza andare in onda. Ascolta con 🎧 Ascolto. Da qui 'Vai in onda' parte senza fermare la musica.">🎧 Prova</button>
+  <button id="prova-btn" class="sec sm" onclick="provaToggle()" title="La radio suona solo sul PC (coda, clockwheel, jingle, microfono), senza collegarsi al server: per ascoltare musica, registrare un podcast, provare il microfono o preparare la scaletta. Da qui 'Vai in onda' parte senza fermare la musica.">▶ Avvia offline</button>
   <button id="endafter-btn" onclick="endAfterToggle()" style="display:none" title="Il brano in onda finisce normalmente, poi la diretta si chiude da sola">⏹ a fine brano</button>
-  <button id="pm-btn" class="sec sm" onclick="pmToggle()" title="Come partono i brani (non riguarda il microfono): Automatico (coda + clockwheel) o Manuale (parte solo quello che avvii tu, scheda 🎛 Regia)" style="flex-shrink:0;white-space:nowrap;display:none">▶ Automatico</button>
+  <button id="pm-btn" class="sec sm" onclick="pmToggle()" title="Come partono i brani (non riguarda il microfono): Automatico (coda + clockwheel) o Manuale (parte solo quello che avvii tu, scheda 🎛 Studio)" style="flex-shrink:0;white-space:nowrap;display:none">▶ Automatico</button>
   <!-- Microfono: MIC, Regia/Auto e volume voce nello stesso riquadro (17/10: Regia/Auto
        stava accanto ad Automatico/Manuale e si confondevano) -->
   <span id="mic-group" style="display:flex;align-items:center;gap:6px;flex-shrink:0;border:1px solid var(--brd);border-radius:7px;padding:2px 6px">
@@ -915,7 +1053,7 @@ label{color:var(--mut);font-size:12px;display:block;margin-bottom:4px}
         <div class="lsn-vol">Volume <input id="lp-vol" type="range" min="0" max="1" step="0.05" value="0.8" oninput="lpVol(this.value)"></div>
         <div class="lsn-off" id="lp-off">Per usarlo inserisci l'indirizzo d'ascolto pubblico in ⚙ Impostazioni.</div>
       </div>
-      <div class="lsn-note">Solo musica e Tutto funzionano in onda e in 🎧 Prova. Ne suona uno alla volta.</div>
+      <div class="lsn-note">Solo musica e Tutto funzionano in onda e offline. Ne suona uno alla volta.</div>
     </div>
   </div>
   <span class="dot" id="sdot"></span>
@@ -966,9 +1104,11 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
   <button data-tab="log">Log</button>
   <button data-tab="mnt">Manutenzione</button>
   <button data-tab="tools">Tools</button>
-  <button data-tab="regia">🎛 Regia</button>
-  <a class="navlink" href="/impostazioni" onclick="return openSettings()" style="margin-left:auto" title="Server di streaming, cartelle, microfono (si apre in una finestra a parte: la radio e l'ascolto continuano)">⚙ Impostazioni</a>
+  <button data-tab="regia">🎛 Studio</button>
+  <span style="margin-left:auto;display:flex"><!-- insieme: andando a capo restano uniti a destra -->
+  <a class="navlink" href="/impostazioni" onclick="return openSettings()" title="Server di streaming, cartelle, microfono (si apre in una finestra a parte: la radio e l'ascolto continuano)">⚙ Impostazioni</a>
   <a class="navlink" href="/help" target="_blank" title="Guida all'uso di Catorweb Broadcaster">❓ Aiuto</a>
+  </span>
 </nav>
 
 <div id="main">
@@ -1546,58 +1686,97 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
 
 <!-- MANUTENZIONE -->
 <section id="tab-regia" class="tab" style="overflow-y:auto">
+ <!-- 🗂 Schede: aprire e chiudere le sezioni (anche quelle della Dashboard, 28/10/2026).
+      Disposizione libera (27/10/2026): spiegazione e Ripristina compaiono dopo aver spostato una sezione -->
+ <div class="rg-lay-bar">
+   <div class="rg-pages" id="rg-pages"></div>
+   <div class="rg-tabs-wrap">
+     <button class="sec sm" onclick="rgTabsMenu(event)" title="Scegli quali moduli mettere su questo banco, anche quelli della Dashboard">🔌 Moduli ▾</button>
+     <div class="rg-tabs-menu" id="rg-tabs-menu"></div>
+   </div>
+   <span class="rg-lay-free">✥ Disposizione libera: sposta i moduli dalla maniglia in alto, allargali o stringili dall'angolo in basso a destra</span>
+   <!-- 28/10/2026: si passa dalla propria disposizione alla predefinita e ritorno, senza perderla -->
+   <button class="sec sm rg-lay-free" onclick="rgLayDefault()" title="Mostra la disposizione predefinita: la tua resta salvata e la riprendi con un clic">↺ Predefinita</button>
+   <button class="sec sm rg-lay-mine" onclick="rgLayMine()" title="Torna alla disposizione che avevi scelto su questo banco">✥ La mia disposizione</button>
+ </div>
  <div class="rg-layout">
   <div class="rg-wrap">
     <div class="rg-top">
-      <div class="rg-mode">
+      <div class="rg-mode" id="rg-modebox">
         <div class="rg-lbl">Programmazione</div>
         <button id="rg-pm-btn" onclick="pmToggle()">▶ Automatico</button>
         <div class="rg-hint" id="rg-mode-hint">Il clockwheel sceglie i brani da solo.</div>
       </div>
-      <div class="rg-now">
-        <div class="rg-lbl">In onda</div>
-        <div id="rg-now-title" class="rg-now-title">—</div>
-        <div class="rg-clock">
-          <div id="rg-now-rem" class="rg-cd" title="Tempo alla fine del brano in onda">--:--</div>
-          <div class="rg-cd-lbl">fine brano</div>
-        </div>
-        <div class="rg-bar"><div id="rg-bar-fill"></div></div>
-        <div id="rg-silence" class="rg-silence" style="display:none"></div>
+      <!-- Due player che si alternano (26/10/2026): uno in onda, l'altro pronto col prossimo.
+           Trascinando un brano dalla Scaletta o dalla Ricerca: sul pronto = prossimo, su quello in onda = subito -->
+      <div class="rg-deck" id="rg-deck-0" ondragover="rgDeckOver(event,0)" ondragleave="rgDeckLeave(0)" ondrop="rgDeckDrop(event,0)">
+        <div class="rg-deck-hd"><span class="rg-deck-lbl" id="rg-dl-0">Player A</span><span class="rg-cd idle" id="rg-dc-0">--:--</span></div>
+        <div class="rg-deck-main"><div class="rg-deck-cov" id="rg-dcv-0">💿</div>
+          <div class="rg-deck-txt"><div class="rg-deck-title" id="rg-dt-0">—</div><div class="rg-deck-art" id="rg-da-0"></div></div></div>
+        <div class="rg-bar" id="rg-dbar-0"><div class="rg-bar-fill" id="rg-db-0"></div></div>
+        <div class="rg-deck-note" id="rg-dn-0"></div>
+        <button class="rg-deck-btn" id="rg-dbtn-0" onclick="rgDeckBtn(0)">—</button>
       </div>
-      <div class="rg-go">
-        <button id="rg-go-btn" onclick="rgGo()" title="Fa partire il primo brano della scaletta (se un brano suona, passa subito al prossimo)">▶ AVVIA</button>
+      <div class="rg-deck" id="rg-deck-1" ondragover="rgDeckOver(event,1)" ondragleave="rgDeckLeave(1)" ondrop="rgDeckDrop(event,1)">
+        <div class="rg-deck-hd"><span class="rg-deck-lbl" id="rg-dl-1">Player B</span><span class="rg-cd idle" id="rg-dc-1">--:--</span></div>
+        <div class="rg-deck-main"><div class="rg-deck-cov" id="rg-dcv-1">💿</div>
+          <div class="rg-deck-txt"><div class="rg-deck-title" id="rg-dt-1">—</div><div class="rg-deck-art" id="rg-da-1"></div></div></div>
+        <div class="rg-bar" id="rg-dbar-1"><div class="rg-bar-fill" id="rg-db-1"></div></div>
+        <div class="rg-deck-note" id="rg-dn-1"></div>
+        <button class="rg-deck-btn" id="rg-dbtn-1" onclick="rgDeckBtn(1)">—</button>
       </div>
     </div>
-    <div class="rg-nextbar" id="rg-nextbar">
-      <span class="rg-next-lbl" id="rg-next-lbl">PROSSIMO</span>
-      <span class="rg-next-title" id="rg-next">—</span>
-      <span class="rg-next-note" id="rg-next-note"></span>
-    </div>
+    <div class="rg-mid" id="rg-mid">
+    <div id="rg-silence" class="rg-silence" style="display:none"></div>
     <div class="rg-read" id="rg-read" style="display:none"></div>
     <div class="rg-info" id="rg-info">
       <div class="rg-info-empty">Scheda del prossimo brano: compare quando sei in onda.</div>
     </div>
+    </div>
 
     <div class="rg-cols">
-      <div class="rg-card">
-        <div class="rg-card-hdr"><b>📋 Scaletta</b><span class="rg-hint">è la coda: AVVIA fa partire il primo</span>
+      <!-- tutto il riquadro accetta i brani trascinati dalla Ricerca: sotto le righe = in fondo -->
+      <div class="rg-card" id="rg-qcard" ondragover="rgListOver(event)" ondragleave="rgListLeave(event)" ondrop="rgListDrop(event)">
+        <div class="rg-card-hdr"><b>📋 Scaletta</b><span class="rg-hint">è la coda · trascina qui i brani dalla ricerca, o su un player</span>
           <button class="sec sm" onclick="rgLoad()" title="Aggiorna">↻</button></div>
         <div id="rg-list" class="rg-list"><div class="empty">—</div></div>
       </div>
-      <div class="rg-card">
+      <div class="rg-card" id="rg-scard">
         <div class="rg-card-hdr"><b>🔎 Ricerca rapida</b></div>
         <input id="rg-search" type="search" placeholder="Titolo o artista…" oninput="rgSearchDelay()">
         <div id="rg-results" class="rg-list"></div>
+      </div>
+    </div>
+    <!-- schede in più (si aprono dal menu 🗂 Schede); qui sotto si aggiungono anche le copie della Dashboard -->
+    <div class="rg-dash" id="rg-dash">
+      <div class="rg-card" id="rg-n-sched">
+        <div class="rg-card-hdr"><b>⏰ Prossimi eventi</b><span class="rg-hint">dello Scheduler, nelle prossime 24 ore</span>
+          <button class="sec sm" onclick="rgSchedLoad()" title="Aggiorna">↻</button></div>
+        <div class="rg-nlist" id="rg-sched-list"><div class="empty">—</div></div>
+      </div>
+      <div class="rg-card" id="rg-n-recent">
+        <div class="rg-card-hdr"><b>🕘 Riprodotti di recente</b><span class="rg-hint">gli ultimi brani andati in onda</span>
+          <button class="sec sm" onclick="rgRecentLoad()" title="Aggiorna">↻</button></div>
+        <div class="rg-nlist" id="rg-recent-list"><div class="empty">—</div></div>
+      </div>
+      <div class="rg-card" id="rg-n-clock">
+        <div class="rg-clock" id="rg-clock">--:--:--</div>
+        <div class="rg-clock-sub" id="rg-clock-date"></div>
+        <div class="rg-clock-top">All'ora piena: <b id="rg-clock-left">--:--</b></div>
+      </div>
+      <div class="rg-card" id="rg-n-notes">
+        <div class="rg-card-hdr"><b>📝 Appunti</b><span class="rg-hint">restano salvati, uguali su tutti i banchi</span></div>
+        <textarea id="rg-notes-txt" placeholder="Scaletta parlata, saluti, cose da dire…" oninput="rgNotesSave()"></textarea>
       </div>
     </div>
   </div>
 
   <!-- Jingle: sotto la Regia; su schermi larghi nella colonna a destra (prima vuota) -->
   <div class="rg-side">
-    <div class="rg-card">
+    <div class="rg-card" id="rg-jcard">
       <div class="rg-card-hdr"><b>🎵 Jingle</b>
         <select id="rg-cart-count" onchange="rgCartCount(this.value)" title="Quanti tasti jingle (sempre 4 per fila). Riducendo, i jingle assegnati ai tasti in più restano salvati" style="width:auto;font-size:11px;padding:1px 4px"></select>
-        <span class="rg-info-i" title="Clic = parte subito · ≋ SOPRA = suona sopra la musica (abbassata) · ⏏ STACCO = la musica sfuma e il jingle parte da solo · Per assegnare un jingle: Ricerca rapida → menu 🎵 · ⌨ Tastiera: la lettera nell'angolo di ogni tasto lo fa partire (con la Regia aperta, non mentre scrivi in una casella)">ⓘ</span>
+        <span class="rg-info-i" title="Clic = parte subito · ≋ SOPRA = suona sopra la musica (abbassata) · ⏏ STACCO = la musica sfuma e il jingle parte da solo · Per assegnare un jingle: Ricerca rapida → menu 🎵 · ⌨ Tastiera: la lettera nell'angolo di ogni tasto lo fa partire (con lo Studio aperto, non mentre scrivi in una casella)">ⓘ</span>
         <span style="flex:1"></span>
         <button class="sec sm" id="rg-kbd-btn" onclick="rgKbdToggle()" title="Scorciatoie da tastiera per i jingle: accese / spente">⌨</button>
         <button class="sec sm" onclick="rgCartStop()" title="Ferma il jingle in corso">⏹ Ferma jingle</button></div>
@@ -1843,6 +2022,25 @@ fetch('/api/edition/info').then(r => r.json()).then(d => {
     </div>
   </div>
 
+  <!-- COMMENTI DAI FILE (date di embargo) -->
+  <div class="mnt-section">
+    <div class="mnt-hdr" onclick="mntToggle('cmt')">
+      <span class="mnt-icon" style="background:rgba(210,153,34,.14);color:var(--amber)">🔒</span>
+      <div class="mnt-hdr-txt">
+        <h3>Commenti dai file</h3>
+        <div class="mnt-desc">Rilegge il Commento (date di embargo) dei brani già importati</div>
+      </div>
+      <span class="mnt-count" id="mnt-cmt-count">—</span>
+      <span class="mnt-chev" id="mnt-cmt-chev">▸</span>
+    </div>
+    <div class="mnt-body" id="mnt-cmt-body">
+      <div class="mnt-toolbar">
+        <button class="sec sm" id="mnt-cmt-btn" onclick="mntRereadComments()">↻ Rileggi i commenti</button>
+      </div>
+      <div id="mnt-cmt-result" style="color:var(--mut);font-size:12px;padding:6px 2px">Solo i brani che nel database non hanno un commento: quelli scritti nel Tag Editor restano come sono.</div>
+    </div>
+  </div>
+
   <!-- BACKUP & RESTORE -->
   <div class="mnt-section">
     <div class="mnt-hdr" onclick="mntToggle('backup')">
@@ -1877,8 +2075,25 @@ async function api(method, path, body) {
     const r = await fetch(path, o);
     if (!r.ok) return { ok: false, error: `HTTP ${r.status}` };
     const ct = r.headers.get('content-type') || '';
-    return ct.includes('json') ? r.json() : { ok: true, text: await r.text() };
+    if (!ct.includes('json')) return { ok: true, text: await r.text() };
+    const j = await r.json();
+    _queueMissingWarn(j);
+    return j;
   } catch(e) { return { ok: false, error: e.message }; }
+}
+// Brani senza file (spostati o cancellati): non entrano in coda, e quelli già in coda vengono tolti.
+// L'avviso compare una volta sola, qualunque sia la pagina che ha chiesto la coda.
+const _queueMissingSeen = new Set();
+function _queueMissingWarn(j) {
+  if (!j) return;
+  if (j.ok && Array.isArray(j.missing) && j.missing.length)
+    toast('⚠ File non trovato, non messo in coda: ' + j.missing.slice(0, 3).join(', ')
+          + (j.missing.length > 3 ? ' e altri ' + (j.missing.length - 3) : ''), 'err', 8000);
+  (j.missing_removed || []).forEach(m => {
+    if (_queueMissingSeen.has(m.id)) return;
+    _queueMissingSeen.add(m.id);
+    toast('⚠ Tolto dalla coda, il file non c\'è più: ' + m.name, 'err', 10000);
+  });
 }
 const GET  = p      => api('GET',  p);
 const POST = (p, b) => api('POST', p, b);
@@ -1901,21 +2116,38 @@ const fmtDur = s => { if (!s) return ''; const m=Math.floor(s/60),ss=Math.floor(
 
 // Domanda di conferma dentro la pagina: confirm() di Edge blocca la pagina e
 // l'ascolto in cuffia si fermava (22/10/2026). Uso: if (!await askConfirm(...)) return;
-let _askResolve = null;
+// Anche al posto di prompt(): const nome = await askPrompt('Rinomina…', vecchio); null = Annulla.
+// Senza testo a parte, la prima riga della domanda fa da titolo e il resto da spiegazione.
+let _askResolve = null, _askIsPrompt = false;
 function askConfirm(title, text, okLabel, danger) {
   if (_askResolve) _askDone(false);
+  if (text === undefined || text === null) {
+    const i = String(title).indexOf('\n');
+    if (i > 0) { text = String(title).slice(i + 1).replace(/^\n+/, ''); title = String(title).slice(0, i); }
+  }
   document.getElementById('ask-title').textContent = title;
   document.getElementById('ask-text').textContent = text || '';
   const ok = document.getElementById('ask-ok');
   ok.textContent = okLabel || 'OK';
   ok.className = danger ? 'danger' : '';
+  _askIsPrompt = false;
+  document.getElementById('ask-input').style.display = 'none';
   openModal('modal-ask');
   setTimeout(() => ok.focus(), 0);
   return new Promise(res => { _askResolve = res; });
 }
+function askPrompt(title, value, okLabel) {
+  const p = askConfirm(title, '', okLabel || 'OK');
+  _askIsPrompt = true;
+  const inp = document.getElementById('ask-input');
+  inp.value = value || ''; inp.style.display = '';
+  setTimeout(() => { inp.focus(); inp.select(); }, 0);
+  return p;
+}
 function _askDone(v) {
   closeModal('modal-ask');
   const r = _askResolve; _askResolve = null;
+  if (_askIsPrompt) v = v ? document.getElementById('ask-input').value : null;
   if (r) r(v);
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && _askResolve) _askDone(false); });
@@ -2165,12 +2397,12 @@ function lpVol(v) { document.getElementById('live-audio').volume = +v; }
 // Tutto (musica + voce) dal PC, senza ritardo
 function lmToggle() {
   if (_listenOn === 'local') return listenStop('local');
-  if (!_micActive) { toast('Funziona in onda o in 🎧 Prova', 'inf'); return; }
+  if (!_micActive) { toast('Funziona in onda o offline', 'inf'); return; }
   listenStart('local', '/api/stream/local', 0.8);
 }
 
-function doLogout() {
-  if (!confirm('Uscire dall\'app?')) return;
+async function doLogout() {
+  if (!await askConfirm('Uscire dall\'app?', null, 'Esci')) return;
   window.location.href = '/logout';
 }
 
@@ -2198,7 +2430,7 @@ function onAirRender(st) {
   // In 🎧 Prova il pulsante grande resta "FUORI ONDA — Vai in onda": prima diceva
   // "IN PROVA — Vai in onda" (verde) e sembrava l'indicatore della Prova (17/10:
   // premuto per sbaglio, e' andato in onda)
-  b.className = st === 'prova' ? 'off' : st;
+  b.className = (st === 'prova' || st === 'prova_wait') ? 'off' : st;
   b.textContent = st === 'on'    ? '🔴 IN ONDA — Chiudi diretta'
                 : st === 'wait'  ? '🟠 Collegamento al server…'
                 :                  '⚪ FUORI ONDA — Vai in onda';
@@ -2206,18 +2438,33 @@ function onAirRender(st) {
   const p = document.getElementById('prova-btn');
   if (p) {
     p.style.display = (st === 'on' || st === 'wait') ? 'none' : '';
-    p.className = 'sec sm' + (st === 'prova' ? ' on' : '');
-    p.textContent = st === 'prova' ? '🎧 IN PROVA (solo sul PC) — ⏹ Ferma' : '🎧 Prova';
+    // Liquidsoap ci mette ~8 s a partire: prima il pulsante restava "🎧 Prova"
+    // e sembrava che non fosse successo niente (25/10/2026)
+    p.className = 'sec sm' + (st === 'prova' ? ' on' : st === 'prova_wait' ? ' wait' : '');
+    // Nome scelto da Luigi il 26/10/2026 (prima "🎧 Prova": serve anche per musica e podcast)
+    p.textContent = st === 'prova'      ? '🎧 OFFLINE (solo sul PC) — ⏹ Ferma'
+                  : st === 'prova_wait' ? '🟠 Avvio offline… (qualche secondo)'
+                  :                       '▶ Avvia offline';
+  }
+  // Prova avviata da questa finestra e ora pronta: parte da solo l'ascolto "Tutto" e si
+  // apre il menu 🎧 Ascolto (col tasto ⏹ Ferma). Prima bisognava trovare da soli
+  // "▶ Ascolta" e sembrava che la Prova non funzionasse (26/10/2026)
+  if (st === 'prova' && _provaAutoListen) {
+    _provaAutoListen = false;
+    if (!_listenOn) { listenStart('local', '/api/stream/local', 0.8); listenMenu(true); }
   }
 }
+let _provaAutoListen = false;
 async function provaToggle() {
   if (_onAirBusy) return;
-  const on = _onAirState !== 'prova';
+  const on = _onAirState !== 'prova' && _onAirState !== 'prova_wait';
+  _provaAutoListen = on;
   _onAirBusy = true;
+  if (on) onAirRender('prova_wait');   // subito, senza aspettare la risposta
   const r = await POST('/api/onair/prova', { on });
   _onAirBusy = false;
-  if (!r.ok) toast('Errore: ' + (r.error || r.msg || '?'), 'err');
-  else if (on) toast('🎧 Prova: la radio suona solo sul PC — ascolta con 🎧 Ascolto (parte in qualche secondo)', 'ok', 5000);
+  if (!r.ok) { _provaAutoListen = false; toast('Errore: ' + (r.error || r.msg || '?'), 'err'); if (on) onAirRender('off'); }
+  else if (on) toast('🎧 Offline: la radio suona solo sul PC — tra qualche secondo la senti qui (menu 🎧 Ascolto)', 'ok', 6000);
   onAirPoll();
 }
 // Dashboard: l'ultimo titolo mandato al server di streaming e se l'ha accettato
@@ -2234,7 +2481,7 @@ function titleStatusRow(ts) {
 async function onAirPoll() {
   try {
     const s = await GET('/api/liquidsoap/status');
-    if (s.ok && !_onAirBusy) onAirRender(!s.active ? 'off' : s.prova ? 'prova' : (s.live_on ? 'on' : 'wait'));
+    if (s.ok && !_onAirBusy) onAirRender(!s.active ? 'off' : s.prova ? (s.ready ? 'prova' : 'prova_wait') : (s.live_on ? 'on' : 'wait'));
     // collegamento al server che non riesce: lo si dice (una volta per errore), non solo "Collegamento…"
     if (s.ok && !_onAirBusy && s.active && !s.prova && !s.live_on && s.server_error) {
       const b = document.getElementById('onair-btn');
@@ -2304,7 +2551,7 @@ function airRecTick() {
 }
 setInterval(airRecTick, 1000);
 async function airRecToggle() {
-  if (!_airRecActive) { toast('Si registra solo IN ONDA', 'inf'); return; }
+  if (!_airRecActive) { toast('Si registra solo IN ONDA o offline', 'inf'); return; }
   if (_airRecFile && !await askConfirm('Fermare la registrazione?', 'Il file registrato fin qui viene salvato nella cartella delle registrazioni.', '⏹ Ferma')) return;
   _airRecBusy = true;
   try {
@@ -2323,7 +2570,7 @@ async function airRecAutoSet(on) {
 // ── ASCOLTO MUSICA in cuffia (solo musica, senza voce) ──
 function muToggle() {
   if (_listenOn === 'music') return listenStop('music');
-  if (!_micActive) { toast('Funziona in onda o in 🎧 Prova', 'inf'); return; }
+  if (!_micActive) { toast('Funziona in onda o offline', 'inf'); return; }
   listenStart('music', '/api/stream/music?t=' + Date.now());
 }
 async function muSetOut(id) {
@@ -2377,6 +2624,10 @@ setInterval(() => {
 // ── REGIA MANUALE (scheda 🎛 Regia) ──────────────────────────────────
 // Nomi "rg…/pm…": verificato che non esistono altrove nella pagina.
 let _oiLast = null, _rgIdleSince = null, _rgSearchT = null, _rgCarts = [];
+// ── Due player (26/10/2026): A e B si alternano. Quello "in onda"
+// mostra il brano che suona col conto alla rovescia, l'altro e' "pronto" col prossimo; a
+// ogni cambio di brano si scambiano. Il motore e' lo stesso di prima: sono una vista.
+let _rgDeck = 0, _rgDeckFile = null, _rgNextTitle = '', _rgQueue = [], _rgDrag = null;
 function pmRender() {
   const on = !!(_oiLast && _oiLast.manual), active = !!_micActive;
   for (const id of ['pm-btn', 'rg-pm-btn']) {
@@ -2386,43 +2637,145 @@ function pmRender() {
   }
   document.getElementById('pm-btn').style.display = active ? '' : 'none';
   document.getElementById('rg-pm-btn').disabled = !active;
-  document.getElementById('rg-go-btn').disabled = !active || !on;
-  document.getElementById('rg-mode-hint').textContent = !active ? 'Funziona solo IN ONDA.'
-    : on ? 'Parte solo quello che avvii tu con ▶ AVVIA.' : 'Il clockwheel sceglie i brani da solo.';
+  document.getElementById('rg-mode-hint').textContent = !active ? 'Funziona solo IN ONDA o offline.'
+    : on ? 'Parte solo quello che avvii tu con ▶ Avvia ora.' : 'Il clockwheel sceglie i brani da solo.';
+}
+// "Artista - Titolo" -> [titolo, artista]
+function rgSplit(txt) { const i = (txt || '').indexOf(' - '); return i > 0 ? [txt.slice(i + 3), txt.slice(0, i)] : [txt || '', '']; }
+function rgEl(k, i) { return document.getElementById(`rg-${k}-${i}`); }
+// Copertina del player (dal file, dalla cartella o da iTunes: /api/cover). Si ricarica solo se cambia il brano.
+const _rgCovFile = ['', ''];
+function rgCover(i, file) {
+  file = file || '';
+  if (_rgCovFile[i] === file) return;
+  _rgCovFile[i] = file;
+  const box = rgEl('dcv', i);
+  box.textContent = '💿';
+  if (!file) return;
+  const img = new Image();
+  img.alt = '';
+  img.onload = () => { if (_rgCovFile[i] === file) { box.textContent = ''; box.appendChild(img); } };
+  img.src = '/api/cover?file=' + encodeURIComponent(file);
 }
 function rgUpdate() {
   pmRender();
-  const info = _oiLast;
-  const t = document.getElementById('rg-now-title');
-  const sil = document.getElementById('rg-silence'), nx = document.getElementById('rg-next');
-  const bar = document.getElementById('rg-nextbar'), lbl = document.getElementById('rg-next-lbl'), note = document.getElementById('rg-next-note');
+  const info = _oiLast, sil = document.getElementById('rg-silence');
+  if (info && info.now_file) {   // cambia il brano in onda: i player si scambiano
+    if (_rgDeckFile && info.now_file !== _rgDeckFile) _rgDeck = 1 - _rgDeck;
+    _rgDeckFile = info.now_file;
+  }
+  const onI = _rgDeck, rdI = 1 - _rgDeck;
   if (!info) {
-    t.textContent = '—'; sil.style.display = 'none'; _rgIdleSince = null;
-    nx.textContent = '—'; note.textContent = _micActive ? '' : 'fuori onda'; lbl.textContent = 'PROSSIMO';
-    bar.className = 'rg-nextbar'; rgInfoFor(''); rgReadRender(); rgTick(); return;
+    for (const i of [0, 1]) {
+      rgEl('deck', i).classList.remove('on', 'ready'); rgEl('dl', i).textContent = 'Player ' + 'AB'[i];
+      rgEl('dt', i).textContent = '—'; rgEl('da', i).textContent = '';
+      rgEl('dn', i).textContent = i === rdI && !_micActive ? 'fuori onda' : '';
+      rgEl('dbtn', i).textContent = i === onI ? '⏭ Salta' : '▶ Avvia ora'; rgEl('dbtn', i).disabled = true;
+      rgEl('dbar', i).style.visibility = i === onI ? '' : 'hidden';
+    }
+    rgEl('dc', rdI).textContent = ''; rgCover(0, ''); rgCover(1, '');
+    sil.style.display = 'none'; _rgIdleSince = null; _rgNextTitle = '';
+    rgInfoFor(''); rgReadRender(); rgTick(); return;
   }
-  // Prossimo: in automatico parte da solo, in manuale solo con AVVIA
-  nx.textContent = info.next || (info.manual ? 'scaletta vuota' : '— (lo sceglie il clockwheel)');
-  nx.title = info.next || '';
-  if (info.manual) {
-    bar.className = 'rg-nextbar manual' + (info.next ? '' : ' empty');
-    lbl.textContent = '▶ AVVIA FA PARTIRE';
-    note.textContent = !info.next ? 'aggiungi un brano dalla ricerca'
-      : info.playing ? 'a fine brano: SILENZIO finché non premi AVVIA' : 'in attesa: premi ▶ AVVIA';
-  } else {
-    bar.className = 'rg-nextbar';
-    lbl.textContent = 'PROSSIMO';
-    note.textContent = info.next ? (info.next_from_queue ? 'dalla scaletta · parte da solo a fine brano' : 'dal clockwheel · parte da solo a fine brano') : '';
-  }
-  if (_endArmed) { lbl.textContent = '⏹ A FINE BRANO'; nx.textContent = 'la diretta si chiude'; note.textContent = 'annulla dal pulsante in alto “Chiusura a fine brano”'; bar.className = 'rg-nextbar empty'; }
+  rgEl('deck', onI).classList.remove('ready'); rgEl('deck', onI).classList.add('on');
+  rgEl('deck', rdI).classList.remove('on'); rgEl('deck', rdI).classList.add('ready');
+  rgEl('dl', onI).textContent = `Player ${'AB'[onI]} · in onda`;
+  rgEl('dl', rdI).textContent = `Player ${'AB'[rdI]} · pronto`;
+  // in onda
+  const idle = info.manual && !info.playing, [nt, na] = rgSplit(info.now);
+  rgEl('dt', onI).textContent = idle ? '(silenzio)' : (nt || '—');
+  rgCover(onI, idle ? '' : info.now_file);
+  rgEl('da', onI).textContent = idle ? '' : na;
+  rgEl('dn', onI).textContent = '';
+  rgEl('dbar', onI).style.visibility = '';
+  rgEl('dbtn', onI).textContent = '⏭ Salta';
+  rgEl('dbtn', onI).disabled = !info.playing || (info.manual && !info.next);
+  rgEl('dbtn', onI).title = 'Passa subito al brano pronto (con la dissolvenza)';
+  // pronto
+  const [xt, xa] = rgSplit(info.next);
+  _rgNextTitle = info.next || '';
+  rgCover(rdI, _endArmed ? '' : info.next_file);
+  rgEl('dt', rdI).textContent = xt || (info.manual ? 'scaletta vuota' : '—');
+  rgEl('da', rdI).textContent = xa;
+  rgEl('dc', rdI).textContent = ''; rgEl('dc', rdI).className = 'rg-cd idle';
+  rgEl('dbar', rdI).style.visibility = 'hidden';
+  let note;
+  if (info.manual) note = !info.next ? 'trascina qui un brano o aggiungilo dalla ricerca'
+      : info.playing ? 'a fine brano: SILENZIO finché non premi ▶ Avvia ora' : 'in attesa: premi ▶ Avvia ora';
+  else note = info.next ? (info.next_from_queue ? 'dalla scaletta · parte da solo a fine brano' : 'dal clockwheel · parte da solo a fine brano') : 'lo sceglie il clockwheel';
+  if (_endArmed) { rgEl('dt', rdI).textContent = '⏹ A fine brano'; rgEl('da', rdI).textContent = 'la diretta si chiude'; note = 'annulla dal pulsante in alto “Chiusura a fine brano”'; }
+  rgEl('dn', rdI).textContent = note;
+  rgEl('dbtn', rdI).textContent = '▶ Avvia ora';
+  rgEl('dbtn', rdI).disabled = !info.next || _endArmed;
+  rgEl('dbtn', rdI).title = info.manual ? 'Fa partire il brano pronto' : 'Manda subito in onda il brano pronto (con la dissolvenza)';
   rgInfoFor(info.next_file || '');
   rgReadRender();
-  const idle = info.manual && !info.playing;
-  t.textContent = idle ? '(silenzio)' : (info.now || '—');
   if (idle && !_micOn) {
     if (_rgIdleSince == null) _rgIdleSince = Date.now();
   } else _rgIdleSince = null;
   rgTick();
+}
+// Pulsante del player: su quello in onda "Salta", su quello pronto "Avvia ora".
+// In automatico entrambi passano al brano pronto con la dissolvenza; in manuale = ▶ AVVIA.
+async function rgDeckBtn(i) {
+  if (!_oiLast) return;
+  if (_oiLast.manual) return rgGo();
+  const r = await POST('/api/liquidsoap/skip', {});
+  if (r.ok) toast(i === _rgDeck ? '⏭ Saltato' : '▶ In onda il brano pronto', 'ok');
+  else toast('Non riuscito', 'err');
+  setTimeout(() => { onAirInfoPoll(); rgLoad(); }, 1200);
+}
+// Trascinare un brano della Scaletta o della Ricerca rapida su un player
+const RG_DRAG_TIP = 'Trascina su un player: sul pronto diventa il prossimo, su quello in onda parte subito';
+const RG_DRAG_TIP_R = 'Trascina sulla Scaletta, nel punto che vuoi, o su un player';
+function rgDragAttr(src, i) { return `draggable="true" ondragstart="rgDragStart(event,'${src}',${i})" ondragend="rgDragEnd()" title="${src === 'r' ? RG_DRAG_TIP_R : RG_DRAG_TIP}"`; }
+function rgDragEnd() { _rgDrag = null; rgListClear(); rgDeckLeave(0); rgDeckLeave(1); }
+// Dalla Ricerca rapida alla Scaletta (idea di Luigi, 26/10): il brano va prima della riga su cui
+// lo lasci (linea blu sopra la riga), nello spazio vuoto in fondo va in coda
+function rgListTarget(e) { return e.target.closest ? e.target.closest('#rg-list .rg-row[data-qid]') : null; }
+function rgListClear() {
+  document.querySelectorAll('#rg-list .drop-before').forEach(r => r.classList.remove('drop-before'));
+  document.getElementById('rg-list').classList.remove('drop-end');
+}
+function rgListOver(e) {
+  if (!_rgDrag || _rgDrag.src !== 'r') return;
+  e.preventDefault(); rgListClear();
+  const row = rgListTarget(e);
+  if (row) row.classList.add('drop-before'); else document.getElementById('rg-list').classList.add('drop-end');
+}
+function rgListLeave(e) { if (!e.currentTarget.contains(e.relatedTarget)) rgListClear(); }
+async function rgListDrop(e) {
+  e.preventDefault(); const row = rgListTarget(e); rgListClear();
+  const d = _rgDrag; _rgDrag = null; if (!d || d.src !== 'r') return;
+  const t = _rgResults[d.i]; if (!t) return;
+  if (t.embargo_until) { toast('🔒 Sotto embargo fino al ' + fmtEmb(t.embargo_until), 'err', 5000); return; }
+  const r = await POST('/api/liquidsoap/queue/insert', { filename: t.filename, title: t.title || '', artist: t.artist || '',
+                                                       before_id: row ? Number(row.dataset.qid) : null });
+  if (r.ok) { toast('+ in scaletta: ' + (t.title || base(t.filename)), 'ok'); rgLoad(); onAirInfoPoll(); }
+  else toast((r.embargoed ? '🔒 ' : 'Errore: ') + r.error, 'err', 5000);
+}
+function rgDragStart(e, src, i) {
+  _rgDrag = { src, i };
+  e.dataTransfer.effectAllowed = 'copyMove';
+  try { e.dataTransfer.setData('text/plain', 'rg'); } catch (x) {}
+}
+function rgDeckOver(e, i) { if (!_rgDrag) return; e.preventDefault(); rgEl('deck', i).classList.add('over'); }
+function rgDeckLeave(i) { rgEl('deck', i).classList.remove('over'); }
+async function rgDeckDrop(e, i) {
+  e.preventDefault(); rgDeckLeave(i);
+  const d = _rgDrag; _rgDrag = null; if (!d) return;
+  let body;
+  if (d.src === 'q') { const t = _rgQueue[d.i]; if (!t) return; body = { id: t.id }; }
+  else {
+    const t = _rgResults[d.i]; if (!t) return;
+    if (t.embargo_until) { toast('🔒 Sotto embargo fino al ' + fmtEmb(t.embargo_until), 'err', 5000); return; }
+    body = { filename: t.filename, title: t.title || '', artist: t.artist || '' };
+  }
+  body.play_now = !!_oiLast && i === _rgDeck;   // sul player in onda = parte subito
+  const r = await POST('/api/liquidsoap/queue/first', body);
+  if (r.ok) toast(r.started ? '▶ Parte subito' : '↑ Sarà il prossimo', 'ok');
+  else toast((r.embargoed ? '🔒 ' : 'Errore: ') + r.error, 'err', 5000);
+  setTimeout(() => { onAirInfoPoll(); rgLoad(); }, 900);
 }
 // ── Scheda del prossimo brano (Wikipedia + MusicBrainz + archivio) ──
 let _rgInfoFile = null, _rgInfoSeq = 0;
@@ -2493,7 +2846,7 @@ function rgReadSave() { try { localStorage.setItem('rg_read', JSON.stringify(_rg
 async function rgIntro(refresh, fileArg) {
   const file = fileArg || _rgInfoFile;
   if (!file) return;
-  const title = (fileArg && _rgRead && _rgRead.file === file) ? _rgRead.title : (document.getElementById('rg-next').textContent || base(file));
+  const title = (fileArg && _rgRead && _rgRead.file === file) ? _rgRead.title : (_rgNextTitle || base(file));
   _rgRead = { file, title, busy: true }; rgReadRender();
   const r = await POST('/api/trackinfo/intro', { filename: file, refresh, model: rgModelGet() });
   if (!_rgRead || _rgRead.file !== file) return;   // nel frattempo chiuso o chiesto per un altro brano
@@ -2536,11 +2889,11 @@ function rgCopy(text, msg) {
   navigator.clipboard.writeText(text).then(() => toast(msg, 'ok'), () => toast('Copia non riuscita', 'err'));
 }
 function rgTick() {
-  const rem = document.getElementById('rg-now-rem'), sil = document.getElementById('rg-silence');
-  const fill = document.getElementById('rg-bar-fill'), barBox = fill.parentElement;
+  const i = _rgDeck, rem = rgEl('dc', i), sil = document.getElementById('rg-silence');
+  const fill = rgEl('db', i), barBox = rgEl('dbar', i);
   if (_oiRem != null && _oiLast && _oiLast.playing) {
     const left = Math.max(0, _oiRem - (Date.now() - _oiRemAt) / 1000), s = Math.ceil(left);
-    rem.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    rem.textContent = `-${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
     const lvl = s <= 10 ? 'end' : s <= 30 ? 'warn' : '';
     rem.className = 'rg-cd ' + lvl; barBox.className = 'rg-bar ' + lvl;
     const dur = _oiLast.duration;
@@ -2552,20 +2905,20 @@ function rgTick() {
     const s = Math.floor((Date.now() - _rgIdleSince) / 1000);
     sil.style.display = '';
     sil.className = 'rg-silence' + (s >= 5 ? ' danger' : '');
-    sil.textContent = s >= 8 ? `⚠ Silenzio in onda da ${s} s — parla o premi ▶ AVVIA`
-                             : `⏳ Silenzio da ${s} s (parla o premi ▶ AVVIA)`;
+    sil.textContent = s >= 8 ? `⚠ Silenzio in onda da ${s} s — parla o premi ▶ Avvia ora`
+                             : `⏳ Silenzio da ${s} s (parla o premi ▶ Avvia ora)`;
   } else sil.style.display = 'none';
 }
 setInterval(rgTick, 250);
 async function pmToggle() {
-  if (!_micActive) { toast('La regia manuale funziona solo IN ONDA', 'inf'); return; }
+  if (!_micActive) { toast('La regia manuale funziona solo IN ONDA o offline', 'inf'); return; }
   const want = !(_oiLast && _oiLast.manual);
-  if (want && !await askConfirm('Passare alla regia manuale?', 'Il brano in onda finisce normalmente, poi non parte niente finché non premi ▶ AVVIA.\nAttenzione: se non parli e non avvii nulla, in onda c\'e\' silenzio.', '✋ Manuale')) return;
+  if (want && !await askConfirm('Passare alla regia manuale?', 'Il brano in onda finisce normalmente, poi non parte niente finché non premi ▶ Avvia ora.\nAttenzione: se non parli e non avvii nulla, in onda c\'e\' silenzio.', '✋ Manuale')) return;
   const r = await POST('/api/manual/mode', { on: want });
   if (r.ok) {
     if (_oiLast) _oiLast.manual = r.manual;
     pmRender();
-    toast(r.manual ? '✋ Manuale: a fine brano aspetta il tuo ▶ AVVIA' : '▶ Automatico: a fine brano riparte il clockwheel', 'inf', 5000);
+    toast(r.manual ? '✋ Manuale: a fine brano aspetta il tuo ▶ Avvia ora' : '▶ Automatico: a fine brano riparte il clockwheel', 'inf', 5000);
     onAirInfoPoll();
   } else toast('Errore: ' + (r.error || '?'), 'err');
 }
@@ -2578,10 +2931,11 @@ async function rgLoad() {
   const [q, c] = await Promise.all([GET('/api/liquidsoap/queue/list'), GET('/api/carts')]);
   const el = document.getElementById('rg-list');
   const items = (q.ok && q.queue) || [];
-  el.innerHTML = items.length ? items.map((t, i) => `<div class="rg-row ${i === 0 ? 'first' : ''}">
+  _rgQueue = items;
+  el.innerHTML = items.length ? items.map((t, i) => `<div class="rg-row ${i === 0 ? 'first' : ''}" data-qid="${t.id}" ${rgDragAttr('q', i)}>
       <span class="rg-t">${i === 0 ? '▶ ' : (i + 1) + '. '}${esc(t.title || base(t.filename))} <span class="rg-a">${esc(t.artist || '')}</span></span>
       <button class="sec sm" onclick="rgRemove(${t.id})" title="Togli dalla scaletta">✕</button></div>`).join('')
-    : '<div class="empty">Scaletta vuota: aggiungi brani dalla ricerca qui accanto o dalla Libreria</div>';
+    : '<div class="empty" style="padding:30px 10px;text-align:center">Scaletta vuota: aggiungi brani dalla ricerca qui accanto o dalla Libreria</div>';
   if (c.ok && Array.isArray(c.carts)) {
     _rgCarts = c.carts; rgRenderCarts();
     const sel = document.getElementById('rg-cart-count');
@@ -2596,20 +2950,41 @@ async function rgRemove(id) {
   if (r.ok) rgLoad(); else toast('Errore: ' + r.error, 'err');
 }
 function rgSearchDelay() { clearTimeout(_rgSearchT); _rgSearchT = setTimeout(rgSearch, 350); }
-let _rgResults = [];
+// Prima i primi 30, poi il pulsante "Mostra tutti" carica il resto (Luigi: Los Lobos sono più di 200)
+let _rgResults = [], _rgTotal = 0, _rgQ = '';
+const RG_FIRST = 30;
 async function rgSearch() {
   const q = document.getElementById('rg-search').value.trim();
   const el = document.getElementById('rg-results');
+  _rgResults = []; _rgTotal = 0; _rgQ = q;
   if (q.length < 2) { el.innerHTML = ''; return; }
-  const r = await POST('/api/database/search', { query: q });
-  _rgResults = ((r.ok && r.results) || []).slice(0, 40);
-  el.innerHTML = _rgResults.length ? _rgResults.map((t, i) => {
+  el.scrollTop = 0;
+  await rgSearchMore(RG_FIRST);
+}
+async function rgSearchMore(limit) {
+  const q = _rgQ, el = document.getElementById('rg-results');
+  const btn = document.getElementById('rg-more'); if (btn) { btn.disabled = true; btn.textContent = 'Caricamento…'; }
+  const r = await POST('/api/database/search', { query: q, limit: limit || 0, offset: _rgResults.length });
+  if (q !== _rgQ) return;   // nel frattempo si è scritto altro
+  const page = ((r.ok && r.results) || []).slice(limit ? 0 : _rgResults.length);   // limit 0 = tutti dall'inizio
+  const start = _rgResults.length;
+  _rgResults.push(...page); _rgTotal = r.total || 0;
+  if (btn) btn.parentElement.remove();
+  if (!start) el.innerHTML = _rgResults.length
+    ? `<div class="empty" style="padding:4px 6px;text-align:left">Brani trovati: ${_rgTotal}</div>`
+    : '<div class="empty">Nessun brano trovato</div>';
+  const slots = (_rgCarts.length ? _rgCarts.map(c => c.slot) : [1,2,3,4,5,6,7,8]).map(n => `<option value="${n}">→ ${n}</option>`).join('');
+  el.insertAdjacentHTML('beforeend', page.map((t, k) => {
+    const i = start + k;
     const emb = t.embargo_until ? `<span class="emb-badge" title="Sotto embargo fino al ${fmtEmb(t.embargo_until)}">🔒 ${fmtEmb(t.embargo_until)}</span>` : '';
-    return `<div class="rg-row">${emb}<span class="rg-t">${esc(t.title || base(t.filename))} <span class="rg-a">${esc(t.artist || '')}</span></span>
+    return `<div class="rg-row" ${t.embargo_until ? '' : rgDragAttr('r', i)}>${emb}<span class="rg-t">${esc(t.title || base(t.filename))} <span class="rg-a">${esc(t.artist || '')}</span></span>
       <button onclick="rgAdd(${i})" ${t.embargo_until ? 'disabled' : ''} title="Aggiungi in fondo alla scaletta">+ Scaletta</button>
       <select onchange="rgAssign(${i}, this.value); this.value=''" title="Assegna a un pulsante jingle" style="width:auto;font-size:11px;padding:1px 3px">
-        <option value="">🎵</option>${(_rgCarts.length ? _rgCarts.map(c => c.slot) : [1,2,3,4,5,6,7,8]).map(n => `<option value="${n}">→ ${n}</option>`).join('')}</select></div>`;
-  }).join('') : '<div class="empty">Nessun brano trovato</div>';
+        <option value="">🎵</option>${slots}</select></div>`;
+  }).join(''));
+  if (_rgResults.length < _rgTotal)
+    el.insertAdjacentHTML('beforeend', `<div style="padding:8px;text-align:center">
+      <button class="sec sm" id="rg-more" onclick="rgSearchMore(0)">Mostra tutti (${_rgTotal})</button></div>`);
 }
 async function rgAdd(i) {
   const t = _rgResults[i]; if (!t) return;
@@ -2672,7 +3047,7 @@ async function rgCartMode(slot, mode) {
   else toast('Errore: ' + (r.error || '?'), 'err');
 }
 async function rgCartClear(slot) {
-  if (!confirm(`Svuotare il pulsante ${slot}?`)) return;
+  if (!await askConfirm(`Svuotare il pulsante ${slot}?`, null, 'Svuota', true)) return;
   await POST('/api/carts/clear', { slot }); rgLoad();
 }
 // Numero di tasti jingle (8/12/16/24/32, 4 per fila): salvato nelle Impostazioni → Regia.
@@ -2716,7 +3091,7 @@ async function micSet(on, ptt) {
   } finally { _micBusy = false; }
 }
 function micToggle() {
-  if (!_micActive) { toast('Il microfono funziona solo IN ONDA', 'inf'); return; }
+  if (!_micActive) { toast('Il microfono funziona solo IN ONDA o offline', 'inf'); return; }
   micSet(!_micOn, false);
 }
 function _micTyping(e) {
@@ -2748,11 +3123,11 @@ document.addEventListener('click', e => {
 window.addEventListener('blur', () => { if (_micPtt) { _micPtt = false; micSet(false, false); } });
 async function onAirToggle() {
   if (_onAirBusy) return;
-  if (_onAirState === 'off' || _onAirState === 'prova') {
+  if (_onAirState === 'off' || _onAirState === 'prova' || _onAirState === 'prova_wait') {
     const srv = (window.EDITION && EDITION.stream) ? '\nServer: ' + EDITION.stream : '';
-    if (!await askConfirm('🔴 Andare in onda?', _onAirState === 'prova'
-        ? 'Stai uscendo dalla Prova: da adesso gli ascoltatori ti sentono.' + srv + '\n\nLa musica non si ferma: il brano che stai ascoltando va in onda così com\'è.'
-        : 'Il PC si collega al server di streaming e gli ascoltatori ti sentono.' + srv + '\n\nLa diretta parte dal primo brano in coda (o dal clockwheel).\n(Per ascoltare senza andare in onda usa 🎧 Prova.)',
+    if (!await askConfirm('🔴 Andare in onda?', _onAirState !== 'off'
+        ? 'Stai uscendo dalla modalità offline: da adesso gli ascoltatori ti sentono.' + srv + '\n\nLa musica non si ferma: il brano che stai ascoltando va in onda così com\'è.'
+        : 'Il PC si collega al server di streaming e gli ascoltatori ti sentono.' + srv + '\n\nLa diretta parte dal primo brano in coda (o dal clockwheel).\n(Per ascoltare senza andare in onda usa ▶ Avvia offline.)',
         '🔴 Vai in onda', true)) return;
     _onAirBusy = true; onAirRender('wait');
     const r = await POST('/api/liquidsoap/start', {});
@@ -2812,7 +3187,10 @@ async function dashLoad() {
     const dot = document.getElementById('sdot');
     if (dot) dot.className = 'dot' + (liq.active ? ' on' : '');
     const stat = document.getElementById('liq-stat');
-    if (stat) { stat.textContent = liq.active ? '● Attivo' : '● Fermo'; stat.style.color = liq.active ? 'var(--green)' : 'var(--red)'; }
+    if (stat) {
+      stat.textContent = liq.active ? '● Attivo' : liq.standby_ready ? '● Pronto' : liq.standby ? '● Si prepara…' : '● Fermo';
+      stat.style.color = liq.active ? 'var(--green)' : liq.standby ? 'var(--mut)' : 'var(--red)';
+    }
     document.getElementById('silence-banner').style.display = liq.silence ? '' : 'none';
   }
   const fcBanner = document.getElementById('forced-cover-banner');
@@ -2826,8 +3204,8 @@ async function dashLoad() {
   if (cfg.ok && cfg.config) {
     const c = cfg.config;
     document.getElementById('dash-stream').innerHTML = `
-      <div class="irow"><span class="ikey">Motore radio</span><span class="ival" style="color:${liq.active?'var(--green)':'var(--red)'}">${liq.active?'● Attivo':'● Fermo'}</span></div>
-      <div class="irow"><span class="ikey">Server streaming</span><span class="ival" style="color:${liq.live_on?'var(--green)':liq.prova?'var(--mut)':liq.active?'var(--amber)':'var(--red)'}" title="${esc(liq.server_error||'')}">${liq.live_on?'● Collegato':liq.prova?'● Non usato (🎧 Prova)':liq.active?(liq.server_error?'● Non riesce a collegarsi':'● Collegamento…'):'● Scollegato'}</span></div>
+      <div class="irow"><span class="ikey">Motore radio</span><span class="ival" style="color:${liq.active?'var(--green)':liq.standby?'var(--mut)':'var(--red)'}" title="${liq.standby?'Il motore è già acceso ma non suona: Avvia offline o Vai in onda partono subito':''}">${liq.active?'● Attivo':liq.standby_ready?'● Pronto':liq.standby?'● Si prepara…':'● Fermo'}</span></div>
+      <div class="irow"><span class="ikey">Server streaming</span><span class="ival" style="color:${liq.live_on?'var(--green)':liq.prova?'var(--mut)':liq.active?'var(--amber)':'var(--red)'}" title="${esc(liq.server_error||'')}">${liq.live_on?'● Collegato':liq.prova?'● Non usato (offline)':liq.active?(liq.server_error?'● Non riesce a collegarsi':'● Collegamento…'):'● Scollegato'}</span></div>
       <div class="irow"><span class="ikey">In onda</span><span class="ival" style="color:${liq.live_on?'var(--green)':'var(--mut)'}">${liq.live_on?'● Sì':'● No'}</span></div>
       ${titleStatusRow(liq.title_status)}
       <div class="irow"><span class="ikey">Silenzio</span><span class="ival" style="color:${liq.silence?'var(--red)':'var(--green)'}">${liq.silence?'⚠️ Rilevato':'● Nessuno'}</span></div>
@@ -2919,11 +3297,10 @@ async function loadDashStats() {
   ]);
   if (!s.ok) { el.innerHTML = '<div style="font-size:12px;color:var(--mut)">Errore nel caricamento</div>'; return; }
   const st  = s.stats;
-  const hrs = Math.floor(st.total_duration_seconds/3600);
   const top = (t.ok && t.tracks && t.tracks.length) ? t.tracks[0] : null;
   el.innerHTML = `
     <div class="irow"><span class="ikey">Brani in libreria</span><span class="ival">${st.total_tracks}</span></div>
-    <div class="irow"><span class="ikey">Durata totale</span><span class="ival">${hrs}h</span></div>
+    <div class="irow"><span class="ikey">Durata totale</span><span class="ival">${fmtCatDur(st.total_duration_seconds) || '0min'}</span></div>
     ${top ? `<div class="irow"><span class="ikey">🏆 Più suonato</span><span class="ival" style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(trackLabel(top))}">${esc(trackLabel(top))} (${top.plays})</span></div>` : ''}
   `;
 }
@@ -2994,11 +3371,11 @@ async function loadAllPlaylistsModal() {
 }
 
 async function deletePlaylist(path, name) {
-  if (!confirm(`Eliminare la playlist "${name}"?`)) return;
+  if (!await askConfirm(`Eliminare la playlist "${name}"?`, null, 'Elimina', true)) return;
   let r = await POST('/api/playlist/delete', { path });
   if (!r.ok && r.in_use) {
     const evList = (r.events || []).join(', ');
-    if (!confirm(`Attenzione: "${name}" è usata dallo scheduler nell'evento/i: ${evList}.\nSe la elimini, quell'evento non troverà più il file.\nEliminarla comunque?`)) return;
+    if (!await askConfirm(`Attenzione: "${name}" è usata dallo scheduler nell'evento/i: ${evList}.\nSe la elimini, quell'evento non troverà più il file.\nEliminarla comunque?`, null, 'Elimina comunque', true)) return;
     r = await POST('/api/playlist/delete', { path, force: true });
   }
   if (r.ok) {
@@ -3106,6 +3483,7 @@ function teOpenTrack(t) {
   document.getElementById('te-falbum').value         = t.album   || '';
   document.getElementById('te-fyear').value          = t.year    || '';
   document.getElementById('te-fgenre').value         = t.genre   || '';
+  document.getElementById('te-fcomposer').value      = t.composer|| '';
   document.getElementById('te-ftype').value          = t.songtype|| 'S';
   document.getElementById('te-fcomment').value       = t.comment || '';
   teEmbHint(t.embargo_until);
@@ -3275,7 +3653,7 @@ async function teApplyTrim() {
   if (!sid) { toast('ID brano mancante', 'err'); return; }
   const cut = (teTrimStart > 0.05) || (teDuration - teTrimEnd > 0.05);
   if (!cut) { toast('Nessun taglio da applicare (maniglie sui bordi)', 'inf'); return; }
-  if (!confirm('Taglio permanente: da ' + teTrimStart.toFixed(2) + 's a ' + teTrimEnd.toFixed(2) + 's.\nL\'originale viene comunque salvato come backup sul server. Procedere?')) return;
+  if (!await askConfirm('Taglio permanente: da ' + teTrimStart.toFixed(2) + 's a ' + teTrimEnd.toFixed(2) + 's.\nL\'originale viene comunque salvato come backup sul server. Procedere?', null, 'Taglia', true)) return;
   const r = await POST('/api/db/trim_track', { song_id: parseInt(sid), trim_start: teTrimStart, trim_end: teTrimEnd });
   if (!r.ok) { toast('Errore: ' + r.error, 'err'); return; }
   toast('✓ Taglio applicato (' + r.duration_seconds.toFixed(2) + 's)', 'ok');
@@ -3358,6 +3736,7 @@ async function teSave() {
     album:    document.getElementById('te-falbum').value.trim(),
     year:     document.getElementById('te-fyear').value.trim(),
     genre:    document.getElementById('te-fgenre').value.trim(),
+    composer: document.getElementById('te-fcomposer').value.trim(),   // tag TCOM (anche nel file)
     songtype: document.getElementById('te-ftype').value,
     comment:  document.getElementById('te-fcomment').value.trim(),
   };
@@ -3432,6 +3811,7 @@ async function doCreateCat() {
   if (r.ok) {
     toast(r.already_exists ? `"${name}" esiste già` : `✓ Categoria "${name}" creata`, r.already_exists?'warn':'ok');
     closeModal('modal-newcat');
+    if (parentId) catsOpen.add(parentId);   // mostra subito la nuova sottocategoria
     const cr = await GET('/api/database/categories');
     cats = cr.categories || []; catsTotalTracks = cr.total_tracks || 0;
     renderCats(); populateImportCats();
@@ -3439,7 +3819,7 @@ async function doCreateCat() {
 }
 
 async function renameCat(id, oldName) {
-  const name = prompt(`Rinomina "${oldName}":`, oldName);
+  const name = await askPrompt(`Rinomina "${oldName}":`, oldName, 'Rinomina');
   if (!name || name === oldName) return;
   const r = await POST('/api/database/rename_category', { category_id: id, name });
   if (r.ok) {
@@ -3529,9 +3909,12 @@ function filterCats() {
   });
 }
 
+// Durata di categorie, playlist e libreria: da 24 ore in su in giorni ("4 giorni 9h"),
+// prima "105h 12min" con le categorie grandi si leggeva male (24/10)
 function fmtCatDur(sec) {
   if (!sec || sec < 1) return '';
-  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+  if (d > 0) return `${d.toLocaleString()} ${d === 1 ? 'giorno e' : 'giorni e'} ${h}h`;   // "e": parola sola non va in en.json
   return h > 0 ? `${h}h ${m}min` : `${m}min`;
 }
 
@@ -3560,6 +3943,109 @@ function fmtCatDur(sec) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 
+// Categorie madri con le sottocategorie aperte (▾): all'avvio tutte chiuse
+const catsOpen = new Set();
+function toggleCatOpen(id) {
+  if (catsOpen.has(id)) catsOpen.delete(id); else catsOpen.add(id);
+  renderCats();
+}
+
+// ── 🎤 Dividi per voce (27/10/2026): artisti su MusicBrainz → categorie maschile/femminile ──
+const VOICE_LBL = { M: '♂ Maschile', F: '♀ Femminile', X: '⚥ Misti', G: '👥 Gruppo', '?': '❓ Non trovato', '': '… da cercare' };
+let voiceCat = null, voiceRows = [], voiceTimer = null, voiceFilter = null;
+
+function openVoice(id, name, isSub) {
+  voiceCat = id; voiceRows = []; voiceFilter = null;
+  document.getElementById('voice-cat').textContent = name;
+  document.getElementById('voice-q').value = '';
+  document.querySelector(`input[name="voice-mode"][value="${isSub ? 'root' : 'sub'}"]`).checked = true;
+  document.querySelector('input[name="voice-mode"][value="sub"]').disabled = !!isSub;
+  document.getElementById('voice-nM').value = 'Voce maschile';
+  document.getElementById('voice-nF').value = 'Voce femminile';
+  document.getElementById('voice-nX').value = '';
+  document.getElementById('voice-nG').value = 'Gruppi';
+  try {   // nomi scelti l'ultima volta
+    const n = JSON.parse(localStorage.getItem('voiceNames') || 'null');
+    if (n) ['M','F','X','G'].forEach(k => { if (n[k] !== undefined) document.getElementById('voice-n' + k).value = n[k]; });
+  } catch (e) {}
+  document.getElementById('voice-list').innerHTML = '<div class="empty">Caricamento…</div>';
+  openModal('modal-voice');
+  voicePoll();
+}
+
+function voiceClose() {
+  clearTimeout(voiceTimer); voiceTimer = null;
+  closeModal('modal-voice');
+}
+
+async function voicePoll() {
+  clearTimeout(voiceTimer);
+  if (voiceCat === null || !document.getElementById('modal-voice').classList.contains('vis')) return;
+  const r = await POST('/api/voice/status', { category_id: voiceCat });
+  if (!r.ok) return;
+  voiceRows = r.artists || [];
+  const left = voiceRows.filter(a => !a.voice).length;
+  const prog = document.getElementById('voice-prog');
+  document.getElementById('voice-go').style.display = r.running ? 'none' : '';
+  document.getElementById('voice-stop').style.display = r.running ? '' : 'none';
+  document.getElementById('voice-go').disabled = r.busy_other;
+  if (r.running) prog.textContent = `Cerco ${r.done + 1}/${r.total}: ${r.current || ''}`;
+  else if (r.busy_other) prog.textContent = 'Sto già cercando le voci di un\'altra categoria: aspetta che finisca.';
+  else if (r.error) prog.textContent = `⚠ Ricerca interrotta (${r.error}): premi di nuovo 🔍 per continuare.`;
+  else prog.textContent = left ? `${left} artisti ancora da cercare` : '✓ Tutti gli artisti hanno una voce';
+  voiceRender();
+  if (r.running || r.busy_other) voiceTimer = setTimeout(voicePoll, 1500);
+}
+
+function voiceRender() {
+  const cnt = {}; voiceRows.forEach(a => { cnt[a.voice] = (cnt[a.voice] || 0) + a.tracks; });
+  document.getElementById('voice-sum').innerHTML = ['M','F','X','G','?',''].filter(k => cnt[k]).map(k =>
+    `<span class="cat-act-btn" style="cursor:pointer;padding:3px 8px;${voiceFilter === k ? 'outline:1px solid var(--blue)' : ''}"
+       onclick="voiceFilter=${voiceFilter === k ? 'null' : `'${k}'`};voiceRender()" title="Mostra solo questi">${VOICE_LBL[k]}: ${cnt[k]} ♪</span>`).join('');
+  const q = document.getElementById('voice-q').value.trim().toLowerCase();
+  const rows = voiceRows.filter(a => (voiceFilter === null || a.voice === voiceFilter) && (!q || a.artist.toLowerCase().includes(q)));
+  const opts = v => ['M','F','X','G','?'].map(k => `<option value="${k}"${v === k ? ' selected' : ''}>${VOICE_LBL[k]}</option>`).join('');
+  document.getElementById('voice-list').innerHTML = rows.length ? rows.slice(0, 1500).map(a =>
+    `<div style="display:flex;gap:8px;align-items:center;padding:4px 8px;border-bottom:1px solid var(--brd);font-size:12px">
+      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(a.mb_name ? 'MusicBrainz: ' + a.mb_name : '')}">${esc(a.artist)}</span>
+      <span style="color:var(--mut)">${a.tracks}</span>
+      ${a.source === 'manual' ? '<span title="Scelta a mano">✋</span>' : ''}
+      <select onchange="voiceSet('${escJsAttr(a.artist)}',this.value)" style="width:auto">
+        ${a.voice ? '' : `<option value="" selected>${VOICE_LBL['']}</option>`}${opts(a.voice)}
+      </select>
+    </div>`).join('') + (rows.length > 1500 ? `<div class="empty">… altri ${rows.length - 1500}: usa il filtro</div>` : '')
+    : '<div class="empty">Nessun artista</div>';
+}
+
+async function voiceScan() {
+  const r = await POST('/api/voice/scan', { category_id: voiceCat });
+  if (!r.ok) { toast(r.error || 'Errore', 'err'); return; }
+  voicePoll();
+}
+
+async function voiceStop() { await POST('/api/voice/stop', {}); }
+
+async function voiceSet(artist, voice) {
+  const r = await POST('/api/voice/set', { artist, voice });
+  if (!r.ok) { toast(r.error || 'Errore', 'err'); return; }
+  const a = voiceRows.find(x => x.artist === artist);
+  if (a) { a.voice = voice; a.source = 'manual'; }
+  voiceRender();
+}
+
+async function voiceApply() {
+  const names = {}; ['M','F','X','G'].forEach(k => names[k] = document.getElementById('voice-n' + k).value.trim());
+  try { localStorage.setItem('voiceNames', JSON.stringify(names)); } catch (e) {}
+  const mode = document.querySelector('input[name="voice-mode"]:checked').value;
+  const r = await POST('/api/voice/apply', { category_id: voiceCat, mode, names });
+  if (!r.ok) { toast(r.error || 'Errore', 'err'); return; }
+  toast('✓ ' + Object.entries(r.added).map(([n, v]) => `${n}: +${v}`).join(', '), 'ok', 6000);
+  if (mode === 'sub') catsOpen.add(voiceCat);
+  const cr = await GET('/api/database/categories');
+  cats = cr.categories || []; catsTotalTracks = cr.total_tracks || 0;
+  renderCats(); populateImportCats();
+}
+
 function renderCats() {
   const el = document.getElementById('cats-list');
   const total    = catsTotalTracks;
@@ -3577,7 +4063,10 @@ function renderCats() {
     const cnt = c.track_count || c.count || 0;
     const dur = fmtCatDur(c.duration_seconds || 0);
     const cls = `cat-item${isSub?' subcat':''}${catId==c.id?' on':''}`;
-    const prefix = isSub ? '<span style="color:var(--mut);margin-right:4px;font-size:10px">└</span>' : '';
+    const hasSub = !isSub && (subMap[c.id] || []).length;
+    const prefix = isSub ? '<span style="color:var(--mut);margin-right:4px;font-size:10px">└</span>'
+      : hasSub ? `<span class="cat-tog" onclick="event.stopPropagation();toggleCatOpen(${c.id})" title="${catsOpen.has(c.id)?'Nascondi sottocategorie':'Mostra sottocategorie'}">${catsOpen.has(c.id)?'▾':'▸'}</span>`
+      : '<span class="cat-tog"></span>';
     return `<div class="${cls}" onclick="selectCat(${c.id},'${escJsAttr(c.name)}')"
       ondragover="event.preventDefault();this.classList.add('drag-target')"
       ondragleave="this.classList.remove('drag-target')"
@@ -3586,6 +4075,7 @@ function renderCats() {
       <span class="cat-dur">${dur}</span>
       <div class="cat-actions">
         <button class="cat-act-btn" onclick="event.stopPropagation();openNewCatModal(${c.id})" title="Nuova sottocategoria">+sub</button>
+        <button class="cat-act-btn" onclick="event.stopPropagation();openVoice(${c.id},'${escJsAttr(c.name)}',${isSub?1:0})" title="Dividi per voce maschile / femminile">🎤</button>
         <button class="cat-act-btn" onclick="event.stopPropagation();renameCat(${c.id},'${escJsAttr(c.name)}')" title="Rinomina">✎</button>
         <button class="cat-act-btn" onclick="event.stopPropagation();deleteCat(${c.id},'${escJsAttr(c.name)}')" title="Elimina" style="color:var(--red)">✕</button>
       </div>
@@ -3601,13 +4091,16 @@ function renderCats() {
 
   roots.forEach(c => {
     html += catHtml(c, false);
-    (subMap[c.id] || []).forEach(s => { html += catHtml(s, true); });
+    // Sottocategorie solo se la madre è aperta con la freccetta
+    if (catsOpen.has(c.id)) (subMap[c.id] || []).forEach(s => { html += catHtml(s, true); });
   });
   el.innerHTML = html;
 }
 
 async function selectCat(id, name) {
   catId = id; catName = name || ''; libPage = 0; libSearchMode = false; libShowAll = false; sel.clear(); _libLastClick = -1;
+  const pc = cats.find(c => c.id == id);
+  if (pc && pc.parent_id) catsOpen.add(pc.parent_id);   // la sottocategoria scelta resta visibile
   document.getElementById('lib-search').value = '';
   renderCats();
   await loadTracks();
@@ -3640,9 +4133,7 @@ function updateCatInfoBar() {
   const totalSec = allTracks.reduce((a,t) => a + (t.duration_seconds||0), 0);
   const n = allTracks.length;
   if (!n) { bar.style.display = 'none'; return; }
-  const h = Math.floor(totalSec/3600), m = Math.floor((totalSec%3600)/60);
-  const durStr = h > 0 ? `${h}h ${m}min` : `${m}min`;
-  bar.textContent = `${n} brani · durata totale: ${durStr}`;
+  bar.textContent = `${n} brani · durata totale: ${fmtCatDur(totalSec) || '0min'}`;
   bar.style.display = '';
 }
 
@@ -3736,7 +4227,7 @@ async function tySave(gi, newYear) {
   if (!t) return;
   if (newYear === (t.year || '')) { renderTracks(); return; }
   const payload = { song_id: t.id, year: newYear };
-  const applyAlbum = t.album && confirm(`Applicare l'anno "${newYear || '(vuoto)'}" anche a tutti i brani dell'album "${t.album}"?`);
+  const applyAlbum = t.album && await askConfirm(`Applicare l'anno "${newYear || '(vuoto)'}" anche a tutti i brani dell'album "${t.album}"?`, null, 'Applica');
   if (applyAlbum) payload.year_apply_album = true;
   const r = await POST('/api/database/edit_track', payload);
   if (r.ok) {
@@ -3875,7 +4366,7 @@ function updSel() {
 
 async function libExportM3U() {
   const label = catId === 'all' ? 'libreria completa' : (catName || 'categoria');
-  if (!confirm(`Salvare "${label}" come playlist M3U? Sarà visibile in "Playlist generate" e nello scheduler.`)) return;
+  if (!await askConfirm(`Salvare "${label}" come playlist M3U? Sarà visibile in "Playlist generate" e nello scheduler.`, null, 'Salva')) return;
   const r = await POST('/api/database/export_m3u', { category_id: catId });
   if (r.ok) toast(`Playlist salvata: ${r.file} (${r.tracks} brani)`, 'ok');
   else toast('Errore: ' + (r.error || ''), 'err');
@@ -3889,9 +4380,8 @@ async function openStatsModal() {
   modal.style.display = 'flex';
   const r = await GET('/api/database/stats?category_id=' + encodeURIComponent(catId));
   if (!r.ok) { document.getElementById('stats-body').innerHTML = 'Errore: ' + esc(r.error||''); return; }
-  const h = Math.floor(r.total_seconds/3600), m = Math.floor((r.total_seconds%3600)/60);
   let html = `<div style="margin-bottom:12px">
-      <b>${r.total_tracks}</b> brani &middot; durata totale <b>${h}h ${m}min</b><br>
+      <b>${r.total_tracks}</b> brani &middot; durata totale <b>${fmtCatDur(r.total_seconds) || '0min'}</b><br>
       <span style="color:var(--mut);font-size:12px">${r.no_genre} senza genere &middot; ${r.no_year} senza anno</span>
     </div>`;
   html += statSection('Per decennio', r.by_decade.map(x => [x.decade, x.count]));
@@ -3917,7 +4407,7 @@ function statSection(title, rows) {
 async function libRemoveFromCat() {
   if (!sel.size || catId === 'all') return;
   const n = sel.size;
-  if (!confirm(`Rimuovere ${n} brano/i dalla categoria "${catName}"?\n(I brani rimangono nel DB e sul disco.)`)) return;
+  if (!await askConfirm(`Rimuovere ${n} brano/i dalla categoria "${catName}"?\n(I brani rimangono nel DB e sul disco.)`, null, 'Rimuovi', true)) return;
   const r = await POST('/api/database/remove_tracks_from_category', {
     song_ids: [...sel],
     category_id: catId
@@ -3937,9 +4427,9 @@ async function libRemoveFromCat() {
 async function libDeleteFromDb() {
   if (!sel.size) return;
   const n = sel.size;
-  if (!confirm(`Eliminare ${n} brano/i dal database?\n\n` +
+  if (!await askConfirm(`Eliminare ${n} brano/i dal database?\n\n` +
                `Spariscono dalla libreria, da tutte le categorie, dalla coda e dai pulsanti jingle.\n` +
-               `I file MP3 restano sul disco: puoi reimportarli quando vuoi.`)) return;
+               `I file MP3 restano sul disco: puoi reimportarli quando vuoi.`, null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_tracks', { ids: [...sel] });
   if (!r.ok) { toast('Errore: ' + (r.error||''), 'err'); return; }
   toast(`🗑 ${r.deleted} brano/i eliminati dal database`, 'ok');
@@ -4070,7 +4560,7 @@ async function execMove(removeFromSource) {
 }
 
 // ── IMPORT MODAL ───────────────────────────────────────────────────────
-let importMode = 'folder', pendingFiles = [];
+let importMode = 'folder', pendingFiles = [], pendingPaths = [];
 
 function populateImportCats() {
   ['imp-cat','imp-cat-up','imp-cat-pl','imp-cat-rec'].forEach(id => {
@@ -4093,7 +4583,7 @@ async function loadImportPlaylists() {
 }
 
 function openImportModal() {
-  pendingFiles = [];
+  pendingFiles = []; pendingPaths = [];
   document.getElementById('upload-file-list').innerHTML = '';
   document.getElementById('imp-folder').value = '';
   document.getElementById('imp-result').style.display = 'none';
@@ -4348,10 +4838,8 @@ function handlePcFolder(files) {
 // Edizione: scheda "📁 Cartella" — Sfoglia… apre la finestra di Windows e scrive il percorso
 async function pickFolderInto() {
   const inp = document.getElementById('imp-folder');
-  const info = document.getElementById('imp-folder-info');
-  info.textContent = 'Scegli la cartella nella finestra che si è aperta (se non la vedi, guarda nella barra delle applicazioni)…';
-  const r = await POST('/api/edition/pick_folder', { start: inp.value || (window.EDITION && EDITION.music_dir) || '' });
-  if (r.ok && r.path) inp.value = r.path;
+  const path = await cwPickFolder(inp.value.trim());
+  if (path) inp.value = path;
   await folderCount();
 }
 async function folderCount() {
@@ -4363,10 +4851,10 @@ async function folderCount() {
                             : '⚠ ' + (cnt.error || 'Cartella non trovata');
 }
 
-// Edizione: una playlist M3U qualsiasi dal PC (finestra di Windows). I brani restano dove sono.
+// Edizione: una playlist M3U qualsiasi dal PC (sfoglia interno). I brani restano dove sono.
 async function pickM3uFile() {
-  const r = await POST('/api/edition/pick_file', {});
-  if (!r.ok || !r.path) return;
+  const r = { path: await cwPickFile('', ['.m3u', '.m3u8']) };
+  if (!r.path) return;
   const sel = document.getElementById('imp-pl-file');
   let o = [...sel.options].find(x => x.value === r.path);
   if (!o) {
@@ -4377,14 +4865,13 @@ async function pickM3uFile() {
   sel.value = r.path;
 }
 
-// Edizione: la cartella si sceglie con la finestra di Windows (dal server) e si
+// Edizione: la cartella si sceglie con lo sfoglia cartelle interno (cwPickFolder) e si
 // importa dal suo percorso, come "📁 Cartella": i file non vengono copiati.
 let _pcFolderPath = '';
 async function pickPcFolder() {
   const info = document.getElementById('pcfolder-info');
-  info.textContent = 'Scegli la cartella nella finestra che si è aperta (se non la vedi, guarda nella barra delle applicazioni)…';
-  const r = await POST('/api/edition/pick_folder', { start: _pcFolderPath || (window.EDITION && EDITION.music_dir) || '' });
-  if (!r.ok || !r.path) { info.textContent = ''; return; }
+  const r = { path: await cwPickFolder(_pcFolderPath) };
+  if (!r.path) return;
   const cnt = await POST('/api/db/import_count', { folder: r.path });
   if (!cnt.ok) { info.textContent = ''; toast('Errore: ' + (cnt.error || ''), 'err'); return; }
   _pcFolderPath = r.path;
@@ -4424,14 +4911,23 @@ function handleFiles(files) {
   for (const f of files) { if (f.name.toLowerCase().endsWith('.mp3')) pendingFiles.push(f); }
   renderUploadList();
 }
+// Clic sul riquadro: i brani si scelgono con lo sfoglia interno (anche da cartelle diverse)
+// e si importano dal loro percorso senza copiarli; trascinati da Esplora risorse vengono caricati come prima.
+async function pickUploadFiles() {
+  const paths = await cwPickFile('', ['.mp3'], true);
+  paths.forEach(p => { if (!pendingPaths.includes(p)) pendingPaths.push(p); });
+  renderUploadList();
+}
 function renderUploadList() {
   document.getElementById('upload-file-list').innerHTML =
+    pendingPaths.map(p =>
+      `<div class="upload-file-item"><span title="${esc(p)}">🎵 ${esc(p.split('\\').pop())}</span><span>sul PC</span></div>`).join('') +
     pendingFiles.map((f,i) =>
       `<div class="upload-file-item">
          <span>${esc(f.name)}</span>
          <span>${(f.size/1024/1024).toFixed(1)} MB</span>
        </div>`
-    ).join('') || '';
+    ).join('');
 }
 
 async function _refreshLibIfViewing(viewingCatId, targetCatId) {
@@ -4463,7 +4959,7 @@ async function doImport() {
     const catName = catId ? (document.getElementById('imp-cat').selectedOptions[0]?.textContent || '') : '';
     const destMsg = catName ? `alla categoria "${catName}"` : 'creando/usando una categoria con il nome della cartella';
     const warn = cnt.count > 200 ? `\n\n⚠️ È un numero alto: controlla di aver scelto la cartella giusta.` : '';
-    const confirmed = confirm(`Trovati ${cnt.count} file MP3 in questa cartella (ricerca inclusa nelle sottocartelle).\nVerranno aggiunti ${destMsg}.${warn}\n\nProcedere?`);
+    const confirmed = await askConfirm(`Trovati ${cnt.count} file MP3 in questa cartella (ricerca inclusa nelle sottocartelle).\nVerranno aggiunti ${destMsg}.${warn}\n\nProcedere?`, null, 'Importa');
     if (!confirmed) { btn.disabled = false; return; }
 
     toast('Importazione in corso…', 'inf', 8000);
@@ -4574,8 +5070,25 @@ async function doImport() {
     }
     btn.disabled = false; return;
   } else {
-    if (!pendingFiles.length) { toast('Nessun file selezionato', 'err'); btn.disabled=false; return; }
+    if (!pendingFiles.length && !pendingPaths.length) { toast('Nessun file selezionato', 'err'); btn.disabled=false; return; }
     const catId = document.getElementById('imp-cat-up').value;
+    if (pendingPaths.length) {   // brani scelti con lo sfoglia interno: restano dove sono, nessuna copia
+      toast('Importazione in corso…', 'inf', 15000);
+      const r = await POST('/api/db/import_files', { files: pendingPaths, category_id: catId ? parseInt(catId) : null });
+      if (!r.ok) {
+        res.textContent = '✗ Errore: ' + (r.error||'sconosciuto');
+        res.style.color = 'var(--red)'; res.style.display = '';
+        toast('Errore: ' + r.error, 'err'); return;
+      }
+      res.textContent = '✓ Importati: ' + (r.imported||0) + ', già presenti: ' + (r.skipped||0);
+      res.style.color = 'var(--green)'; res.style.display = '';
+      toast('✓ Import completato', 'ok', 5000);
+      pendingPaths = []; renderUploadList();
+      const cr = await GET('/api/database/categories');
+      cats = cr.categories || []; catsTotalTracks = cr.total_tracks || 0; renderCats(); populateImportCats();
+      await _refreshLibIfViewing(viewingCatId, catId);
+      if (!pendingFiles.length) return;
+    }
     toast(`Upload di ${pendingFiles.length} file…`, 'inf', 15000);
     res.textContent = `Caricamento di ${pendingFiles.length} file in corso…`;
     res.style.color = 'var(--mut)'; res.style.display = '';
@@ -4887,11 +5400,11 @@ async function cwGenerate() {
   else toast('Errore salvataggio: '+sr.error, 'err');
 }
 async function cwDel() {
-  if (!cwEditing || !confirm(`Eliminare "${cwEditing}"?`)) return;
+  if (!cwEditing || !await askConfirm(`Eliminare "${cwEditing}"?`, null, 'Elimina', true)) return;
   let r = await POST('/api/clockwheel/delete', { name: cwEditing });
   if (!r.ok && r.in_use) {
     const reasons = (r.reasons || []).join('; ');
-    if (!confirm(`Attenzione: "${cwEditing}" è in uso (${reasons}).\nSe lo elimini, chi lo referenzia non lo troverà più.\nEliminarlo comunque?`)) return;
+    if (!await askConfirm(`Attenzione: "${cwEditing}" è in uso (${reasons}).\nSe lo elimini, chi lo referenzia non lo troverà più.\nEliminarlo comunque?`, null, 'Elimina comunque', true)) return;
     r = await POST('/api/clockwheel/delete', { name: cwEditing, force: true });
   }
   if (r.ok) { toast('✓ Eliminato', 'ok'); cwNames = cwNames.filter(n=>n!==cwEditing); cwEditing=null; cwCloseEd(); renderCwList(); }
@@ -4911,6 +5424,7 @@ async function initSched() {
   schedEvts = sr.events || [];
   if (!cwNames.length) cwNames = cr.files || [];
   if (!cats.length) { const catr = await GET('/api/database/categories'); cats = catr.categories || []; catsTotalTracks = catr.total_tracks || 0; }
+  GET('/api/scheduler/genres').then(r => { schedGenres = r.genres || []; });
   renderSchedList();
 }
 
@@ -4990,8 +5504,9 @@ const SCHED_ACTIONS = {
   add_category_to_queue: { label: '📂 Aggiungi playlist/categoria alla coda' },
   move_category_tracks:  { label: '↔ Sposta brani tra categorie' },
   empty_category:        { label: '🧹 Svuota una categoria/playlist' },
+  genre_to_category:     { label: '🏷 Brani di un genere → categoria del genere' },
   set_clockwheel:        { label: '🎡 Cambia clockwheel default' },
-  start_prova:           { label: '▶ Accendi la radio solo sul PC (🎧 Prova)' },
+  start_prova:           { label: '▶ Accendi la radio solo sul PC (offline)' },
   start_liquidsoap:      { label: '📡 Vai in onda (collega al server)' },
   go_off_air:            { label: '📴 Esci dall\'onda (la musica continua sul PC)' },
   stop_liquidsoap:       { label: '⏹ Spegni la radio' },
@@ -5004,6 +5519,7 @@ const SCHED_ACTIONS = {
 };
 
 let _schedActions = [];
+let schedGenres = [];
 
 function schedCatOptions(selectedId) {
   const roots  = cats.filter(c => !c.parent_id);
@@ -5065,6 +5581,12 @@ function schedActionParamsHtml(item, i) {
   if (a === 'empty_category') {
     return `<select onchange="_schedActions[${i}].category_id=this.value">${schedCatOptions(item.category_id)}</select>`;
   }
+  if (a === 'genre_to_category') {
+    return `<input type="text" list="sa-genres-${i}" style="flex:1;min-width:180px" placeholder="Genere (es. Rock)"
+              value="${esc(item.genre||'')}" oninput="_schedActions[${i}].genre=this.value">
+            <datalist id="sa-genres-${i}">${schedGenres.map(g=>`<option value="${esc(g.genre)}">${g.count}</option>`).join('')}</datalist>
+            <span style="font-size:11px;color:var(--mut)">se la categoria non c'è la crea</span>`;
+  }
   if (a === 'wait') {
     if (item.seconds == null) item.seconds = 5;
     return `<input type="number" min="1" max="600" style="width:70px" value="${esc(item.seconds)}"
@@ -5087,9 +5609,9 @@ function schedActionParamsHtml(item, i) {
             </label>`;
   }
   if (a === 'start_liquidsoap')
-    return `<span style="font-size:11px;color:var(--mut)">se è spenta la accende e va in onda, se è in 🎧 Prova la manda in onda senza fermare la musica</span>`;
+    return `<span style="font-size:11px;color:var(--mut)">se è spenta la accende e va in onda, se è offline la manda in onda senza fermare la musica</span>`;
   if (a === 'go_off_air')
-    return `<span style="font-size:11px;color:var(--mut)">si scollega dal server, la radio continua in 🎧 Prova</span>`;
+    return `<span style="font-size:11px;color:var(--mut)">si scollega dal server, la radio continua offline</span>`;
   if (a === 'rec_start')
     return `<span style="font-size:11px;color:var(--mut)">registra quello che va in onda (la radio deve essere accesa)</span>`;
   return '';
@@ -5102,8 +5624,8 @@ function schedTrackSearchDelay(i, q) { clearTimeout(_saSearchT); _saSearchT = se
 async function schedTrackSearch(i, q) {
   const box = document.getElementById('sa-res-' + i); if (!box) return;
   if (q.length < 2) { box.style.display = 'none'; return; }
-  const r = await POST('/api/database/search', { query: q });
-  const list = _saResults[i] = ((r.ok && r.results) || []).slice(0, 40);
+  const r = await POST('/api/database/search', { query: q, limit: 40 });
+  const list =_saResults[i] = ((r.ok && r.results) || []).slice(0, 40);
   box.innerHTML = list.length ? list.map((t, k) => `<div onmousedown="schedTrackPick(${i}, ${k})"
       style="padding:5px 8px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--brd)" onmouseover="this.style.background='var(--sur)'" onmouseout="this.style.background=''">
       ${t.embargo_until ? '🔒 ' : ''}<b>${esc(_saName(t))}</b> <span style="color:var(--mut)">${esc(t.artist || '')}</span></div>`).join('')
@@ -5345,7 +5867,7 @@ async function schedRunNow() {
   if (!schedEditing) { toast('Salva prima l\'evento', 'err'); return; }
   const ev = schedEvts.find(e=>e.id===schedEditing);
   if (!ev) return;
-  if (!confirm(`Eseguire ora "${ev.name}"?`)) return;
+  if (!await askConfirm(`Eseguire ora "${ev.name}"?`, null, 'Esegui')) return;
   const r = await POST('/api/scheduler/run', { id: schedEditing });
   if (r.ok) toast('✓ Eseguito', 'ok');
   else toast('Errore: '+(r.error||'?'), 'err');
@@ -5358,7 +5880,7 @@ async function schedRunNow() {
 }
 
 async function schedDel() {
-  if (!schedEditing || !confirm('Eliminare evento?')) return;
+  if (!schedEditing || !await askConfirm('Eliminare evento?', null, 'Elimina', true)) return;
   const r = await POST('/api/scheduler/delete', { id: schedEditing });
   if (r.ok) {
     toast('✓ Eliminato', 'ok');
@@ -5373,14 +5895,14 @@ let _fsBrTargetId = null;  // ID dell'input da riempire
 let _fsBrRoot     = 'music';
 let _fsBrSel      = null;  // path assoluto selezionato
 
-// Finestra di Windows "Apri" (Scheduler): i brani della libreria possono stare in
-// qualsiasi cartella del disco, il selezionatore interno vedeva solo la cartella musica.
+// Scegli un file (Scheduler) con lo sfoglia interno: i brani della libreria possono stare in
+// qualsiasi cartella del disco. kind: "audio" = brani, "any" = brani o playlist, altro = playlist.
+const PICK_AUDIO = ['.mp3', '.aac', '.ogg', '.flac', '.wav', '.m4a'];
 async function pickFileInto(targetInputId, kind) {
   const inp = document.getElementById(targetInputId);
-  toast('Scegli il file nella finestra che si è aperta (se non la vedi, guarda nella barra delle applicazioni)', 'ok');
-  const r = await POST('/api/edition/pick_file', { kind, start: (inp && inp.value.trim()) || '' });
-  if (r.ok && r.path && inp) { inp.value = r.path; inp.dispatchEvent(new Event('input', {bubbles:true})); }
-  else if (!r.ok && r.error) toast(r.error, 'err');
+  const exts = kind === 'audio' ? PICK_AUDIO : kind === 'any' ? [...PICK_AUDIO, '.m3u', '.m3u8'] : ['.m3u', '.m3u8'];
+  const path = await cwPickFile((inp && inp.value.trim()) || '', exts);
+  if (path && inp) { inp.value = path; inp.dispatchEvent(new Event('input', {bubbles:true})); }
 }
 
 function fsBrOpen(root, targetInputId) {
@@ -5753,7 +6275,7 @@ async function qRm(id) {
   if (r.ok) await loadQueue(); else toast('Errore: '+r.error, 'err');
 }
 async function qClear() {
-  if (!confirm('Svuotare tutta la coda?')) return;
+  if (!await askConfirm('Svuotare tutta la coda?', null, 'Svuota', true)) return;
   const r = await POST('/api/liquidsoap/queue/clear', {});
   if (r.ok) { toast('Coda svuotata', 'ok'); await loadQueue(); } else toast('Errore', 'err');
 }
@@ -5790,13 +6312,11 @@ async function statLoadOverview() {
   if (!r.ok) { el.innerHTML = `<div class="empty">Errore: ${esc(r.error||'?')}</div>`; return; }
   const s = r.stats;
   mntSetCount('stov', s.total_tracks);
-  const hrs = Math.floor(s.total_duration_seconds/3600);
-  const mins = Math.floor((s.total_duration_seconds%3600)/60);
   el.innerHTML = `
     <div class="mnt-toolbar" style="flex-wrap:wrap;gap:18px">
       <div><b>${s.total_tracks}</b> brani</div>
       <div><b>${s.total_categories}</b> categorie</div>
-      <div><b>${hrs}h ${mins}m</b> durata totale</div>
+      <div><b>${fmtCatDur(s.total_duration_seconds) || '0min'}</b> durata totale</div>
       <div><b>${s.tracks_no_artist}</b> senza artista</div>
       <div><b>${s.tracks_no_genre}</b> senza genere</div>
       <div><b>${s.empty_categories}</b> categorie vuote</div>
@@ -6079,7 +6599,7 @@ async function mntDeleteSelectedShort(delFile) {
   const msg = delFile
     ? 'Eliminare DAL DB E DAL DISCO ' + ids.length + ' tracce selezionate?'
     : 'Eliminare dal DB ' + ids.length + ' tracce selezionate (i file restano sul disco)?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   let ok = 0;
   for (const id of ids) {
     const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
@@ -6114,7 +6634,7 @@ async function mntLoadMissing() {
   }).join('');
 }
 async function mntDeleteAllMissing() {
-  if (!confirm('Eliminare dal DB tutte le ' + _mntMissingIds.length + ' tracce con file mancante?')) return;
+  if (!await askConfirm('Eliminare dal DB tutte le ' + _mntMissingIds.length + ' tracce con file mancante?', null, 'Elimina', true)) return;
   let ok = 0;
   for (const id of _mntMissingIds) {
     const r = await POST('/api/db/delete_track', { id, delete_file: false });
@@ -6244,7 +6764,7 @@ async function mntDeleteSelectedDupes(delFile) {
   const msg = delFile
     ? 'Eliminare DAL DB E DAL DISCO le copie extra di ' + chks.length + ' gruppi (' + totalIds.length + ' tracce)?'
     : 'Eliminare dal DB le copie extra di ' + chks.length + ' gruppi (' + totalIds.length + ' tracce)?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   let ok = 0;
   for (const id of totalIds) {
     const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
@@ -6265,7 +6785,7 @@ async function mntDeleteDupeSingle(id, fpath, delFile) {
   const msg = delFile
     ? 'Eliminare DAL DB E DAL DISCO:\n' + fpath + '?'
     : 'Eliminare dal DB (file rimane):\n' + fpath + '?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
   if (r.ok) { toast('Copia eliminata' + (delFile ? ' + file disco' : ''), 'ok'); mntLoadDupes(); }
   else toast('Errore', 'err');
@@ -6287,7 +6807,7 @@ async function mntDeleteDupes(ids, label, delFile) {
   const msg = delFile
     ? 'Eliminare ' + ids.length + ' copia/e extra DAL DB E DAL DISCO:\n' + label + '?'
     : 'Eliminare ' + ids.length + ' copia/e extra dal DB (file rimane):\n' + label + '?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   let ok = 0;
   for (const id of ids) {
     const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
@@ -6357,7 +6877,7 @@ function mntSelectFilteredOrphans() {
 }
 
 async function mntDeleteOrphan(fpath) {
-  if (!confirm('Eliminare dal disco:\n' + fpath + '?')) return;
+  if (!await askConfirm('Eliminare dal disco:\n' + fpath + '?', null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_orphan_files', { files: [fpath] });
   if (r.ok && r.deleted > 0) { toast('File eliminato', 'ok'); mntLoadOrphans(); }
   else toast('Errore: ' + (r.errors||[]).join(', '), 'err');
@@ -6367,14 +6887,14 @@ async function mntDeleteSelectedOrphans() {
   const chks = [...document.querySelectorAll('.orf-chk:checked')];
   if (!chks.length) return;
   const files = chks.map(c => c.dataset.fp);
-  if (!confirm('Eliminare DAL DISCO ' + files.length + ' file selezionati?\nQuesta operazione non è reversibile.')) return;
+  if (!await askConfirm('Eliminare DAL DISCO ' + files.length + ' file selezionati?\nQuesta operazione non è reversibile.', null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_orphan_files', { files });
   if (r.ok) { toast('Eliminati ' + r.deleted + ' file', 'ok'); mntLoadOrphans(); }
   else toast('Errore: ' + (r.errors||[]).join(', '), 'err');
 }
 
 async function mntDeleteAllOrphans() {
-  if (!confirm('Eliminare DAL DISCO tutti i ' + _mntOrphanFiles.length + ' file orfani?\nQuesta operazione non è reversibile.')) return;
+  if (!await askConfirm('Eliminare DAL DISCO tutti i ' + _mntOrphanFiles.length + ' file orfani?\nQuesta operazione non è reversibile.', null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_orphan_files', { files: _mntOrphanFiles });
   if (r.ok) { toast('Eliminati ' + r.deleted + ' file', 'ok'); mntLoadOrphans(); }
   else toast('Errore', 'err');
@@ -6397,10 +6917,24 @@ async function mntLoadEmptyCats() {
   ).join('');
 }
 async function mntDeleteEmptyCats() {
-  if (!confirm('Eliminare tutte le categorie vuote?')) return;
+  if (!await askConfirm('Eliminare tutte le categorie vuote?', null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_empty_categories', {});
   if (r.ok) { toast('Categorie vuote eliminate', 'ok'); mntLoadEmptyCats(); }
   else toast('Errore: ' + r.error, 'err');
+}
+
+// ── Commenti dai file ─────────────────────────────────────────────────
+async function mntRereadComments() {
+  const btn = document.getElementById('mnt-cmt-btn');
+  const el = document.getElementById('mnt-cmt-result');
+  btn.disabled = true;
+  el.textContent = 'Lettura dei file in corso, con molti brani ci vuole qualche minuto...';
+  const r = await POST('/api/db/reread_comments', {});
+  btn.disabled = false;
+  if (!r.ok) { el.textContent = 'Errore: ' + (r.error || ''); return; }
+  mntSetCount('cmt', r.updated);
+  el.textContent = `${r.checked} brani controllati, ${r.updated} commenti letti dai file, ${r.embargoed} sotto embargo`;
+  if (r.embargoed) toast(`🔒 ${r.embargoed} brani sotto embargo`, 'ok', 5000);
 }
 
 // ── Tag mancanti ──────────────────────────────────────────────────────
@@ -6472,7 +7006,7 @@ async function mntDeleteSelectedTags(delFile) {
   const msg = delFile
     ? 'Eliminare DAL DB E DAL DISCO ' + chks.length + ' brani senza tag?'
     : 'Eliminare dal DB ' + chks.length + ' brani senza tag (file rimangono)?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   let ok = 0;
   for (const c of chks) {
     const r = await POST('/api/db/delete_track', { id: parseInt(c.dataset.id), delete_file: delFile });
@@ -6491,7 +7025,7 @@ async function mntSaveTag(id) {
 }
 
 async function mntFixTagsAll() {
-  if (!confirm('Tentare la deduzione automatica di artista/titolo dal nome file per tutti i brani senza tag?')) return;
+  if (!await askConfirm('Tentare la deduzione automatica di artista/titolo dal nome file per tutti i brani senza tag?', null, 'Procedi')) return;
   const r = await POST('/api/db/fix_tags_from_filename', {});
   if (r.ok) { toast('Aggiornati ' + r.updated + ' brani', 'ok'); mntLoadTags(); }
   else toast('Errore: ' + (r.error||''), 'err');
@@ -6528,7 +7062,7 @@ async function mntCreateBackup() {
 }
 
 async function mntRestoreBackup(name) {
-  if (!confirm('Ripristinare il database dal backup:\n' + name + '?\n\nIl database attuale verrà sovrascritto.')) return;
+  if (!await askConfirm('Ripristinare il database dal backup:\n' + name + '?\n\nIl database attuale verrà sovrascritto.', null, 'Ripristina', true)) return;
   const r = await POST('/api/db/backup/restore', { name });
   if (r.ok) toast('Database ripristinato da ' + name, 'ok');
   else toast('Errore: ' + (r.error||''), 'err');
@@ -6539,7 +7073,7 @@ async function mntDeleteTrack(id, section, delFile, label) {
   const msg = delFile
     ? 'Eliminare dal DB E DAL DISCO:\n' + label + '?'
     : 'Eliminare dal DB (file rimane sul disco):\n' + label + '?';
-  if (!confirm(msg)) return;
+  if (!await askConfirm(msg, null, 'Elimina', true)) return;
   const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
   if (r.ok) {
     toast('Eliminata' + (r.file_deleted ? ' + file disco' : ''), 'ok');
@@ -6609,7 +7143,7 @@ async function noteDone(id, done) {
 async function noteEdit(id) {
   const n = (document.getElementById('note-list')._notes || []).find(x => x.id === id);
   if (!n) return;
-  const text = prompt('Modifica promemoria', n.text);
+  const text = await askPrompt('Modifica promemoria', n.text, 'Salva');
   if (text === null || !text.trim() || text.trim() === n.text) return;
   const r = await POST('/api/notes/update', { id, text: text.trim() });
   if (!r.ok) toast('Errore: ' + (r.error||''), 'err');
@@ -6617,7 +7151,7 @@ async function noteEdit(id) {
 }
 
 async function noteDelete(id) {
-  if (!confirm('Cancellare questo promemoria?')) return;
+  if (!await askConfirm('Cancellare questo promemoria?', null, 'Elimina', true)) return;
   await POST('/api/notes/delete', { id });
   noteLoad();
 }
@@ -6638,5 +7172,480 @@ noteLoad();
     }, 400);
   }).catch(() => setTimeout(waitClosing, 3000));
 })();
-</script></body>
+</script><!-- Edizione: sfoglia cartelle e file dentro la pagina (prima le finestre di Windows, scomode da usare).
+     Stesso blocco in catorweb_radio.html e impostazioni.html:
+     cwPickFolder(start) → percorso, '' = annullato
+     cwPickFile(start, ['.m3u','.m3u8']) → percorso, '' = annullato
+     cwPickFile(start, ['.mp3'], true) → elenco di percorsi (anche da cartelle diverse), [] = annullato -->
+<style>
+#cwfp{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center}
+#cwfp.open{display:flex}
+#cwfp .fp-box{background:var(--bg2,#161b22);color:var(--txt,#e6edf3);border:1px solid var(--brd,#30363d);border-radius:10px;width:min(820px,94vw);height:min(600px,88vh);display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+#cwfp .fp-head{padding:12px 14px 10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-title{font-weight:600;font-size:15px;margin-bottom:8px}
+#cwfp .fp-nav{display:flex;gap:8px;align-items:center}
+#cwfp .fp-crumbs{flex:1;display:flex;flex-wrap:wrap;gap:2px;align-items:center;min-width:0}
+#cwfp .fp-crumbs span{cursor:pointer;padding:2px 6px;border-radius:4px;color:var(--blue,#79c0ff)}
+#cwfp .fp-crumbs span:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-crumbs i{color:var(--mut,#7d8590);font-style:normal}
+#cwfp input.fp-path{width:100%;margin:8px 0 0;font-family:Consolas,monospace;font-size:12px;padding:6px 8px;background:var(--bg,#0d1117);color:inherit;border:1px solid var(--brd,#30363d);border-radius:5px}
+#cwfp .fp-body{flex:1;display:flex;min-height:0}
+#cwfp .fp-side{width:200px;border-right:1px solid var(--brd,#30363d);overflow:auto;padding:4px 0;flex-shrink:0}
+#cwfp .fp-side div,#cwfp .fp-row{padding:7px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-side div:hover,#cwfp .fp-row:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-side .fp-sec{color:var(--mut,#7d8590);font-size:11px;cursor:default;padding-top:10px;padding-bottom:3px}
+#cwfp .fp-side .fp-sec:hover{background:none}
+#cwfp .fp-list{flex:1;overflow:auto}
+#cwfp .fp-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-row span:first-child{overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-row.fp-file.sel,#cwfp .fp-row.fp-file.sel:hover{background:rgba(56,139,253,.22)}
+#cwfp .fp-allrow{padding:6px 12px;font-size:12px;color:var(--mut,#7d8590);border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-allrow a{color:var(--blue,#79c0ff);cursor:pointer;margin-left:10px}
+#cwfp .fp-n{color:var(--mut,#7d8590);font-size:12px;flex-shrink:0}
+#cwfp .fp-n.has{color:var(--green,#3fb950)}
+#cwfp .fp-msg{padding:14px;color:var(--mut,#7d8590)}
+#cwfp .fp-foot{padding:10px 14px;border-top:1px solid var(--brd,#30363d);display:flex;gap:8px;align-items:center}
+#cwfp .fp-cur{flex:1;color:var(--mut,#7d8590);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cwfp button{margin:0}
+#cwfp button:disabled{opacity:.4;cursor:default}
+@media (max-width:600px){#cwfp .fp-side{display:none}}
+</style>
+<script>
+let _fp = null;
+function _fpEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function _fpRecent() { try { return JSON.parse(localStorage.getItem('fpRecent') || '[]'); } catch (e) { return []; } }
+function cwPickFolder(start) { return _fpOpen(start, null, false); }
+function cwPickFile(start, exts, multi) { return _fpOpen(start, exts || [], !!multi); }
+function _fpOpen(start, exts, multi) {
+  if (!document.getElementById('cwfp')) {
+    const d = document.createElement('div'); d.id = 'cwfp';
+    d.innerHTML = `<div class="fp-box">
+      <div class="fp-head"><div class="fp-title" id="fp-title"></div>
+        <div class="fp-nav"><button type="button" class="sec" id="fp-up" onclick="_fpGo(_fp.parent)" title="Cartella superiore">⬆</button>
+          <div class="fp-crumbs" id="fp-crumbs"></div></div>
+        <input class="fp-path" id="fp-path" placeholder="Clicca sulle cartelle per entrare, oppure incolla qui un percorso e premi Invio"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();_fpGo(this.value)}"></div>
+      <div class="fp-body"><div class="fp-side" id="fp-side"></div><div class="fp-list" id="fp-list"></div></div>
+      <div class="fp-foot"><span class="fp-cur" id="fp-cur"></span>
+        <button type="button" class="sec" onclick="_fpDone(false)">Annulla</button>
+        <button type="button" id="fp-ok" onclick="_fpDone(true)"></button></div></div>`;
+    d.addEventListener('mousedown', e => { if (e.target === d) _fpDone(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && _fp && _fp.resolve) _fpDone(false); });
+    document.body.appendChild(d);
+  }
+  if (_fp && _fp.resolve) _fpDone(false);
+  document.getElementById('fp-title').textContent = !exts ? '📁 Scegli una cartella'
+    : multi ? '🎵 Scegli i brani (clicca per sceglierne quanti vuoi, anche da cartelle diverse)' : '📄 Scegli un file';
+  return new Promise(async res => {
+    _fp = { resolve: res, exts, multi, sel: [], path: '', parent: null, dirs: [], files: [], side: [] };
+    document.getElementById('cwfp').classList.add('open');
+    _fpFoot();
+    if (!(await _fpGo(start || _fpRecent()[0] || ''))) await _fpGo('');
+  });
+}
+function _fpDone(ok) {
+  if (!_fp || !_fp.resolve) return;
+  let val = _fp.multi ? [] : '';
+  if (ok) val = !_fp.exts ? _fp.path : _fp.multi ? _fp.sel.slice() : (_fp.sel[0] || '');
+  const folder = !_fp.exts ? _fp.path : (ok && _fp.path);
+  if (ok && folder) {   // si ricorda la cartella (per i file, quella dove si è scelto)
+    const rec = [folder, ..._fpRecent().filter(p => p.toLowerCase() !== folder.toLowerCase())].slice(0, 6);
+    try { localStorage.setItem('fpRecent', JSON.stringify(rec)); } catch (e) {}
+  }
+  document.getElementById('cwfp').classList.remove('open');
+  const res = _fp.resolve; _fp.resolve = null; res(val);
+}
+function _fpFoot() {
+  const ok = document.getElementById('fp-ok'), cur = document.getElementById('fp-cur');
+  if (!_fp.exts) {
+    ok.textContent = '✓ Usa questa cartella'; ok.disabled = !_fp.path;
+    cur.textContent = _fp.path ? _fp.path + ' — brani direttamente in questa cartella: ' + _fp.n : 'Scegli un disco';
+  } else if (_fp.multi) {
+    ok.textContent = '✓ Aggiungi i brani scelti (' + _fp.sel.length + ')'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel.length ? 'Brani scelti: ' + _fp.sel.length + ' (clicca di nuovo su un brano per toglierlo)' : 'Nessun brano scelto';
+  } else {
+    ok.textContent = '✓ Scegli questo file'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel[0] || 'Clicca su un file (doppio clic = scegli subito)';
+  }
+}
+function _fpFile(i, dbl) {
+  const p = _fp.files[i].path, k = _fp.sel.indexOf(p);
+  if (_fp.multi) { if (k >= 0) _fp.sel.splice(k, 1); else _fp.sel.push(p); }
+  else _fp.sel = [p];
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', _fp.sel.includes(_fp.files[+el.dataset.i].path)));
+  _fpFoot();
+  if (dbl && !_fp.multi) _fpDone(true);
+}
+function _fpAll(on) {
+  _fp.files.forEach(f => { const k = _fp.sel.indexOf(f.path); if (on && k < 0) _fp.sel.push(f.path); if (!on && k >= 0) _fp.sel.splice(k, 1); });
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', on));
+  _fpFoot();
+}
+function _fpSide(places) {
+  _fp.side = [{ name: '💻 Questo PC', path: '' }, ...places];
+  const rec = _fpRecent();
+  let h = _fp.side.map((p, i) => `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p.path)}">${_fpEsc(p.name)}</div>`).join('');
+  if (rec.length) {
+    h += '<div class="fp-sec">Usate di recente</div>';
+    rec.forEach(p => { const i = _fp.side.push({ name: p, path: p }) - 1;
+      h += `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p)}">🕘 ${_fpEsc(p.replace(/\\$/, '').split('\\').pop() || p)}</div>`; });
+  }
+  document.getElementById('fp-side').innerHTML = h;
+}
+async function _fpGo(path) {
+  if (path === null || path === undefined) return false;
+  const list = document.getElementById('fp-list');
+  list.innerHTML = '<div class="fp-msg">Caricamento…</div>';
+  let r;
+  try {
+    r = await (await fetch('/api/edition/list_dirs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                                       body: JSON.stringify({ path, exts: _fp.exts || [] }) })).json();
+  } catch (e) { r = { ok: false, error: String(e) }; }
+  if (r.places) _fpSide(r.places);
+  if (!r.ok) { list.innerHTML = `<div class="fp-msg" style="color:var(--red,#ff7b72)">⚠ ${_fpEsc(r.error || 'Errore')}</div>`; return false; }
+  _fp.path = r.path; _fp.parent = r.parent; _fp.dirs = r.dirs; _fp.files = r.files || []; _fp.n = r.n;
+  document.getElementById('fp-path').value = r.path;
+  document.getElementById('fp-up').disabled = r.parent === null;
+  // percorso a pezzi cliccabili: Questo PC › I: › Musica › Blues
+  _fp.crumbs = [{ name: '💻 Questo PC', path: '' }];
+  if (r.path) {
+    const parts = r.path.replace(/\\$/, '').split('\\');
+    parts.forEach((p, i) => _fp.crumbs.push({ name: p, path: parts.slice(0, i + 1).join('\\') + (i === 0 ? '\\' : '') }));
+  }
+  document.getElementById('fp-crumbs').innerHTML = _fp.crumbs.map((c, i) =>
+    `<span onclick="_fpGo(_fp.crumbs[${i}].path)">${_fpEsc(c.name)}</span>`).join('<i>›</i>');
+  let h = r.dirs.map((d, i) =>
+    `<div class="fp-row" onclick="_fpGo(_fp.dirs[${i}].path)" title="${_fpEsc(d.path)}"><span>${r.path ? '📁' : '💽'} ${_fpEsc(d.name)}</span>`
+    + `<span class="fp-n${d.n ? ' has' : ''}" title="Sottocartelle e brani qui dentro">${d.n == null ? '' : (d.sub ? '📁 ' + d.sub + ' ' : '') + (d.n ? '🎵 ' + d.n : '') || '—'}</span></div>`).join('');
+  if (_fp.multi && _fp.files.length > 1)
+    h += `<div class="fp-allrow">${_fp.files.length} brani in questa cartella <a onclick="_fpAll(true)">Scegli tutti</a><a onclick="_fpAll(false)">Togli tutti</a></div>`;
+  h += _fp.files.map((f, i) =>
+    `<div class="fp-row fp-file${_fp.sel.includes(f.path) ? ' sel' : ''}" data-i="${i}" onclick="_fpFile(${i})" ondblclick="_fpFile(${i},true)" title="${_fpEsc(f.path)}">`
+    + `<span>${/\.m3u8?$/i.test(f.name) ? '📄' : '🎵'} ${_fpEsc(f.name)}</span><span class="fp-n">${(f.size / 1048576).toFixed(1)} MB</span></div>`).join('');
+  list.innerHTML = h || `<div class="fp-msg">${_fp.exts ? 'Niente da scegliere qui dentro' : 'Nessuna sottocartella qui dentro'}</div>`;
+  list.scrollTop = 0;
+  _fpFoot();
+  return true;
+}
+
+// ── Regia a disposizione libera (27/10/2026) ──
+// Ogni sezione si sposta dalla maniglia in alto e si allarga dall'angolo in basso a destra.
+// Al primo spostamento si fotografa la disposizione di adesso; Ripristina torna a quella di partenza.
+// Le sezioni si aprono e si chiudono dal menu 🗂 Schede o dalla ✕; dal menu si aprono anche le schede della
+// Dashboard (tranne In onda e Statistiche): in Regia ne compare una copia che si aggiorna insieme all'originale.
+const RG_NAMES = { 'rg-modebox': 'Programmazione', 'rg-deck-0': 'Player A', 'rg-deck-1': 'Player B',
+  'rg-mid': 'Scheda del prossimo brano', 'rg-qcard': '📋 Scaletta', 'rg-scard': '🔎 Ricerca rapida', 'rg-jcard': '🎵 Jingle' };
+// [chiave, id di un elemento dentro la scheda della Dashboard, come aggiornarla quando si apre]
+const RG_DASH = [
+  ['q', 'dash-q', null], ['stream', 'dash-stream', null], ['disk', 'disk-info', () => loadDisk()],
+  ['log', 'dash-log', () => loadDashLog()], ['liqlog', 'dash-liqlog', () => loadDashLiqLog()],
+  ['pl', 'dash-playlists', () => loadDashPlaylists()],
+];
+// schede fatte apposta per la Regia (28/10/2026): all'inizio chiuse, si aprono dal menu
+const RG_NEW = {
+  'rg-n-sched': ['⏰ Prossimi eventi', () => rgSchedLoad()],
+  'rg-n-recent': ['🕘 Riprodotti di recente', () => rgRecentLoad()],
+  'rg-n-clock': ['🕐 Orologio', () => rgClockTick()],
+  'rg-n-notes': ['📝 Appunti', null],
+};
+const RG_MOV = [...Object.keys(RG_NAMES), ...Object.keys(RG_NEW), ...RG_DASH.map(d => 'rg-d-' + d[0])];
+// Pagine della Regia (28/10/2026): ognuna con le sue schede aperte e la sua disposizione
+let _rgPage = 1;
+try { _rgPage = Math.min(3, Math.max(1, +localStorage.getItem('rg_page') || 1)); } catch (e) {}
+const _rgKey = base => base + '_' + _rgPage;
+try {   // la disposizione di prima delle pagine diventa la pagina 1
+  for (const k of ['rg_layout', 'rg_shown']) {
+    const v = localStorage.getItem(k);
+    if (v !== null) { if (localStorage.getItem(k + '_1') === null) localStorage.setItem(k + '_1', v); localStorage.removeItem(k); }
+  }
+} catch (e) {}
+let _rgZ = 10;
+function _rgLaySec() { return document.getElementById('tab-regia'); }
+function _rgLayCanvas() { return _rgLaySec().querySelector('.rg-layout'); }
+function _rgLayFree() { return _rgLaySec().classList.contains('rg-free'); }
+function _rgLayEach(fn) { RG_MOV.forEach(id => { const el = document.getElementById(id); if (el) fn(el, id); }); }
+function _rgOpen(el) { return !el.classList.contains('rg-closed'); }
+function _rgLaySaved() { try { return JSON.parse(localStorage.getItem(_rgKey('rg_layout')) || 'null'); } catch (e) { return null; } }
+function _rgLayFit() {
+  if (!_rgLayFree()) return;
+  let b = 0;
+  _rgLayEach(el => { if (_rgOpen(el)) b = Math.max(b, el.offsetTop + el.offsetHeight); });
+  if (b) _rgLayCanvas().style.minHeight = (b + 24) + 'px';
+}
+function _rgLaySave() {
+  if (!_rgLayFree() || !_rgLayCanvas().offsetWidth) return;   // Regia non visibile: misure a zero
+  const items = _rgLaySaved() || {};                            // le schede chiuse tengono il posto di prima
+  _rgLayEach((el, id) => {
+    if (!_rgOpen(el)) return;
+    items[id] = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.style.height ? el.offsetHeight : 0, z: +el.style.zIndex || 0 };
+  });
+  try { localStorage.setItem(_rgKey('rg_layout'), JSON.stringify(items)); } catch (e) {}
+}
+function _rgLayPut(el, p) {
+  el.style.left = p.x + 'px'; el.style.top = p.y + 'px'; el.style.width = p.w + 'px';
+  el.style.height = p.h ? p.h + 'px' : ''; el.style.zIndex = p.z || '';
+  _rgZ = Math.max(_rgZ, p.z || 0);
+}
+function _rgLayApply(items) {
+  _rgLaySec().classList.add('rg-free');
+  _rgLayEach((el, id) => { if (items[id]) _rgLayPut(el, items[id]); });
+  _rgLayFit();
+}
+function _rgLayStart() {
+  const sec = _rgLaySec(), c0 = _rgLayCanvas().getBoundingClientRect(), items = {};
+  // disposizione nuova: prende il posto di quella salvata (se c'era, l'utente l'ha confermato)
+  try { localStorage.removeItem(_rgKey('rg_layout')); localStorage.removeItem(_rgKey('rg_layoff')); } catch (e) {}
+  sec.classList.remove('rg-hasmine');
+  _rgLayEach((el, id) => {
+    if (!_rgOpen(el)) return;
+    const r = el.getBoundingClientRect();
+    items[id] = { x: Math.round(r.left - c0.left), y: Math.round(r.top - c0.top), w: Math.round(r.width), h: 0 };
+  });
+  _rgLayApply(items);
+  // la barra di Ripristina spinge giù tutto: si scorre della stessa misura, così niente salta sotto il mouse
+  sec.scrollTop += _rgLayCanvas().getBoundingClientRect().top - c0.top;
+}
+function _rgGripDown(ev, el) {
+  if (ev.button !== 0) return;
+  ev.preventDefault();
+  if (!_rgLayFree() && _rgLaySec().classList.contains('rg-hasmine')) { _rgLayReplaceAsk(); return; }
+  if (!_rgLayFree()) _rgLayStart();
+  const g = ev.currentTarget, sx = ev.clientX, sy = ev.clientY, x0 = el.offsetLeft, y0 = el.offsetTop;
+  const maxX = Math.max(0, _rgLayCanvas().clientWidth - 80);
+  const snap = v => Math.max(0, Math.round(v / 10) * 10);   // passo di 10 px: allinearle è facile
+  el.style.zIndex = ++_rgZ; el.classList.add('moving');
+  g.setPointerCapture(ev.pointerId);
+  const move = e => {
+    el.style.left = Math.min(maxX, snap(x0 + e.clientX - sx)) + 'px';
+    el.style.top = snap(y0 + e.clientY - sy) + 'px';
+    _rgLayFit();
+  };
+  const up = () => {
+    g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up);
+    el.classList.remove('moving'); _rgLayFit(); _rgLaySave();
+  };
+  g.addEventListener('pointermove', move); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
+}
+function _rgLayClear() {
+  _rgLaySec().classList.remove('rg-free');
+  _rgLayEach(el => { ['left', 'top', 'width', 'height', 'zIndex'].forEach(k => { el.style[k] = ''; }); });
+  _rgLayCanvas().style.minHeight = '';
+}
+// carica la disposizione della pagina: la propria, oppure la predefinita se si era scelto "↺ Predefinita"
+function _rgLayLoad() {
+  const saved = _rgLaySaved(), has = !!(saved && typeof saved === 'object' && Object.keys(saved).length);
+  let off = false;
+  try { off = localStorage.getItem(_rgKey('rg_layoff')) === '1'; } catch (e) {}
+  _rgLaySec().classList.toggle('rg-hasmine', has && off);
+  if (has && !off) _rgLayApply(saved);
+}
+function rgLayDefault() {
+  _rgLayClear();
+  try { localStorage.setItem(_rgKey('rg_layoff'), '1'); } catch (e) {}
+  _rgLaySec().classList.add('rg-hasmine');
+  toast('Disposizione predefinita · la tua resta salvata: «✥ La mia disposizione» per riprenderla', 'ok');
+}
+function rgLayMine() {
+  try { localStorage.removeItem(_rgKey('rg_layoff')); } catch (e) {}
+  _rgLaySec().classList.remove('rg-hasmine');
+  const saved = _rgLaySaved();
+  if (saved) _rgLayApply(saved);
+}
+// spostare una sezione mentre si guarda la predefinita = disposizione nuova al posto di quella salvata
+async function _rgLayReplaceAsk() {
+  if (!await askConfirm('Nuova disposizione',
+      'Spostando i moduli da qui ne crei una nuova al posto di quella salvata su questo banco.\n'
+      + 'Per riprendere quella salvata usa «✥ La mia disposizione».', 'Crea nuova')) return;
+  _rgLayStart(); _rgLaySave();
+  toast('Ora sposta i moduli dove vuoi', 'ok');
+}
+function _rgShown() {
+  try { const a = JSON.parse(localStorage.getItem(_rgKey('rg_shown')) || 'null'); if (Array.isArray(a)) return new Set(a); } catch (e) {}
+  return new Set(Object.keys(RG_NAMES));        // all'inizio: le sezioni della Regia sì, quelle della Dashboard no
+}
+function _rgDashSrc(d) { const e = document.getElementById(d[1]); return e && e.closest('.card'); }
+function _rgDashName(d) {
+  const l = _rgDashSrc(d) && _rgDashSrc(d).querySelector('.clabel');
+  return l ? (l.querySelector('span') || l).textContent.trim() : d[0];
+}
+// copia della scheda della Dashboard, senza gli id (restano unici) ma con gli stessi pulsanti
+function _rgMirror(d) {
+  const m = document.getElementById('rg-d-' + d[0]), src = _rgDashSrc(d);
+  if (!m || !src || !_rgOpen(m)) return;
+  const c = src.cloneNode(true);
+  c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+  m.querySelector('.rg-dbody').replaceChildren(...c.childNodes);
+}
+// appena aperta, una scheda si aggiorna subito
+function _rgOnOpen(id) {
+  const d = RG_DASH.find(x => 'rg-d-' + x[0] === id);
+  if (d) { _rgMirror(d); if (d[2]) d[2](); }
+  if (RG_NEW[id] && RG_NEW[id][1]) RG_NEW[id][1]();
+}
+function _rgPageNames() {
+  let a = null;
+  try { a = JSON.parse(localStorage.getItem('rg_page_names') || 'null'); } catch (e) {}
+  return [1, 2, 3].map(i => (a && a[i - 1]) || `Banco ${i}`);
+}
+function _rgPagesRender() {
+  document.getElementById('rg-pages').innerHTML = _rgPageNames().map((t, i) =>
+    `<button class="sec sm${i + 1 === _rgPage ? ' on' : ''}" onclick="rgPage(${i + 1})" ondblclick="rgPageName(${i + 1})" title="Doppio clic per cambiare il nome del banco">${esc(t)}</button>`).join('');
+}
+async function rgPageName(i) {
+  const v = await askPrompt('Nome del banco', _rgPageNames()[i - 1], 'Salva');
+  if (v === null) return;
+  let a = [];
+  try { a = JSON.parse(localStorage.getItem('rg_page_names') || '[]') || []; } catch (e) {}
+  a[i - 1] = v.trim();                         // vuoto = torna "Banco N"
+  try { localStorage.setItem('rg_page_names', JSON.stringify(a)); } catch (e) {}
+  _rgPagesRender();
+}
+// cambio pagina: stesse schede, ma aperte, chiuse e disposte come le avevi lasciate in quella pagina
+function rgPage(n) {
+  if (n === _rgPage) return;
+  _rgPage = n;
+  try { localStorage.setItem('rg_page', n); } catch (e) {}
+  _rgLayClear();
+  const shown = _rgShown();
+  _rgLayEach((el, id) => {
+    const was = _rgOpen(el);
+    el.classList.toggle('rg-closed', !shown.has(id));
+    if (!was && shown.has(id)) _rgOnOpen(id);
+  });
+  _rgLayLoad();
+  _rgPagesRender(); _rgTabsRender();
+}
+// ── schede nuove della Regia ──
+async function rgSchedLoad() {
+  const el = document.getElementById('rg-sched-list');
+  const r = await GET('/api/scheduler/upcoming');
+  if (!r.ok) { el.innerHTML = '<div class="empty">Errore nel caricamento</div>'; return; }
+  if (!r.events.length) { el.innerHTML = '<div class="empty">Nessun evento nelle prossime 24 ore</div>'; return; }
+  const ico = { clockwheel: '🎡', playlist: '📄', action: '⚙' };
+  el.innerHTML = r.events.map(e => {
+    const m = e.in_min;
+    const when = m < 1 ? 'adesso' : m < 60 ? `tra ${m} min` : e.tomorrow ? 'domani' : `tra ${Math.floor(m / 60)} h ${m % 60} min`;
+    return `<div class="rg-nrow${m < 15 ? ' soon' : ''}"><b>${esc(e.time)}</b><span title="${esc(e.name)}">${ico[e.type] || '📅'} ${esc(e.name)}</span><i>${when}</i></div>`;
+  }).join('');
+}
+async function rgRecentLoad() {
+  const el = document.getElementById('rg-recent-list');
+  const r = await POST('/api/db/recent_played', { limit: 15 });
+  if (!r.ok) { el.innerHTML = '<div class="empty">Errore nel caricamento</div>'; return; }
+  if (!r.tracks.length) { el.innerHTML = '<div class="empty">Nessuna riproduzione registrata</div>'; return; }
+  el.innerHTML = r.tracks.map(t => {
+    const d = new Date(String(t.played_at || '').replace(' ', 'T') + 'Z');   // nel database l'ora è UTC
+    const hm = isNaN(d) ? '' : d.toTimeString().slice(0, 5);
+    return `<div class="rg-nrow"><b>${hm}</b><span title="${esc(trackLabel(t))}">${esc(trackLabel(t))}</span></div>`;
+  }).join('');
+}
+function rgClockTick() {
+  const c = document.getElementById('rg-n-clock');
+  if (!c || !_rgOpen(c) || !_rgLaySec().classList.contains('on')) return;
+  const n = new Date(), p = v => String(v).padStart(2, '0');
+  document.getElementById('rg-clock').textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  document.getElementById('rg-clock-date').textContent =
+    n.toLocaleDateString(document.documentElement.lang || 'it', { weekday: 'long', day: 'numeric', month: 'long' });
+  const left = 3600 - n.getMinutes() * 60 - n.getSeconds();
+  document.getElementById('rg-clock-left').textContent = `${p(Math.floor(left / 60))}:${p(left % 60)}`;
+}
+let _rgNotesT = null;
+function rgNotesSave() {
+  clearTimeout(_rgNotesT);
+  _rgNotesT = setTimeout(() => {
+    try { localStorage.setItem('rg_notes', document.getElementById('rg-notes-txt').value); } catch (e) {}
+  }, 400);
+}
+function rgShow(id, on) {
+  const el = document.getElementById(id); if (!el) return;
+  const s = _rgShown();
+  if (on) s.add(id); else s.delete(id);
+  try { localStorage.setItem(_rgKey('rg_shown'), JSON.stringify([...s])); } catch (e) {}
+  el.classList.toggle('rg-closed', !on);
+  if (on) {
+    _rgOnOpen(id);
+    const d = RG_DASH.find(x => 'rg-d-' + x[0] === id);
+    if (_rgLayFree()) {
+      const p = (_rgLaySaved() || {})[id];
+      if (p) _rgLayPut(el, p);
+      else {                                     // mai messa prima: va in fondo, sotto le altre
+        let b = 0;
+        _rgLayEach(o => { if (o !== el && _rgOpen(o)) b = Math.max(b, o.offsetTop + o.offsetHeight); });
+        _rgLayPut(el, { x: 16, y: b + 14, w: d ? 360 : Math.max(el.offsetWidth, 300), h: 0 });
+      }
+      el.style.zIndex = ++_rgZ;
+      _rgLayFit(); _rgLaySave();
+    }
+  }
+  _rgTabsRender();
+}
+function _rgTabsRender() {
+  const s = _rgShown();
+  const row = (id, name) => `<label><input type="checkbox"${s.has(id) ? ' checked' : ''} onchange="rgShow('${id}',this.checked)"> ${esc(name)}</label>`;
+  document.getElementById('rg-tabs-menu').innerHTML =
+    '<div class="rg-tabs-grp">Studio</div>' + Object.entries(RG_NAMES).map(([id, n]) => row(id, n)).join('')
+    + Object.entries(RG_NEW).map(([id, n]) => row(id, n[0])).join('')
+    + '<div class="rg-tabs-grp">Dalla Dashboard</div>' + RG_DASH.map(d => row('rg-d-' + d[0], _rgDashName(d))).join('');
+}
+function rgTabsMenu(ev) {
+  ev.stopPropagation();
+  _rgTabsRender();
+  document.getElementById('rg-tabs-menu').classList.toggle('vis');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.rg-tabs-wrap')) document.getElementById('rg-tabs-menu').classList.remove('vis');
+});
+(function rgLayInit() {
+  const dash = document.getElementById('rg-dash');
+  RG_DASH.forEach(d => {
+    const m = document.createElement('div');
+    m.className = 'rg-card rg-dcard'; m.id = 'rg-d-' + d[0];
+    m.innerHTML = '<div class="rg-dbody"></div>';
+    dash.appendChild(m);
+    const src = _rgDashSrc(d); if (!src) return;
+    let wait = false;
+    new MutationObserver(() => {
+      if (wait) return; wait = true;
+      requestAnimationFrame(() => { wait = false; _rgMirror(d); });
+    }).observe(src, { subtree: true, childList: true, characterData: true, attributes: true });
+  });
+  const shown = _rgShown();
+  _rgLayEach((el, id) => {
+    el.classList.add('rg-mov');
+    el.classList.toggle('rg-closed', !shown.has(id));
+    const g = document.createElement('div');
+    g.className = 'rg-grip'; g.textContent = '⋯';
+    g.title = 'Trascina per spostare questo modulo dove vuoi';
+    g.addEventListener('pointerdown', ev => _rgGripDown(ev, el));
+    const x = document.createElement('div');
+    x.className = 'rg-x'; x.textContent = '✕';
+    x.title = 'Chiudi questo modulo (lo riapri da 🔌 Moduli)';
+    x.addEventListener('click', () => rgShow(id, false));
+    el.append(g, x);
+  });
+  RG_DASH.forEach(_rgMirror);
+  Object.keys(RG_NEW).forEach(id => { if (shown.has(id) && RG_NEW[id][1]) RG_NEW[id][1](); });
+  try { document.getElementById('rg-notes-txt').value = localStorage.getItem('rg_notes') || ''; } catch (e) {}
+  _rgPagesRender();
+  // i log nella Dashboard si aggiornano solo a mano: in Regia, se aperti, ogni 20 secondi
+  setInterval(() => {
+    if (!_rgLaySec().classList.contains('on')) return;
+    if (_rgOpen(document.getElementById('rg-d-log'))) loadDashLog();
+    if (_rgOpen(document.getElementById('rg-d-liqlog'))) loadDashLiqLog();
+  }, 20000);
+  // prossimi eventi e recenti ogni 30 secondi, l'orologio ogni secondo (solo con la Regia aperta)
+  setInterval(() => {
+    if (!_rgLaySec().classList.contains('on')) return;
+    if (_rgOpen(document.getElementById('rg-n-sched'))) rgSchedLoad();
+    if (_rgOpen(document.getElementById('rg-n-recent'))) rgRecentLoad();
+  }, 30000);
+  setInterval(rgClockTick, 1000);
+  _rgLayLoad();
+  // l'altezza dell'area segue le sezioni (scheda più lunga, scaletta che cresce, Regia appena aperta)
+  if (window.ResizeObserver) { const ro = new ResizeObserver(() => _rgLayFit()); _rgLayEach(el => ro.observe(el)); }
+  // fine di un ridimensionamento dall'angolo: si salva la nuova misura
+  document.addEventListener('mouseup', () => { if (_rgLayFree()) setTimeout(_rgLaySave, 0); });
+})();
+</script>
+</body>
 </html>

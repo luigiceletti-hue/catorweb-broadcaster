@@ -109,11 +109,20 @@ stacco_phase = ref(0)          # 0 fermo, 1 dissolvenza, 2 jingle in onda
 # in onda finisce normalmente e poi non parte piu' niente; il server Python vede il
 # silenzio (e il mic spento) e chiude la diretta. fine.cancel annulla.
 end_armed = ref(false)
+# Motore "in attesa" (26/10/2026): il programma accende Liquidsoap gia' all'apertura con i
+# cancelli chiusi (argomento 8 = "1"): niente musica e niente server finche' non si preme
+# "Avvia offline" o "Vai in onda", che mandano standby.off. Cosi' non si aspetta il
+# caricamento dello script (~8 s con la 2.2.4) al momento di partire.
+standby = ref(argv(default="0", 8) == "1")
+server.register(namespace="standby", description="Fine attesa: la radio inizia a suonare", "off",
+  fun (_) -> begin standby := false; log("ATTESA: finita, la radio suona"); "off" end)
+server.register(namespace="standby", description="on|off", "status",
+  fun (_) -> if standby() then "on" else "off" end)
 q_gate = switch(id="manual_gate", track_sensitive=true,
-  [({(not manual_mode() or manual_go()) and not stacco_hold()}, user_queue)])
+  [({(not manual_mode() or manual_go()) and not stacco_hold() and not standby()}, user_queue)])
 q_gate = source.on_track(q_gate, fun (_) -> if manual_mode() then manual_go := false end)
 cw_gate = switch(id="auto_gate", track_sensitive=true,
-  [({not manual_mode() and not stacco_hold()}, clockwheel)])
+  [({not manual_mode() and not stacco_hold() and not standby()}, clockwheel)])
 server.register(namespace="fine", description="Chiudi la diretta a fine brano: niente brani dopo questo", "arm",
   fun (_) -> begin end_armed := true; log("FINE DIRETTA: a fine brano"); "armed" end)
 server.register(namespace="fine", description="Annulla la chiusura a fine brano", "cancel",
@@ -223,11 +232,14 @@ def np_text(m) =
 end
 
 def write_nowplaying(m) =
-  fname = m["filename"]
-  np = np_text(m)
-  log("NOWPLAYING: #{np}")
-  file.write(data=np,    "#{data_dir}/nowplaying.txt")
-  file.write(data=fname, "#{data_dir}/current_track.txt")
+  # in attesa non suona niente: il "brano" vuoto dell'avvio scriveva "In onda" (26/10)
+  if not standby() then
+    fname = m["filename"]
+    np = np_text(m)
+    log("NOWPLAYING: #{np}")
+    file.write(data=np,    "#{data_dir}/nowplaying.txt")
+    file.write(data=fname, "#{data_dir}/current_track.txt")
+  end
 end
 
 # Brano senza titolo nei tag (o con tag illeggibili): titolo = nome del file, senza cartelle
@@ -426,8 +438,11 @@ radio = limit(id="final_limit", threshold=-1., radio)
 
 # ── Rilevamento silenzio ───────────────────────────────────────────────────
 def on_silence_start() =
-  log("SILENCE: rilevato silenzio prolungato")
-  file.write(data="on", "#{data_dir}/silence_flag.txt")
+  # in attesa il silenzio e' normale: niente avviso
+  if not standby() then
+    log("SILENCE: rilevato silenzio prolungato")
+    file.write(data="on", "#{data_dir}/silence_flag.txt")
+  end
 end
 
 def on_silence_end() =

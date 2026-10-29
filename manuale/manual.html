@@ -105,7 +105,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
     <li><a href="#queue">Queue and playlists</a></li>
     <li><a href="#clockwheel">Clockwheel</a></li>
     <li><a href="#scheduler">Scheduler and programming</a></li>
-    <li><a href="#onair">Going on air and 🎧 Rehearse</a></li>
+    <li><a href="#onair">Going on air and ▶ Offline</a></li>
     <li><a href="#studio">🎛 Studio</a></li>
     <li><a href="#mic">🎙 Microphone</a></li>
     <li><a href="#rec">⏺ Recording</a></li>
@@ -129,7 +129,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
   <h1>📻 Catorweb Broadcaster</h1>
   <p><b>Complete manual</b>: how to use it, how to start a web radio and how to record a podcast.</p>
   <p>A full radio studio on your Windows PC: music library, clockwheels, programming schedule, microphone, jingles, recording and live broadcasting to your streaming server.</p>
-  <div class="meta">Program version 3.0 · The pictures show a demo station ("Radio Demo").</div>
+  <div class="meta">Program version 3.5 · The pictures show a demo station ("Radio Demo").</div>
 </div>
 
 <!-- ───────────────────────── 1 ───────────────────────── -->
@@ -142,7 +142,7 @@ figcaption{font-size:13.5px;color:var(--mut);margin-top:6px}
 <tr><td>A PC with Windows 10 or 11</td><td>An ordinary PC is fine. For broadcasting many hours in a row a dedicated, always-on PC is better.</td></tr>
 <tr><td>Your music as MP3</td><td>In one or more folders on the PC or on an external drive.</td></tr>
 <tr><td>Internet connection</td><td>Broadcasting at 128 kbps needs 0.2 Mbit/s of <b>upload</b>; better have at least 1 stable. A network cable is more reliable than Wi-Fi.</td></tr>
-<tr><td>A streaming server</td><td>Icecast, Shoutcast or a Liquidsoap input, usually rented from a provider (see <a href="#radio">Starting a web radio</a>). <b>Not needed to begin</b>: with <span class="b">🎧 Rehearse</span> the radio plays on the PC.</td></tr>
+<tr><td>A streaming server</td><td>Icecast, Shoutcast or a Liquidsoap input, usually rented from a provider (see <a href="#radio">Starting a web radio</a>). <b>Not needed to begin</b>: with <span class="b">▶ Start offline</span> the radio plays on the PC.</td></tr>
 <tr><td>Microphone and headphones</td><td>Optional. A USB microphone is the easiest way to start.</td></tr>
 </table>
 <div class="idea"><b>💡 The three key ideas</b>
@@ -186,7 +186,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><td><b>Liquidsoap (harbor)</b></td><td>Like Icecast; the mount is usually <code>/</code>.</td></tr>
 </table>
 <p><b>Bitrate</b>: 128 kbps is the standard for music web radio (good quality, little bandwidth for listeners); 192 kbps if your audience mostly listens at home. <span class="b">🔌 Test connection</span> checks the details without going on air.</p>
-<div class="tip"><b>✅ No server details yet?</b>Leave the address empty and save. You can use everything in <span class="b">🎧 Rehearse</span> and enter the details when you get them.</div>
+<div class="tip"><b>✅ No server details yet?</b>Leave the address empty and save. You can use everything offline with <span class="b">▶ Start offline</span> and enter the details when you get them.</div>
 <figure class="small"><img src="img/en/settings2.webp" loading="lazy" alt="Settings: folders, microphone, extras"><figcaption>Folders, microphone and extras.</figcaption></figure>
 <h3>Folders</h3>
 <table>
@@ -197,7 +197,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 </table>
 <p>If you change a folder the program restarts by itself (not during a broadcast).</p>
 <h3>Music</h3>
-<p><b>Crossfade between tracks</b>: how many seconds the end of a track overlaps the start of the next one, from 0 (hard cut) to 10; 3 is recommended. Jingles always start and end without a fade. It applies the next time you go on air; in 🎧 Rehearse you hear it right after saving.</p>
+<p><b>Crossfade between tracks</b>: how many seconds the end of a track overlaps the start of the next one, from 0 (hard cut) to 10; 3 is recommended. Jingles always start and end without a fade. It applies the next time you go on air; offline you hear it right after saving.</p>
 <h3>Studio</h3>
 <p><b>Jingle buttons in the Studio</b>: 8, 12, 16, 24 or 32 buttons, always 4 per row. If you reduce them, the jingles assigned to the extra buttons stay saved and come back when you raise the number again. It can also be changed in the Studio, in the Jingle box.</p>
 <h3>Scheduler</h3>
@@ -217,7 +217,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <li><b>Settings</b>: station name, folders, the microphone if you have one. Save.</li>
 <li><b>Library → ⬆ Import → 📁 Folder</b>: <span class="b">📂 Browse…</span>, pick a music folder, leave "create automatically" and press <span class="b">⬇ Import</span>. Repeat for 2-3 folders of different genres: each becomes a category.</li>
 <li><b>Clockwheel → + New</b>: add slots, for example <i>Jingle, Rock, Blues, Rock, Jingle, 70s</i>. and save. The first clockwheel you create becomes the one the radio uses right away.</li>
-<li>At the top press <span class="b">🎧 Rehearse</span>, then <span class="b">🎧 Listen → Everything</span> to listen. The radio plays by itself!</li>
+<li>At the top press <span class="b">▶ Start offline</span>: after a few seconds listening starts by itself. The radio plays by itself!</li>
 <li>Open <b>🎛 Studio</b>, turn on the microphone with the <kbd>space bar</kbd> and do your first link.</li>
 <li>When you have the server details: Settings → server → <span class="b">🔌 Test connection</span>, then <span class="b">⚪ OFF AIR — Go on air</span>.</li>
 </ol>
@@ -232,9 +232,9 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <table>
 <tr><th>Control</th><th>What it does</th></tr>
 <tr><td><span class="b">⚪ OFF AIR — Go on air</span></td><td>Goes live (asks for confirmation). On air it becomes <span class="b">🔴 ON AIR — End broadcast</span>.</td></tr>
-<tr><td><span class="b">🎧 Rehearse</span></td><td>The radio plays only on this PC, nothing is sent to the server.</td></tr>
+<tr><td><span class="b">▶ Start offline</span></td><td>The radio plays only on this PC, nothing is sent to the server: to listen to music, record a podcast or try things out before going on air (see <a href="#onair">Offline</a>).</td></tr>
 <tr><td><span class="b">⏹ after this track</span></td><td>On air: ends the broadcast when the current track finishes.</td></tr>
-<tr><td><span class="b">▶ Automatic / ✋ Manual</span></td><td>How tracks start: by themselves or only when you press START (see <a href="#studio">Studio</a>).</td></tr>
+<tr><td><span class="b">▶ Automatic / ✋ Manual</span></td><td>How tracks start: by themselves or only when you press Start now (see <a href="#studio">Studio</a>).</td></tr>
 <tr><td><span class="b">🎙 MIC</span> box</td><td>Microphone, how the music ducks, voice volume.</td></tr>
 <tr><td><span class="b">⏺ REC</span> · auto · 📂</td><td>Recording what goes on air.</td></tr>
 <tr><td><span class="b">🎧 Listen ▾</span></td><td>Headphone monitoring, three modes (see <a href="#listen">Listening</a>).</td></tr>
@@ -257,7 +257,16 @@ This is normal for free programs that are not "signed" with a paid certificate: 
  <span class="b">➕ To queue</span> adds them to the end of the queue, <span class="b">↺ Replace queue</span> clears the queue and puts the selected ones in it, <span class="b">↗ Move</span> copies or moves them to another category, <span class="b">↩ Remove</span> takes them out of the category (they stay in the library), <span class="b">🗑 Delete from database</span> removes them from the library, every category, the queue and the jingle buttons (the files stay on disk), <span class="b">💾 Save M3U</span> saves a playlist.</li>
 <li><span class="b">+ Category</span> creates a category. Hovering a category shows <span class="b">+sub</span> subcategory, <span class="b">✎</span> rename, <span class="b">✕</span> delete (you can delete only the category, or also all its tracks from the database, even if they are in other categories; the files stay on disk). Drag tracks onto a category to copy them there.</li>
 <li><span class="b">📊 Stats</span>: decades, genres and years of the category.</li>
+<li><b>Search</b> finds every word you type in title, artist, album and file name, in any order (e.g. <code>miller good day</code>).</li>
 </ul>
+<h3>🎤 Split by voice</h3>
+<p>The <span class="b">🎤</span> button on a category splits its tracks by male and female voice.</p>
+<ol class="steps">
+<li><span class="b">🔍 Find the voices</span>: the app looks the artists up on <b>MusicBrainz</b> (internet needed; with many artists it takes a few minutes).</li>
+<li>For each artist it suggests ♂ Male, ♀ Female, ⚥ Mixed, 👥 Group or ❓ Not found: check the list and change the wrong choices by hand (they become ✋).</li>
+<li><b>Where to put them</b>: in subcategories of the category (e.g. "Male vocals Blues") or in general categories. The names can be changed; leave a name empty to leave those tracks where they are.</li>
+</ol>
+<p>The tracks also stay in the original category. One category at a time; doing it again creates no duplicates, and artists already looked up are not asked again.</p>
 <figure class="tiny"><img src="img/en/eliminacategoria.webp" loading="lazy" alt="Deleting a category"><figcaption>✕ on a category: the three choices.</figcaption></figure>
 <figure class="tiny"><img src="img/en/statscategoria.webp" loading="lazy" alt="Category statistics"><figcaption>📊 Stats of a category: handy to check that your rotation is balanced.</figcaption></figure>
 <h3>Importing</h3>
@@ -266,9 +275,11 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><th>Tab</th><th>What it does</th><th>Copies files?</th></tr>
 <tr><td><b>📁 Folder</b></td><td>Every MP3 in a folder and its subfolders, into a category (empty = named after the folder).</td><td><b>No</b>, they stay where they are</td></tr>
 <tr><td><b>📋 Generated playlist</b></td><td>A playlist made by the app, or your own M3U (<span class="b">📂 Choose M3U file…</span>).</td><td><b>No</b></td></tr>
-<tr><td><b>⬆ Upload files</b></td><td>Drag files in, e.g. from a USB stick.</td><td><b>Yes</b>, into <code>music\importati</code></td></tr>
+<tr><td><b>⬆ Upload files</b></td><td>Click: pick the tracks on the PC, even from different folders.<br>Or drag files in, e.g. from a USB stick.</td><td>Picked with a click: <b>No</b><br>Dragged: <b>Yes</b>, into <code>music\importati</code></td></tr>
 <tr><td><b>🎙️ Record</b></td><td>Record speech (voice track, intro, promo) with trim, bass/treble and compressor.</td><td>New file in <code>music\registrazioni</code></td></tr>
 </table>
+<p>To choose a folder or a file a window opens inside the radio: on the left the drives, the main places and the recently used folders; next to each folder how many subfolders (📁) and tracks (🎵) it contains. Click the folders to go in, or paste a path and press <kbd>Enter</kbd>.</p>
+<figure class="small"><img src="img/en/sfoglia.webp" loading="lazy" alt="Window to choose a folder"><figcaption>The window to choose a folder.</figcaption></figure>
 <div class="warn"><b>⚠ Don't move imported files</b>The app remembers where each file is. If you move or rename a folder after importing, those tracks can't be found anymore: <b>Maintenance → Files missing from disk</b> lists them. Import from a permanent location.</div>
 <p>With more than 200 files the app asks for confirmation before importing: it's only a warning, you can import thousands of tracks.</p>
 </section>
@@ -278,7 +289,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <div class="cols">
 <figure class="tiny" style="margin:0"><img src="img/en/tageditor.webp" loading="lazy" alt="Tag Editor"><figcaption>Click a track title: the Tag Editor.</figcaption></figure>
 <div>
-<p>With the preview you hear the track (<span class="b">«10</span> <span class="b">10»</span> to skip). You can fix title, artist, album, year, genre and the <b>type</b> (song, jingle, intro, voice track…).</p>
+<p>With the preview you hear the track (<span class="b">«10</span> <span class="b">10»</span> to skip). You can fix title, artist, album, year, genre, composer and the <b>type</b> (song, jingle, intro, voice track…).</p>
 <ul>
 <li><b>Apply the genre to the whole album</b>: a quick way to tidy genres.</li>
 <li><span class="b">✂ Trim silence</span>: removes silence at the start and end of the file (the original is kept as a safety copy).</li>
@@ -287,6 +298,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 </div></div>
 <h3>Embargo</h3>
 <p>Type a date in the <b>Comment</b> field (e.g. <code>24 October</code>, <code>24/10</code>, <code>24/10/2026</code>): the track is under <b>embargo</b> until that day inclusive. The clockwheel won't pick it, it can't enter the queue, playlists or the scheduler and isn't exported. The library shows 🔒 with the date. From the next day it is free by itself.</p>
+<p>If the date is already in the Comment of the MP3 files, the import reads it by itself. For tracks imported before: <b>Maintenance → 🔒 Comments from files → ↻ Re-read comments</b> (it only fills empty comments).</p>
 <div class="idea"><b>💡 What it's for</b>A single released on Friday: import it today, set the release date and be sure it won't go on air before.</div>
 </section>
 
@@ -299,7 +311,7 @@ This is normal for free programs that are not "signed" with a paid certificate: 
 <tr><td><i>intro, promo, news, spot, voice track</i></td><td>Intro, promo, news, spot, voice track</td></tr>
 <tr><td>any other name</td><td>Songs</td><td>Smooth crossfade between tracks.</td></tr>
 </table>
-<p>Jingles are never looked up online and have no track card. In the Studio you also have 8 <b>jingle buttons</b> to fire by hand (see <a href="#studio">Studio</a>).</p>
+<p>Jingles are never looked up online and have no track card. In the Studio you also have the <b>jingle buttons</b> to fire by hand (see <a href="#studio">Studio</a>).</p>
 <div class="tip"><b>✅ Imaging to prepare</b>
 <ul>
 <li><b>Station ID</b> (3-10 s): "You're listening to Radio Demo". The most important one: every 15-20 minutes.</li>
@@ -362,7 +374,8 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <li><b>Action</b>: one or more actions, run in order:
 <ul>
 <li>skip the track, clear the queue, queue a category or a track (search the library by title or artist, or 📁 to pick it from the PC), move tracks between categories, empty a category, change the default clockwheel;</li>
-<li>turn the radio on only on the PC (🎧 Rehearse), <b>go on air</b>, <b>go off air</b> (the music keeps playing on the PC), turn off or restart the radio;</li>
+<li>put all the tracks of a <b>genre</b> (picked from the list) into the category with the same name, creating it if it is missing;</li>
+<li>turn the radio on only on the PC (offline), <b>go on air</b>, <b>go off air</b> (the music keeps playing on the PC), turn off or restart the radio;</li>
 <li><b>start and stop recording</b>: to record a show by itself, for example every Saturday from 9 to 11 pm;</li>
 <li><b>wait a few seconds</b> before the next action;</li>
 <li><b>back up the database</b> and <b>delete recordings and backups older than N days</b>.</li>
@@ -382,12 +395,16 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 </section>
 
 <!-- ───────────────────────── 12 ───────────────────────── -->
-<section id="onair"><h2><span class="n">12</span>Going on air and 🎧 Rehearse</h2>
-<figure class="small"><img src="img/en/onair.webp" loading="lazy" alt="On air and rehearse buttons"><figcaption>Rehearsing: the green button is on, the big one stays OFF AIR.</figcaption></figure>
-<h3>🎧 Rehearse: the radio on this PC only</h3>
-<p>Everything works (queue, clockwheel, jingles, microphone, studio) but <b>nothing reaches the server</b>. Listen with <span class="b">🎧 Listen</span>. Use it to:</p>
-<ul><li>try a new clockwheel or show;</li><li>warm up your voice and set the microphone;</li><li>record a podcast (see <a href="#podcast">Making a podcast</a>);</li><li>use the app before you have a server.</li></ul>
-<p>Pressing <b>Go on air</b> while rehearsing connects the server <b>without stopping the music</b>: the track you are hearing goes on air as it is.</p>
+<section id="onair"><h2><span class="n">12</span>Going on air and ▶ Offline</h2>
+<figure class="small"><img src="img/en/onair.webp" loading="lazy" alt="On air and offline buttons"><figcaption>Offline: the green button is on, the big one stays OFF AIR.</figcaption></figure>
+<h3>▶ Start offline: the radio on this PC only</h3>
+<p>Everything works (queue, clockwheel, jingles, microphone, Studio, recording) but <b>nothing reaches the server</b> and no internet is needed. Use it to:</p>
+<ul><li><b>listen to your music</b>, like your own personal radio;</li><li><b>record a podcast</b> (see <a href="#podcast">Making a podcast</a>);</li><li>try a new clockwheel or show, warm up your voice and set the microphone;</li><li>use the app before you have a server.</li></ul>
+<ul>
+<li>After the click the button turns orange (<span class="b">🟠 Starting offline…</span>): the radio takes a few seconds to start. When it is ready, <span class="b">🔊 Everything, no delay</span> listening starts by itself and the <span class="b">🎧 Listen</span> menu opens.</li>
+<li>Offline the green button says <span class="b">🎧 OFFLINE (this PC only) — ⏹ Stop</span>.</li>
+<li>Pressing <b>Go on air</b> while offline connects the server <b>without stopping the music</b>: the track you are hearing goes on air as it is.</li>
+</ul>
 <h3>Live</h3>
 <ol class="steps">
 <li>Press <span class="b">⚪ OFF AIR — Go on air</span> and confirm.</li>
@@ -399,7 +416,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <ul class="check">
 <li>Test connection succeeded (Settings).</li>
 <li>Queue or clockwheel ready; scheduler checked on the timeline.</li>
-<li>Right microphone, voice volume tried while rehearsing.</li>
+<li>Right microphone, voice volume tried offline.</li>
 <li>Headphones plugged into the PC (not the USB mic) on 🎧 Listen → Music only.</li>
 <li>⏺ REC "auto" on if you want an archive of the show.</li>
 <li>Windows notifications and heavy programs closed.</li>
@@ -409,18 +426,31 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 
 <!-- ───────────────────────── 13 ───────────────────────── -->
 <section id="studio"><h2><span class="n">13</span>🎛 Studio</h2>
-<figure><img src="img/en/regia.webp" loading="lazy" alt="Studio tab"><figcaption>The Studio: countdown, next track, artist card, running order, quick search and jingle buttons.</figcaption></figure>
-<p>This is the tab for <b>presenting</b>. At the top, the big <b>countdown</b> to the end of the track (the bar turns orange in the last 30 seconds and flashing red in the last 10) and the <b>NEXT</b> strip.</p>
+<figure><img src="img/en/regia.webp" loading="lazy" alt="Studio tab"><figcaption>The Studio: the two players, the next track card, running order, quick search and jingle buttons.</figcaption></figure>
+<p>This is the tab for <b>presenting</b>. At the top there are two players, <b>A</b> and <b>B</b>, taking turns: the one <b>on air</b> (red border) has the big <b>countdown</b> to the end of the track (the bar turns orange in the last 30 seconds and flashing red in the last 10); the other is <b>ready</b> (green) with the next track. They swap at every track change. The players show the track's <b>cover</b> (from the file, the album folder or iTunes).</p>
+<ul>
+<li><span class="b">⏭ Skip</span> on the on-air player and <span class="b">▶ Start now</span> on the ready one put the ready track on air right away, with the crossfade.</li>
+<li><b>Drag</b> a track onto a player: on the <b>ready</b> player it becomes the next track, on the <b>on air</b> player it starts right away.</li>
+</ul>
 <h3>▶ Automatic and ✋ Manual</h3>
 <ul>
 <li><b>Automatic</b>: queue + clockwheel, everything starts by itself.</li>
-<li><b>Manual</b>: when the current track ends the radio stops and waits for <span class="b">▶ START</span>. Pressing START while a track plays jumps to the next one. It lets you talk as long as you like between tracks.</li>
+<li><b>Manual</b>: when the current track ends the radio stops and waits for <span class="b">▶ Start now</span> on the ready player. Pressing Start now while a track plays jumps to the next one. It lets you talk as long as you like between tracks.</li>
 </ul>
 <p>"End broadcast" always switches back to Automatic for next time.</p>
 <h3>Running order and quick search</h3>
-<p>The <b>running order</b> is the queue: search a track on the right, <span class="b">+ Running order</span> adds it, ✕ removes it.</p>
+<p>The <b>running order</b> is the queue. In <b>quick search</b> type words from the title, artist or album: the first 30 tracks found appear, <span class="b">Show all</span> loads the rest. <span class="b">+ Running order</span> adds a track at the end; dragging it into the running order puts it where you drop it (a blue line shows where). ✕ removes it.</p>
+<h3>Modules and desks</h3>
+<p>Each box in the Studio is a <b>module</b>. You can arrange them as you like:</p>
+<ul>
+<li><b>Move</b>: drag the module by the <b>⋯</b> handle at the top. <b>Resize</b>: drag the bottom-right corner.</li>
+<li><span class="b">🔌 Modules ▾</span> chooses which modules to show; <b>✕</b> on a module closes it. Besides the Studio ones there are ⏰ <b>Upcoming events</b> (from the Scheduler), 🕘 <b>Recently played</b>, 🕐 <b>Clock</b>, 📝 <b>Notes</b> and the Dashboard cards (next in queue, stream, space, logs…).</li>
+<li><span class="b">↺ Default</span> shows the standard layout without deleting yours; <span class="b">✥ My layout</span> brings it back.</li>
+<li>There are <b>3 desks</b> (<span class="b">Desk 1</span>, <span class="b">Desk 2</span>, <span class="b">Desk 3</span>), each with its own modules and layout: for example one for the live show and one for preparing it. Double-click a name to rename it.</li>
+</ul>
+<figure class="small"><img src="img/en/moduli.webp" loading="lazy" alt="Modules menu"><figcaption>The 🔌 Modules menu.</figcaption></figure>
 <h3>Track card</h3>
-<p>Below NEXT appears the card of the next track: artist photo and biography (Wikipedia), album and year (MusicBrainz, iTunes), how many times you've played it and when. Needs internet; cards are kept for 30 days, <span class="b">↻ search again</span> refreshes them.</p>
+<p>Below the players appears the card of the next track: artist photo and biography (Wikipedia), album and year (MusicBrainz, iTunes), how many times you've played it and when. Needs internet; cards are kept for 30 days, <span class="b">↻ search again</span> refreshes them.</p>
 <div class="warn"><b>⚠ Open sources</b>The information comes from open sources and sometimes mixes up namesakes: check before saying it on air.</div>
 <h3>✍ Suggest intro (optional)</h3>
 <p>If <b>Claude Code</b> is installed on the PC and signed in to your account, Claude writes 2-3 sentences to read on the mic using only the facts on the card. Choose Opus (writes better) or Sonnet (uses less). The text appears in the <b>🎙 TO READ</b> box.</p>
@@ -428,7 +458,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <p>From 8 to 32 buttons (drop-down in the Jingle box or Settings → Studio): assign them from search with 🎵, one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom):</p>
 <table>
 <tr><td><b>≋ OVER</b></td><td>The jingle plays over the music, which ducks. For short effects, applause, laughs.</td></tr>
-<tr><td><b>⏏ BREAK</b></td><td>The music fades in ~1 s and the jingle plays alone; then in Automatic the next track starts, in Manual silence until START.</td></tr>
+<tr><td><b>⏏ BREAK</b></td><td>The music fades in ~1 s and the jingle plays alone; then in Automatic the next track starts, in Manual silence until Start now.</td></tr>
 </table>
 <p><b>⌨ From the keyboard</b>: with the Studio open, the letter in the corner of each button plays it. The keys follow the grid: <kbd>1 2 3 4</kbd>, <kbd>Q W E R</kbd>, <kbd>A S D F</kbd>, <kbd>Z X C V</kbd> for the first 16, <kbd>5 6 7 8</kbd>, <kbd>T Y U I</kbd>, <kbd>G H J K</kbd>, <kbd>B N M ,</kbd> for the others. They don't fire while you type in a box; the <span class="b">⌨</span> button turns them off and on. The <kbd>space bar</kbd> stays for the microphone.</p>
 <p>On a wide screen the jingles sit in the right-hand column of the Studio and stay visible while you scroll.</p>
@@ -453,7 +483,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <li>A USB <b>dynamic microphone</b> picks up less room noise than a condenser one.</li>
 <li>Mouth <b>10-15 cm</b> away, slightly off-axis; a pop filter avoids explosive "p"s.</li>
 <li>A room with curtains, rugs, books: less echo. Avoid empty rooms and bathrooms.</li>
-<li>Set the volume while <b>rehearsing</b>: the voice should sit a little above the music, not blast.</li>
+<li>Set the volume <b>offline</b>: the voice should sit a little above the music, not blast.</li>
 <li>Voice pitch and body in Settings: change a little at a time and listen back to a recording.</li>
 </ul></div>
 </section>
@@ -462,8 +492,8 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <section id="rec"><h2><span class="n">15</span>⏺ Recording</h2>
 <figure class="tiny"><img src="img/en/rec.webp" loading="lazy" alt="REC"><figcaption>REC, automatic recording and folder.</figcaption></figure>
 <ul>
-<li><span class="b">⏺ REC</span>: click = start (red, with the time), click = stop. Works on air and while rehearsing.</li>
-<li><b>auto</b>: records every broadcast by itself, from "Go on air" to "End broadcast" (while rehearsing it only starts by hand).</li>
+<li><span class="b">⏺ REC</span>: click = start (red, with the time), click = stop. Works on air and offline.</li>
+<li><b>auto</b>: records every broadcast by itself, from "Go on air" to "End broadcast" (offline it only starts by hand).</li>
 <li><span class="b">📂</span> opens the recordings folder.</li>
 </ul>
 <p>Each recording creates <b>two MP3s</b>:</p>
@@ -532,7 +562,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <h4>The music stays low with the mic on</h4>
 <p>You're in <b>🎚 Studio</b> mode and turned the mic on with 🎙 MIC: in Studio mode you talk holding the space bar. To leave the mic on, switch to <b>🤖 Auto</b>.</p>
 <h4>The microphone can't be heard</h4>
-<p>Check in Settings that the right one is selected (<span class="b">↻</span> refreshes the list). It only works on air or while rehearsing.</p>
+<p>Check in Settings that the right one is selected (<span class="b">↻</span> refreshes the list). It only works on air or offline.</p>
 <h4>I hear myself with an echo</h4>
 <p>You're listening on 🎧 Listen → Everything while talking: use Music only.</p>
 <h4>"SILENCE DETECTED"</h4>
@@ -540,9 +570,9 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <h4>The track title doesn't show in players</h4>
 <p>In the Dashboard the <b>Title to server</b> row tells you whether the server accepted the title (<b>✓ Sent</b>) or refused it (<b>✗ Rejected</b>, with the reason). If it was sent but doesn't show, it depends on how your provider displays it: some panels with AutoDJ only show their own titles.</p>
 <h4>A track won't play / "File not found"</h4>
-<p>The file was moved or renamed: Maintenance → Files missing from disk.</p>
-<h4>"Catorweb Broadcaster is already open"</h4>
-<p>The program is already running: use the open window, or close it and reopen the icon.</p>
+<p>The file was moved or renamed: Maintenance → Files missing from disk. If the track was in the queue, the radio takes it out by itself and shows a red warning. If the whole drive is missing (for example an external drive unplugged), the queue stays as it is: plug the drive back in.</p>
+<h4>I reopen the radio but no new window opens</h4>
+<p>The program is already running: the window that is already open comes back to the front (even if it was minimised).</p>
 <h4>The track card is empty</h4>
 <p>It needs internet and the artist in the tags.</p>
 </section>
@@ -593,13 +623,13 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 
 <!-- ───────────────────────── 21 ───────────────────────── -->
 <section id="podcast"><h2><span class="n">21</span>Guide: making a podcast</h2>
-<p>Catorweb Broadcaster is perfect for "radio-style" podcasts: voice, music and jingles in a single recording, like a real show.</p>
+<p>Catorweb Broadcaster is perfect for "radio-style" podcasts: voice, music and jingles in a single recording.</p>
 <h3>The recipe</h3>
 <ol class="steps">
 <li>Prepare the <b>running order</b> in the Studio (queue) and set <b>✋ Manual</b>, so you decide when each track starts.</li>
-<li>Press <span class="b">🎧 Rehearse</span>: nothing goes on the internet.</li>
+<li>Press <span class="b">▶ Start offline</span>: nothing goes on the internet.</li>
 <li>Press <span class="b">⏺ REC</span>.</li>
-<li>Present: theme tune (jingle on BREAK), intro, tracks with <span class="b">▶ START</span>, links with the space bar.</li>
+<li>Present: theme tune (jingle on BREAK), intro, tracks with <span class="b">▶ Start now</span>, links with the space bar.</li>
 <li>Stop <span class="b">⏺ REC</span>. With <span class="b">📂</span> you'll find two files: the full episode and the voice only.</li>
 </ol>
 <h3>Editing (optional)</h3>
@@ -632,7 +662,7 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <div class="card"><h4>🎡 Clockwheel</h4><ul>
 <li>Large categories more often, small ones less.</li>
 <li>60-minute artist separation as a base.</li>
-<li>Always try with <span class="b">👁 Preview</span> or while rehearsing.</li>
+<li>Always try with <span class="b">👁 Preview</span> or offline.</li>
 <li>A jingle every 3-4 tracks keeps the identity.</li></ul></div>
 <div class="card"><h4>🎛 Live</h4><ul>
 <li>Watch the countdown: talk over intros and endings, not mid-song.</li>
@@ -661,13 +691,13 @@ That's about 25-30 minutes: two rounds an hour, with an ID every ~12 minutes. Us
 <tr><td><b>LUFS</b></td><td>Unit of perceived loudness, used for podcasts and streaming.</td></tr>
 <tr><td><b>Mount</b></td><td>The "name" of the stream on an Icecast server (e.g. <code>/stream</code>).</td></tr>
 <tr><td><b>Programming schedule</b></td><td>The plan for the day/week: what goes on air and when.</td></tr>
-<tr><td><b>Rehearse</b></td><td>The radio runs only on the PC, without broadcasting.</td></tr>
+<tr><td><b>Offline</b></td><td>The radio runs only on the PC, without broadcasting (<span class="b">▶ Start offline</span>).</td></tr>
 <tr><td><b>Slot</b></td><td>One position in the clockwheel: a category and how many tracks to take.</td></tr>
 <tr><td><b>Station ID</b></td><td>Short identification: "You're listening to…".</td></tr>
 <tr><td><b>Sweeper</b></td><td>Short effect with voice between two tracks.</td></tr>
 <tr><td><b>Voice track</b></td><td>A spoken link recorded in advance and placed in the running order.</td></tr>
 </table>
-<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manual for version 3.0. The quick guide is also inside the app: <span class="b">❓ Help</span>.</p>
+<p style="color:var(--mut);font-size:14px;margin-top:20px">Catorweb Broadcaster · manual for version 3.5. The quick guide is also inside the app: <span class="b">❓ Help</span>.</p>
 </section>
 </main>
 </div>

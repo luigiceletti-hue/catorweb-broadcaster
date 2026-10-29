@@ -6,7 +6,9 @@
 <style>
 :root{--bg:#0d1117;--card:#161b22;--brd:#30363d;--txt:#e6edf3;--mut:#8b949e;--acc:#79c0ff;--grn:#3fb950;--red:#f85149;--amb:#d29922}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:16px}
+/* --toph = altezza vera della barra in alto (vedi script): prima i titoli delle sezioni
+   finivano sotto la barra e sembrava di essere nella sezione sbagliata (26/10/2026) */
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--toph,56px) + 16px)}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.6}
 a{color:var(--acc)}
 .top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--brd);padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -14,7 +16,7 @@ a{color:var(--acc)}
 .top input{background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt);padding:6px 10px;font-size:14px;width:220px}
 .top a.btn{background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:6px 10px;text-decoration:none;color:var(--txt);font-size:13px;white-space:nowrap}
 .layout{display:grid;grid-template-columns:230px 1fr;max-width:1100px;margin:0 auto}
-nav{position:sticky;top:56px;align-self:start;max-height:calc(100vh - 56px);overflow:auto;padding:16px 10px 40px 16px;border-right:1px solid var(--brd)}
+nav{position:sticky;top:var(--toph,56px);align-self:start;max-height:calc(100vh - var(--toph,56px));overflow:auto;padding:16px 10px 40px 16px;border-right:1px solid var(--brd)}
 nav a{display:block;padding:4px 8px;border-radius:5px;color:var(--mut);text-decoration:none;font-size:13.5px}
 nav a:hover{background:var(--card);color:var(--txt)}
 main{padding:20px 24px 80px;max-width:820px}
@@ -48,7 +50,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
   <a href="#start">Getting started</a>
   <a href="#bar">The top bar</a>
   <a href="#air">Going on air</a>
-  <a href="#rehearse">🎧 Rehearse</a>
+  <a href="#offline">▶ Offline</a>
   <a href="#mic">🎙 Microphone</a>
   <a href="#rec">⏺ Recording</a>
   <a href="#listen">Listening</a>
@@ -71,26 +73,32 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <main id="main">
 
 <section id="start"><h2>Getting started</h2>
-<p>Catorweb Broadcaster is radio automation software: it plays music from your PC and broadcasts it live to your streaming server. You use it in a browser-like window; the program itself is the <b>📻 icon next to the clock</b> (bottom right: double-click reopens the radio, right-click → Quit closes it). Windows first puts it among the <b>hidden icons</b> (small ˄ arrow): to keep it always visible, drag it onto the taskbar, or right-click the taskbar → Taskbar settings → Other system tray icons → turn on Catorweb Broadcaster.</p>
+<p>Catorweb Broadcaster is radio automation software you can use in three ways:</p>
+<ul>
+<li><b>📡 To broadcast</b>: it plays music from your PC and sends it live to your streaming server, with playlists, jingles and microphone.</li>
+<li><b>🎵 As a music player</b>: with <span class="b">▶ Start offline</span> the radio plays only on this PC, with no server and no internet needed: queue, clockwheels and jingles, like your own private radio.</li>
+<li><b>🎙 To make podcasts</b>: offline, switch the microphone on, talk over the music and record it all with <span class="b">⏺ REC</span> into an MP3 ready to publish.</li>
+</ul>
+<p>You use it in a browser-like window; the program itself is the <b>📻 icon next to the clock</b> (bottom right: double-click reopens the radio, right-click → Quit closes it). Windows first puts it among the <b>hidden icons</b> (small ˄ arrow): to keep it always visible, drag it onto the taskbar, or right-click the taskbar → Taskbar settings → Other system tray icons → turn on Catorweb Broadcaster.</p>
 <ol>
 <li>Open <b>Catorweb Broadcaster</b> (Desktop icon or Start menu).</li>
 <li>On the first start fill in the <b>Settings</b>: language, radio name, streaming server details, folders, microphone. Use <span class="b">🔌 Test connection</span> to check the server details.</li>
 <li>Save: the Dashboard opens. No login is needed: the app only answers on this PC.</li>
 <li>In <b>Library → ⬆ Import</b> import your music folder.</li>
-<li>Prepare a <b>Queue</b> or a <b>Clockwheel</b>, try it with <span class="b">🎧 Rehearse</span>, then go <b>on air</b>.</li>
+<li>Prepare a <b>Queue</b> or a <b>Clockwheel</b>, listen to it with <span class="b">▶ Start offline</span>, then go <b>on air</b>.</li>
 </ol>
 <div class="warn">Closing the radio window does <b>not</b> stop anything: the radio carries on. <b>Quit</b> (right-click on the icon next to the clock) closes the program <b>and the broadcast</b>; if you are on air it asks first.</div>
 <h3>No server details yet?</h3>
-<p>No problem: in Settings leave the server <b>address</b> empty and save. You can use everything (library, clockwheels, scheduler, studio, microphone, recording) in <span class="b">🎧 Rehearse</span>, with the radio playing only on this PC. "Go on air" reminds you that the server is missing. When your provider sends you the details, enter them in Settings and check them with <span class="b">🔌 Test connection</span>.</p>
+<p>No problem: in Settings leave the server <b>address</b> empty and save. You can use everything (library, clockwheels, scheduler, studio, microphone, recording) offline, with <span class="b">▶ Start offline</span>: the radio plays only on this PC. "Go on air" reminds you that the server is missing. When your provider sends you the details, enter them in Settings and check them with <span class="b">🔌 Test connection</span>.</p>
 </section>
 
 <section id="bar"><h2>The top bar</h2>
 <table>
 <tr><th>Button</th><th>What it does</th></tr>
 <tr><td><span class="b">⚪ OFF AIR — Go on air</span></td><td>Goes live (asks for confirmation). On air it becomes <span class="b">🔴 ON AIR — End broadcast</span>.</td></tr>
-<tr><td><span class="b">🎧 Rehearse</span></td><td>The radio plays only on this PC, nothing is sent to the server. See <a href="#rehearse">Rehearse</a>.</td></tr>
+<tr><td><span class="b">▶ Start offline</span></td><td>The radio plays only on this PC, nothing is sent to the server: to listen to music, record podcasts or try things before going on air. See <a href="#offline">Offline</a>.</td></tr>
 <tr><td><span class="b">⏹ after this track</span></td><td>On air: the track finishes normally, then the broadcast ends by itself.</td></tr>
-<tr><td><span class="b">▶ Automatic / ✋ Manual</span></td><td>How tracks start: by themselves (queue + clockwheel) or only with <span class="b">▶ START</span>. Not related to the microphone.</td></tr>
+<tr><td><span class="b">▶ Automatic / ✋ Manual</span></td><td>How tracks start: by themselves (queue + clockwheel) or only with <span class="b">▶ Start now</span>. Not related to the microphone.</td></tr>
 <tr><td>Box <span class="b">🎙 MIC</span> <span class="b">🤖 Auto / 🎚 Studio</span> + slider</td><td>Microphone, how the music ducks, voice volume. See <a href="#mic">Microphone</a>.</td></tr>
 <tr><td><span class="b">⏺ REC</span> · auto · 📂</td><td>Recording what goes on air. See <a href="#rec">Recording</a>.</td></tr>
 <tr><td><span class="b">🎧 Listen ▾</span></td><td>Headphone monitoring, three modes explained in the menu. See <a href="#listen">Listening</a>.</td></tr>
@@ -110,18 +118,24 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <div class="tip">While Catorweb Broadcaster is open Windows does not go to sleep. Closing a laptop lid still puts it to sleep though.</div>
 </section>
 
-<section id="rehearse"><h2>🎧 Rehearse — listen without going on air</h2>
-<p><span class="b">🎧 Rehearse</span> runs the radio exactly as if you were on air (queue, clockwheel, jingles, microphone, manual mode) but <b>only on this PC</b>: nothing reaches the server. Listen with <span class="b">🎧 Listen</span>.</p>
+<section id="offline"><h2>▶ Offline — the radio on this PC only</h2>
+<p><span class="b">▶ Start offline</span> runs the radio exactly as if you were on air (queue, clockwheel, jingles, microphone, manual mode, recording) but <b>only on this PC</b>: nothing reaches the server and no internet is needed. Use it to:</p>
 <ul>
-<li>While rehearsing the green button reads <span class="b">🎧 REHEARSING (this PC only) — ⏹ Stop</span>; the big button still reads <span class="b">OFF AIR — Go on air</span>.</li>
-<li>Pressing <b>Go on air</b> while rehearsing connects the server <b>without stopping the music</b>: the track you are listening to goes on air as it is.</li>
-<li>Automatic recording does not start while rehearsing (it starts when you go on air); <span class="b">⏺ REC</span> by hand works.</li>
-<li>If you change the microphone or the server in Settings while rehearsing, Rehearse restarts by itself with the new values.</li>
+<li><b>listen to your music</b>, like your own private radio;</li>
+<li><b>record a podcast</b>: music, jingles and voice, recorded with <span class="b">⏺ REC</span> (see <a href="#rec">Recording</a>);</li>
+<li><b>try out</b> the microphone, playlists and clockwheels before going on air.</li>
+</ul>
+<ul>
+<li>After the click the button turns orange (<span class="b">🟠 Starting offline…</span>): the radio takes a few seconds to start. When it is ready, <span class="b">🔊 Everything, no delay</span> starts playing by itself and the <span class="b">🎧 Listen</span> menu opens, where you can switch to another way of listening or stop it with <span class="b">⏹ Stop</span>.</li>
+<li>Offline the green button reads <span class="b">🎧 OFFLINE (this PC only) — ⏹ Stop</span>; the big button still reads <span class="b">OFF AIR — Go on air</span>.</li>
+<li>Pressing <b>Go on air</b> while offline connects the server <b>without stopping the music</b>: the track you are listening to goes on air as it is.</li>
+<li>Automatic recording does not start offline (it starts when you go on air); <span class="b">⏺ REC</span> by hand works.</li>
+<li>If you change the microphone or the server in Settings while offline, the radio restarts by itself with the new values.</li>
 </ul>
 </section>
 
 <section id="mic"><h2>🎙 Microphone</h2>
-<p>Works on air and in Rehearse. You pick it in <b>Settings → Microphone</b>.</p>
+<p>Works on air and offline. You pick it in <b>Settings → Microphone</b>.</p>
 <ul>
 <li><span class="b">🎙 MIC</span>: click = on/off (red = on).</li>
 <li>Hold the <kbd>Space bar</kbd>: you talk as long as you hold it (not while typing in a text field).</li>
@@ -139,7 +153,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 
 <section id="rec"><h2>⏺ Recording</h2>
 <ul>
-<li><span class="b">⏺ REC</span>: click = start (red, with the time), click = stop. Works on air and in Rehearse.</li>
+<li><span class="b">⏺ REC</span>: click = start (red, with the time), click = stop. Works on air and offline: for a podcast, start offline, press REC and talk over the music.</li>
 <li><b>auto</b>: records every broadcast by itself, from "Go on air" to "End broadcast".</li>
 <li><span class="b">📂</span> opens the recordings folder.</li>
 </ul>
@@ -222,7 +236,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <li>add to or replace the queue with a playlist, a category or a track;</li>
 <li>skip the track, clear the queue, move tracks between categories, empty a category;</li>
 <li>change the default clockwheel;</li>
-<li>turn the radio on only on the PC (🎧 Rehearse), go on air, go off air, turn off or restart the radio;</li>
+<li>turn the radio on only on the PC (offline), go on air, go off air, turn off or restart the radio;</li>
 <li>start and stop recording, wait a few seconds between actions;</li>
 <li>back up the database, delete old recordings and backups.</li>
 </ul>
@@ -231,11 +245,16 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </section>
 
 <section id="studio"><h2>🎛 Studio</h2>
-<p>The tab for presenting. At the top right there is a big countdown to the end of the track, with a bar (orange in the last 30 s, flashing red in the last 10 s) and the <b>NEXT</b> strip.</p>
+<p>The tab for presenting. At the top there are two players, <b>A</b> and <b>B</b>, taking turns: the one <b>on air</b> (red border) has the big countdown to the end of the track and the bar (orange in the last 30 s, flashing red in the last 10 s); the other one is <b>ready</b> (green) with the next track. They swap at every track change.</p>
+<ul>
+<li><span class="b">⏭ Skip</span> on the player on air and <span class="b">▶ Start now</span> on the ready one put the ready track on air straight away, with the crossfade.</li>
+<li><b>Drag</b> a track from the quick search to the <b>running order</b>: it goes where you drop it (a blue line shows where), or at the end.</li>
+<li><b>Drag</b> a track from the running order or the quick search onto a player: on the <b>ready</b> player it becomes next, on the one <b>on air</b> it starts now.</li>
+</ul>
 <h3>▶ Automatic / ✋ Manual</h3>
 <ul>
 <li><b>Automatic</b>: queue + clockwheel, everything starts by itself.</li>
-<li><b>Manual</b>: the switch happens at the <b>end of the current track</b>; from then on nothing plays until you press <span class="b">▶ START</span>. START while a track is playing = move straight to the next one.</li>
+<li><b>Manual</b>: the switch happens at the <b>end of the current track</b>; from then on nothing plays until you press <span class="b">▶ Start now</span> on the ready player. Start now while a track is playing = move straight to the next one.</li>
 <li>The <b>running order</b> is the queue: quick search, <span class="b">+ Running order</span>, ✕ to remove a track.</li>
 <li>Silence warning: if you don't talk and don't start anything, there is silence on air.</li>
 <li>"End broadcast" always switches back to Automatic for next time.</li>
@@ -246,7 +265,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <p>From 8 to 32 buttons in the Studio tab (drop-down in the Jingle box or Settings → Studio). Assign them from search (🎵), one click plays them, <span class="b">⏹ Stop jingle</span> stops them. They work in Automatic too. Each button has its own mode (click the label at the bottom to change it):</p>
 <table>
 <tr><td><b>≋ OVER</b></td><td>The jingle plays over the music, which ducks. For short effects.</td></tr>
-<tr><td><b>⏏ BREAK</b></td><td>The music fades out (about 1 s), the track ends and the jingle plays alone. Then in Automatic the next track starts, in Manual silence until START.</td></tr>
+<tr><td><b>⏏ BREAK</b></td><td>The music fades out (about 1 s), the track ends and the jingle plays alone. Then in Automatic the next track starts, in Manual silence until Start now.</td></tr>
 </table>
 <p><b>⌨ From the keyboard:</b> with the Studio open, the letter in the corner of each button plays it (1234, QWER, ASDF, ZXCV, then 5678, TYUI, GHJK, BNM,). The ⌨ button turns them off and on.</p>
 <p><b>No fades:</b> a track placed in a category whose name contains <i>jingle</i> (or <i>sweeper</i>, <i>liner</i>, <i>station id</i>, <i>imaging</i>) becomes a jingle and goes on air with no fade and no crossfade, from the queue, the clockwheel and the buttons. The same for categories named <i>intro</i>, <i>promo</i>, <i>news</i>, <i>spot</i>, <i>voice track</i>.</p>
@@ -299,7 +318,7 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <li><b>Folders</b>: music, database, recordings, export. If you change them the program restarts by itself (not while on air).</li>
 <li><b>Microphone</b> and <b>Extra</b> (intro with Claude: in Settings, "How to turn it on" explains how to install Claude Code).</li>
 </ul>
-<p>A new server applies from the next "Go on air"; in Rehearse, Rehearse restarts straight away with the new values.</p>
+<p>A new server applies from the next "Go on air"; if you are offline, the radio restarts straight away with the new values.</p>
 </section>
 
 <section id="data"><h2>Where your data is</h2>
@@ -319,8 +338,10 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 <p>Settings → <span class="b">🔌 Test connection</span>. The message tells you why: wrong address or port, password or mount rejected, server down. Check the Log tab too.</p>
 <h3>The music stays low with the microphone on</h3>
 <p>You are in <span class="b">🎚 Studio</span> and switched the microphone on with <span class="b">🎙 MIC</span>: in Studio you talk by holding the space bar. If you prefer to leave the microphone on, click the button to switch to <span class="b">🤖 Auto</span>: the music drops only while you speak.</p>
+<h3>I pressed ▶ Start offline but I can't hear anything</h3>
+<p>Wait for the button to turn from orange to green (<span class="b">🎧 OFFLINE</span>): it takes about 10 seconds. Then listening starts by itself. If you still hear nothing, open <span class="b">🎧 Listen</span> at the top right and press <span class="b">▶ Listen</span> next to <span class="b">🔊 Everything, no delay</span>; check the PC volume too. The music plays only in the radio window: if you close it, listening stops (the offline radio keeps running).</p>
 <h3>The microphone can't be heard</h3>
-<p>Check in Settings that the right microphone is selected. It only works on air or in Rehearse. In the Log, with the microphone on, the voice level is written every 2 seconds.</p>
+<p>Check in Settings that the right microphone is selected. It only works on air or offline. In the Log, with the microphone on, the voice level is written every 2 seconds.</p>
 <h3>"SILENCE DETECTED"</h3>
 <p>No audio has gone on air for more than 20 seconds. Wait 20-30 seconds (automatic restart); if it stays, end and restart the broadcast. In Manual, silence between tracks is normal.</p>
 <h3>"Catorweb Broadcaster is already open"</h3>
@@ -334,6 +355,9 @@ code{background:var(--card);border-radius:4px;padding:0 5px;font-size:13px}
 </main>
 </div>
 <script>
+// Altezza della barra in alto: cambia se va a capo (finestra stretta)
+const _top = document.querySelector('.top');
+new ResizeObserver(() => document.documentElement.style.setProperty('--toph', _top.offsetHeight + 'px')).observe(_top);
 function filter(q) {
   q = q.trim().toLowerCase();
   let any = false;

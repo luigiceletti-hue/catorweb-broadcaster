@@ -4,7 +4,7 @@ import base64, json, os, subprocess, sys, tempfile
 GH = r"C:\Program Files\GitHub CLI\gh.exe"
 REPO = "luigiceletti-hue/catorweb-broadcaster"
 ROOT = r"I:\CatorwebPC_Edizione"
-SKIP_DIRS = {"build", "_prova", "liquidsoap", "github", "__pycache__", ".git", "confronto"}   # confronto: prezzi da verificare
+SKIP_DIRS = {"build", "_prova", "liquidsoap", "github", "__pycache__", ".git", "confronto", "backup"}   # confronto: prezzi da verificare; backup: copie locali
 MSG = sys.argv[1] if len(sys.argv) > 1 else "Catorweb Broadcaster 2.11"
 
 def api(method, path, body=None):

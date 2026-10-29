@@ -78,7 +78,7 @@ a{color:#79c0ff}
 <div class="card">
   <h2>📡 Streaming server</h2>
   <div class="hint">The details your streaming provider gave you (Icecast / Shoutcast / Centova / AzuraCast panel…).</div>
-  <div class="hint" style="color:#a5c8ff">Don't have them yet? Leave the address empty: you can use everything in 🎧 Rehearse (the radio plays only on this PC) and enter them when you get them.</div>
+  <div class="hint" style="color:#a5c8ff">Don't have them yet? Leave the address empty: you can use everything offline with ▶ Start offline (the radio plays only on this PC) and enter them when you get them.</div>
   <label>Server type</label>
   <select id="stream.type" onchange="typeChanged(true)"></select>
   <div class="row3">
@@ -126,7 +126,7 @@ a{color:#79c0ff}
         <option value="10">10 seconds</option>
       </select></div>
   </div>
-  <div class="hint">Vale dalla prossima volta che vai in onda; in 🎧 Prova si sente subito dopo il salvataggio.</div>
+  <div class="hint">Vale dalla prossima volta che vai in onda; offline si sente subito dopo il salvataggio.</div>
 </div>
 
 <div class="card">
@@ -198,7 +198,7 @@ a{color:#79c0ff}
         <option value="4">+4 dB</option><option value="5">+5 dB</option><option value="6">+6 dB</option>
       </select></div>
   </div>
-  <div class="hint">The voice processor (compressor, de-esser, limiter) is always on; here you only set the pitch and body of the voice. In 🎧 Rehearse you hear the change right after saving.</div>
+  <div class="hint">The voice processor (compressor, de-esser, limiter) is always on; here you only set the pitch and body of the voice. Offline you hear the change right after saving.</div>
 </div>
 
 <div class="card">
@@ -300,10 +300,8 @@ async function testConn() {
 
 async function pick(id) {
   const el = document.getElementById(id);
-  msg('save-msg', 'info', 'Pick the folder in the window that just opened (if you can\'t see it, look in the taskbar)…');
-  const d = await api('/api/edition/pick_folder', { start: el.value });
-  document.getElementById('save-msg').className = 'msg';
-  if (d.ok && d.path) el.value = d.path;
+  const path = await cwPickFolder(el.value.trim());
+  if (path) el.value = path;
 }
 
 // Aperta dalla radio in una finestra a parte: "torna alla radio" la chiude (la radio non si e' mai
@@ -337,7 +335,7 @@ async function save() {
     return;
   }
   msg('save-msg', d.liq_note === 'next_on_air' ? 'info' : 'ok',
-      d.liq_note === 'prova_restarted' ? '✓ Saved. 🎧 Rehearse restarts with the new settings (a few seconds).'
+      d.liq_note === 'prova_restarted' ? '✓ Saved. The offline radio restarts with the new settings (a few seconds).'
     : d.liq_note === 'next_on_air'     ? '✓ Saved. You are on air: the new microphone and server apply from the next "Go on air" (end and restart the broadcast to use them now).'
     :                                    '✓ Saved.');
   if (FIRST || d.language_changed) setTimeout(() => backToRadio(true), 1200);
@@ -358,4 +356,160 @@ load();
     }, 400);
   }).catch(() => setTimeout(waitClosing, 3000));
 })();
-</script></body></html>
+</script><!-- Edizione: sfoglia cartelle e file dentro la pagina (prima le finestre di Windows, scomode da usare).
+     Stesso blocco in catorweb_radio.html e impostazioni.html:
+     cwPickFolder(start) → percorso, '' = annullato
+     cwPickFile(start, ['.m3u','.m3u8']) → percorso, '' = annullato
+     cwPickFile(start, ['.mp3'], true) → elenco di percorsi (anche da cartelle diverse), [] = annullato -->
+<style>
+#cwfp{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center}
+#cwfp.open{display:flex}
+#cwfp .fp-box{background:var(--bg2,#161b22);color:var(--txt,#e6edf3);border:1px solid var(--brd,#30363d);border-radius:10px;width:min(820px,94vw);height:min(600px,88vh);display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+#cwfp .fp-head{padding:12px 14px 10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-title{font-weight:600;font-size:15px;margin-bottom:8px}
+#cwfp .fp-nav{display:flex;gap:8px;align-items:center}
+#cwfp .fp-crumbs{flex:1;display:flex;flex-wrap:wrap;gap:2px;align-items:center;min-width:0}
+#cwfp .fp-crumbs span{cursor:pointer;padding:2px 6px;border-radius:4px;color:var(--blue,#79c0ff)}
+#cwfp .fp-crumbs span:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-crumbs i{color:var(--mut,#7d8590);font-style:normal}
+#cwfp input.fp-path{width:100%;margin:8px 0 0;font-family:Consolas,monospace;font-size:12px;padding:6px 8px;background:var(--bg,#0d1117);color:inherit;border:1px solid var(--brd,#30363d);border-radius:5px}
+#cwfp .fp-body{flex:1;display:flex;min-height:0}
+#cwfp .fp-side{width:200px;border-right:1px solid var(--brd,#30363d);overflow:auto;padding:4px 0;flex-shrink:0}
+#cwfp .fp-side div,#cwfp .fp-row{padding:7px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-side div:hover,#cwfp .fp-row:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-side .fp-sec{color:var(--mut,#7d8590);font-size:11px;cursor:default;padding-top:10px;padding-bottom:3px}
+#cwfp .fp-side .fp-sec:hover{background:none}
+#cwfp .fp-list{flex:1;overflow:auto}
+#cwfp .fp-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-row span:first-child{overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-row.fp-file.sel,#cwfp .fp-row.fp-file.sel:hover{background:rgba(56,139,253,.22)}
+#cwfp .fp-allrow{padding:6px 12px;font-size:12px;color:var(--mut,#7d8590);border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-allrow a{color:var(--blue,#79c0ff);cursor:pointer;margin-left:10px}
+#cwfp .fp-n{color:var(--mut,#7d8590);font-size:12px;flex-shrink:0}
+#cwfp .fp-n.has{color:var(--green,#3fb950)}
+#cwfp .fp-msg{padding:14px;color:var(--mut,#7d8590)}
+#cwfp .fp-foot{padding:10px 14px;border-top:1px solid var(--brd,#30363d);display:flex;gap:8px;align-items:center}
+#cwfp .fp-cur{flex:1;color:var(--mut,#7d8590);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cwfp button{margin:0}
+#cwfp button:disabled{opacity:.4;cursor:default}
+@media (max-width:600px){#cwfp .fp-side{display:none}}
+</style>
+<script>
+let _fp = null;
+function _fpEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function _fpRecent() { try { return JSON.parse(localStorage.getItem('fpRecent') || '[]'); } catch (e) { return []; } }
+function cwPickFolder(start) { return _fpOpen(start, null, false); }
+function cwPickFile(start, exts, multi) { return _fpOpen(start, exts || [], !!multi); }
+function _fpOpen(start, exts, multi) {
+  if (!document.getElementById('cwfp')) {
+    const d = document.createElement('div'); d.id = 'cwfp';
+    d.innerHTML = `<div class="fp-box">
+      <div class="fp-head"><div class="fp-title" id="fp-title"></div>
+        <div class="fp-nav"><button type="button" class="sec" id="fp-up" onclick="_fpGo(_fp.parent)" title="Parent folder">⬆</button>
+          <div class="fp-crumbs" id="fp-crumbs"></div></div>
+        <input class="fp-path" id="fp-path" placeholder="Click folders to open them, or paste a path here and press Enter"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();_fpGo(this.value)}"></div>
+      <div class="fp-body"><div class="fp-side" id="fp-side"></div><div class="fp-list" id="fp-list"></div></div>
+      <div class="fp-foot"><span class="fp-cur" id="fp-cur"></span>
+        <button type="button" class="sec" onclick="_fpDone(false)">Cancel</button>
+        <button type="button" id="fp-ok" onclick="_fpDone(true)"></button></div></div>`;
+    d.addEventListener('mousedown', e => { if (e.target === d) _fpDone(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && _fp && _fp.resolve) _fpDone(false); });
+    document.body.appendChild(d);
+  }
+  if (_fp && _fp.resolve) _fpDone(false);
+  document.getElementById('fp-title').textContent = !exts ? '📁 Choose a folder'
+    : multi ? '🎵 Choose tracks (click as many as you like, even from different folders)' : '📄 Choose a file';
+  return new Promise(async res => {
+    _fp = { resolve: res, exts, multi, sel: [], path: '', parent: null, dirs: [], files: [], side: [] };
+    document.getElementById('cwfp').classList.add('open');
+    _fpFoot();
+    if (!(await _fpGo(start || _fpRecent()[0] || ''))) await _fpGo('');
+  });
+}
+function _fpDone(ok) {
+  if (!_fp || !_fp.resolve) return;
+  let val = _fp.multi ? [] : '';
+  if (ok) val = !_fp.exts ? _fp.path : _fp.multi ? _fp.sel.slice() : (_fp.sel[0] || '');
+  const folder = !_fp.exts ? _fp.path : (ok && _fp.path);
+  if (ok && folder) {   // si ricorda la cartella (per i file, quella dove si è scelto)
+    const rec = [folder, ..._fpRecent().filter(p => p.toLowerCase() !== folder.toLowerCase())].slice(0, 6);
+    try { localStorage.setItem('fpRecent', JSON.stringify(rec)); } catch (e) {}
+  }
+  document.getElementById('cwfp').classList.remove('open');
+  const res = _fp.resolve; _fp.resolve = null; res(val);
+}
+function _fpFoot() {
+  const ok = document.getElementById('fp-ok'), cur = document.getElementById('fp-cur');
+  if (!_fp.exts) {
+    ok.textContent = '✓ Use this folder'; ok.disabled = !_fp.path;
+    cur.textContent = _fp.path ? _fp.path + ' — tracks directly in this folder: ' + _fp.n : 'Choose a drive';
+  } else if (_fp.multi) {
+    ok.textContent = '✓ Add the chosen tracks (' + _fp.sel.length + ')'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel.length ? 'Tracks chosen: ' + _fp.sel.length + ' (click a track again to remove it)' : 'No tracks chosen';
+  } else {
+    ok.textContent = '✓ Choose this file'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel[0] || 'Click a file (double-click = choose it right away)';
+  }
+}
+function _fpFile(i, dbl) {
+  const p = _fp.files[i].path, k = _fp.sel.indexOf(p);
+  if (_fp.multi) { if (k >= 0) _fp.sel.splice(k, 1); else _fp.sel.push(p); }
+  else _fp.sel = [p];
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', _fp.sel.includes(_fp.files[+el.dataset.i].path)));
+  _fpFoot();
+  if (dbl && !_fp.multi) _fpDone(true);
+}
+function _fpAll(on) {
+  _fp.files.forEach(f => { const k = _fp.sel.indexOf(f.path); if (on && k < 0) _fp.sel.push(f.path); if (!on && k >= 0) _fp.sel.splice(k, 1); });
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', on));
+  _fpFoot();
+}
+function _fpSide(places) {
+  _fp.side = [{ name: '💻 This PC', path: '' }, ...places];
+  const rec = _fpRecent();
+  let h = _fp.side.map((p, i) => `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p.path)}">${_fpEsc(p.name)}</div>`).join('');
+  if (rec.length) {
+    h += '<div class="fp-sec">Recently used</div>';
+    rec.forEach(p => { const i = _fp.side.push({ name: p, path: p }) - 1;
+      h += `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p)}">🕘 ${_fpEsc(p.replace(/\\$/, '').split('\\').pop() || p)}</div>`; });
+  }
+  document.getElementById('fp-side').innerHTML = h;
+}
+async function _fpGo(path) {
+  if (path === null || path === undefined) return false;
+  const list = document.getElementById('fp-list');
+  list.innerHTML = '<div class="fp-msg">Loading…</div>';
+  let r;
+  try {
+    r = await (await fetch('/api/edition/list_dirs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                                       body: JSON.stringify({ path, exts: _fp.exts || [] }) })).json();
+  } catch (e) { r = { ok: false, error: String(e) }; }
+  if (r.places) _fpSide(r.places);
+  if (!r.ok) { list.innerHTML = `<div class="fp-msg" style="color:var(--red,#ff7b72)">⚠ ${_fpEsc(r.error || 'Error')}</div>`; return false; }
+  _fp.path = r.path; _fp.parent = r.parent; _fp.dirs = r.dirs; _fp.files = r.files || []; _fp.n = r.n;
+  document.getElementById('fp-path').value = r.path;
+  document.getElementById('fp-up').disabled = r.parent === null;
+  // percorso a pezzi cliccabili: Questo PC › I: › Musica › Blues
+  _fp.crumbs = [{ name: '💻 This PC', path: '' }];
+  if (r.path) {
+    const parts = r.path.replace(/\\$/, '').split('\\');
+    parts.forEach((p, i) => _fp.crumbs.push({ name: p, path: parts.slice(0, i + 1).join('\\') + (i === 0 ? '\\' : '') }));
+  }
+  document.getElementById('fp-crumbs').innerHTML = _fp.crumbs.map((c, i) =>
+    `<span onclick="_fpGo(_fp.crumbs[${i}].path)">${_fpEsc(c.name)}</span>`).join('<i>›</i>');
+  let h = r.dirs.map((d, i) =>
+    `<div class="fp-row" onclick="_fpGo(_fp.dirs[${i}].path)" title="${_fpEsc(d.path)}"><span>${r.path ? '📁' : '💽'} ${_fpEsc(d.name)}</span>`
+    + `<span class="fp-n${d.n ? ' has' : ''}" title="Subfolders and tracks in here">${d.n == null ? '' : (d.sub ? '📁 ' + d.sub + ' ' : '') + (d.n ? '🎵 ' + d.n : '') || '—'}</span></div>`).join('');
+  if (_fp.multi && _fp.files.length > 1)
+    h += `<div class="fp-allrow">${_fp.files.length} tracks in this folder <a onclick="_fpAll(true)">Choose all</a><a onclick="_fpAll(false)">Remove all</a></div>`;
+  h += _fp.files.map((f, i) =>
+    `<div class="fp-row fp-file${_fp.sel.includes(f.path) ? ' sel' : ''}" data-i="${i}" onclick="_fpFile(${i})" ondblclick="_fpFile(${i},true)" title="${_fpEsc(f.path)}">`
+    + `<span>${/\.m3u8?$/i.test(f.name) ? '📄' : '🎵'} ${_fpEsc(f.name)}</span><span class="fp-n">${(f.size / 1048576).toFixed(1)} MB</span></div>`).join('');
+  list.innerHTML = h || `<div class="fp-msg">${_fp.exts ? 'Nothing to choose in here' : 'No subfolders in here'}</div>`;
+  list.scrollTop = 0;
+  _fpFoot();
+  return true;
+}
+</script>
+</body></html>

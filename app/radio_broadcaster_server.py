@@ -91,6 +91,15 @@ LIQ_EXE    = BASE_DIR / "liquidsoap" / "liquidsoap.exe"
 # Il modello in app\ viene compilato coi valori di config.json in data\ (_liq_render).
 LIQ_TEMPLATE = APP_DIR / "cwpc_edizione.liq"
 LIQ_SCRIPT   = DATA_DIR / "cwpc_edizione.liq"
+# Prova di Liquidsoap 2.4 (26/10/2026): solo se CWR_LIQ_DIR indica la sua cartella (oggi
+# solo la versione di prova, da Avvia_prova.vbs). La 2.4 ricorda il controllo dello script
+# (cache in data\liq_cache): l'avvio passa da 10-15 s a ~1 s. Lo script cambia in alcuni punti.
+LIQ_24 = bool(os.environ.get("CWR_LIQ_DIR"))
+if LIQ_24:
+    LIQ_EXE      = Path(os.environ["CWR_LIQ_DIR"]) / "liquidsoap.exe"
+    # CWR_LIQ_TEMPLATE: per provare un'altra versione (es. la 2.3: cwpc_edizione_23.liq)
+    LIQ_TEMPLATE = APP_DIR / os.environ.get("CWR_LIQ_TEMPLATE", "cwpc_edizione_24.liq")
+LIQ_CACHE_DIR = DATA_DIR / "liq_cache"
 LOG_DIR   = DATA_DIR / "logs"
 for _d in (DATA_DIR, LOG_DIR, BK_DIR, RB_DATA, CW_DIR, PL_DIR):
     try: _d.mkdir(parents=True, exist_ok=True)
@@ -119,8 +128,17 @@ PORT = int(CFG["ports"]["app"])
 _liq_proc = None
 _liq_proc_lock = threading.Lock()
 
-def _liq_is_active():
+def _liq_proc_alive():
     return _liq_proc is not None and _liq_proc.poll() is None
+
+# Motore "in attesa" (26/10/2026): Liquidsoap acceso gia' all'apertura con coda e clockwheel
+# chiusi, cosi' "Avvia offline" e "Vai in onda" partono in 1-2 s invece di aspettare il
+# caricamento dello script (~8 s). Per il resto del programma conta come spento.
+_standby = {"on": False, "sig": None}
+
+def _liq_is_active():
+    """Radio che suona (offline o in onda); il motore in attesa non conta."""
+    return _liq_proc_alive() and not _standby["on"]
 
 def _restart_app_later():
     """Riapre Catorweb Broadcaster in una finestra nuova e chiude questa (cartelle cambiate)."""
@@ -140,6 +158,11 @@ def _open_app_window(url):
     """Apre l'app in una finestra sua (Edge o Chrome in modalita' --app: niente barra
     degli indirizzi ne' schede), cosi' sembra un programma e non un sito.
     Se non trova Edge/Chrome usa il browser predefinito."""
+    # La radio è già aperta (magari ridotta a icona)? Si riporta davanti quella: aprirne
+    # un'altra lasciava suonare l'ascolto in una finestra nascosta e quella nuova diceva
+    # "▶ Ascolta" su tutti e tre i modi (25/10/2026: trovate 8 finestre ridotte a icona)
+    if url.rstrip("/").count("/") == 2 and _show_main_window():
+        return
     pf = [os.environ.get(k) for k in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA")]
     candidates = [Path(b) / rel for b in pf if b for rel in (
         r"Microsoft\Edge\Application\msedge.exe", r"Google\Chrome\Application\chrome.exe")]
@@ -175,6 +198,31 @@ def _app_windows():
         return True
     u32.EnumWindows(cb, 0)
     return found
+
+def _show_main_window():
+    """Porta davanti la finestra principale già aperta (titolo "<radio> — Catorweb Broadcaster",
+    lo mette la pagina). Il nome della radio distingue la versione installata da quella di prova.
+    True se l'ha trovata."""
+    if os.name != "nt":
+        return False
+    try:
+        station = (EC.load()["station"]["name"] or "").strip()
+    except Exception:
+        station = (CFG["station"]["name"] or "").strip()
+    if not station:
+        return False
+    import ctypes
+    u32 = ctypes.windll.user32
+    want = f"{station} — Catorweb Broadcaster"
+    for h in _app_windows():                  # in ordine dalla più in primo piano
+        buf = ctypes.create_unicode_buffer(256)
+        u32.GetWindowTextW(h, buf, 256)
+        if buf.value == want:
+            u32.ShowWindow(h, 3 if u32.IsIconic(h) else 5)   # ridotta: torna a tutto schermo
+            u32.keybd_event(0x12, 0, 0, 0); u32.keybd_event(0x12, 0, 2, 0)   # Alt: sblocca il primo piano
+            u32.SetForegroundWindow(h)
+            return True
+    return False
 
 def _maximize_new_window(before):
     """A tutto schermo: con Edge gia' aperto --start-maximized non vale (ricorda l'ultima
@@ -321,6 +369,50 @@ public class CwFg {
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
 }
 "@
+# Scelta cartella con la finestra moderna di Esplora risorse (barra dell'indirizzo, Accesso rapido)
+# invece dell'albero di FolderBrowserDialog; se non si apre si torna a quello.
+Add-Type -ReferencedAssemblies System.Windows.Forms -TypeDefinition @"
+using System; using System.Runtime.InteropServices; using System.Windows.Forms;
+public class CwFolder {
+  public string SelectedPath = "";
+  [ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] class FileOpenDialogCo {}
+  [ComImport, Guid("42f85136-db7e-439c-85f1-e4075d135fc8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  interface IFileDialog {
+    [PreserveSig] int Show(IntPtr parent);
+    void SetFileTypes(uint c, IntPtr f); void SetFileTypeIndex(uint i); void GetFileTypeIndex(out uint i);
+    void Advise(IntPtr e, out uint c); void Unadvise(uint c);
+    void SetOptions(uint o); void GetOptions(out uint o);
+    void SetDefaultFolder(IShellItem i); void SetFolder(IShellItem i);
+    void GetFolder(out IShellItem i); void GetCurrentSelection(out IShellItem i);
+    void SetFileName([MarshalAs(UnmanagedType.LPWStr)] string n); void GetFileName([MarshalAs(UnmanagedType.LPWStr)] out string n);
+    void SetTitle([MarshalAs(UnmanagedType.LPWStr)] string t); void SetOkButtonLabel([MarshalAs(UnmanagedType.LPWStr)] string t);
+    void SetFileNameLabel([MarshalAs(UnmanagedType.LPWStr)] string t); void GetResult(out IShellItem i);
+  }
+  [ComImport, Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  interface IShellItem {
+    void BindToHandler(IntPtr pbc, ref Guid bhid, ref Guid riid, out IntPtr ppv); void GetParent(out IShellItem i);
+    void GetDisplayName(uint sigdn, [MarshalAs(UnmanagedType.LPWStr)] out string name);
+    void GetAttributes(uint mask, out uint attrs); void Compare(IShellItem i, uint hint, out int order);
+  }
+  [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+  static extern void SHCreateItemFromParsingName(string path, IntPtr pbc, ref Guid riid, out IShellItem item);
+  public DialogResult ShowDialog(IWin32Window owner) {
+    try {
+      IFileDialog d = (IFileDialog)new FileOpenDialogCo();
+      uint o; d.GetOptions(out o); d.SetOptions(o | 0x20 | 0x40 | 0x8);   // cartelle, solo file system, non cambiare dir
+      if (!String.IsNullOrEmpty(SelectedPath) && System.IO.Directory.Exists(SelectedPath)) {
+        try { Guid g = typeof(IShellItem).GUID; IShellItem s; SHCreateItemFromParsingName(SelectedPath, IntPtr.Zero, ref g, out s); d.SetFolder(s); } catch {}
+      }
+      if (d.Show(owner == null ? IntPtr.Zero : owner.Handle) != 0) return DialogResult.Cancel;
+      IShellItem r; d.GetResult(out r); string p; r.GetDisplayName(0x80058000, out p);
+      SelectedPath = p; return DialogResult.OK;
+    } catch {
+      FolderBrowserDialog f = new FolderBrowserDialog(); f.SelectedPath = SelectedPath;
+      DialogResult res = f.ShowDialog(owner); if (res == DialogResult.OK) SelectedPath = f.SelectedPath; return res;
+    }
+  }
+}
+"@
 $o = New-Object System.Windows.Forms.Form
 $o.Text = 'Catorweb Broadcaster'; $o.TopMost = $true; $o.ShowInTaskbar = $true; $o.Opacity = 0
 $o.FormBorderStyle = 'None'; $o.StartPosition = 'CenterScreen'; $o.Size = New-Object System.Drawing.Size 1,1
@@ -448,8 +540,9 @@ def _liq_str(v):
     return (str(v).replace("\\", "\\\\").replace('"', '\\"').replace("#{", "# {")
             .replace("\r", " ").replace("\n", " "))
 
-def _liq_render(cfg):
-    """Scrive data\\cwpc_edizione.liq dal modello con server, bitrate e microfono."""
+def _liq_render(cfg, write=True):
+    """Scrive data\\cwpc_edizione.liq dal modello con server, bitrate e microfono
+    (write=False: solo il testo, per capire se il motore in attesa e' ancora valido)."""
     st, stn = cfg["stream"], cfg["station"]
     mic = (cfg["audio"]["mic_device"] or "").strip()
     if mic:
@@ -468,7 +561,7 @@ def _liq_render(cfg):
               f'  %ffmpeg(format="mp3", %audio(codec="libmp3lame", b="{int(st["bitrate"])}k", ar=44100, channels=2)),\n'
               f'  out_src\n)')
     if not EC.server_configured(cfg):
-        output = "# nessun server di streaming in Impostazioni: si usa solo 🎧 Prova"
+        output = "# nessun server di streaming in Impostazioni: si usa solo offline"
     elif st["type"] == "shoutcast":
         output = "output.shoutcast(\n" + common
     else:
@@ -493,36 +586,106 @@ def _liq_render(cfg):
     text = LIQ_TEMPLATE.read_text(encoding="utf-8")
     for k, v in values.items():
         text = text.replace(f"@@{k}@@", v)
-    LIQ_SCRIPT.write_text(text, encoding="utf-8")
+    if write:
+        LIQ_SCRIPT.write_text(text, encoding="utf-8")
+    return text
 
 _NO_SERVER_MSG = ("Server di streaming non configurato: inserisci i dati in Impostazioni "
-                  "(intanto puoi usare 🎧 Prova)")
+                  "(intanto puoi usare ▶ Avvia offline)")
+
+def _liq_args(cfg, standby=False):
+    st = cfg["stream"]
+    return [str(LIQ_EXE), str(LIQ_SCRIPT), "--", str(DATA_DIR), str(PORT),
+            str(st["host"]).strip(),
+            str(LIQ_TELNET_PORT), str(MONITOR_PORT),
+            (cfg["audio"]["mic_device"] or "").strip() or "-",
+            str(REC_DIR), "1" if standby else "0"]
+
+def _liq_spawn(cfg, standby=False):
+    """Avvia il processo Liquidsoap (chi chiama tiene _liq_proc_lock)."""
+    global _liq_proc
+    out = open(LOG_DIR / "liquidsoap_console.log", "ab")
+    _liq_proc = subprocess.Popen(
+        _liq_args(cfg, standby),
+        cwd=str(LIQ_EXE.parent), stdout=out, stderr=subprocess.STDOUT,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        env=dict(os.environ, LIQ_CACHE_USER_DIR=str(LIQ_CACHE_DIR),
+                 LIQ_CACHE_SYSTEM_DIR=str(LIQ_CACHE_DIR)) if LIQ_24 else None,
+    )
+    _job_attach(_liq_proc)
+    # "Pronto" solo quando lo script è caricato (~8 s): fino ad allora il
+    # pulsante ▶ Avvia offline dice che sta partendo, invece di sembrare fermo
+    _liq_ready["on"] = False
+    proc = _liq_proc
+    def _mark_ready():
+        if _liq_wait_ready() and _liq_proc is proc:
+            _liq_ready["on"] = True
+    threading.Thread(target=_mark_ready, daemon=True, name="liq_ready").start()
+
+def _liq_kill():
+    """Ferma il processo Liquidsoap (chi chiama tiene _liq_proc_lock)."""
+    global _liq_proc
+    # Chiude prima la registrazione, cosi' l'MP3 termina pulito
+    try:
+        if not _standby["on"] and _read_rec_file():
+            _liq_telnet(["rec.stop"])
+            time.sleep(0.5)
+    except Exception:
+        pass
+    _liq_proc.terminate()
+    try:
+        _liq_proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        _liq_proc.kill()
+    _liq_proc = None
+    _standby["on"] = False
+    # terminato di colpo: on_disconnect del .liq non scrive "off"
+    try:
+        HARBOR_LIVE_FILE.write_text("off")
+        (DATA_DIR / "mic_on.txt").write_text("off")
+        (DATA_DIR / "rec_status.txt").write_text("off")
+        (DATA_DIR / "manual_mode.txt").write_text("off")
+    except Exception: pass
+
+def _standby_wake(output):
+    """Motore in attesa -> la radio suona: apre i cancelli appena lo script e' caricato."""
+    if not _liq_wait_ready():
+        return
+    _liq_telnet(["standby.off"])
+    if output:
+        _liq_output_start()
+
+# Il motore in attesa c'e' solo con lo script della 2.2.4 (gli script di prova 2.3/2.4 non
+# hanno il cancello) e si puo' spegnere con CWR_NO_STANDBY=1.
+STANDBY_OK = not LIQ_24 and not os.environ.get("CWR_NO_STANDBY")
+
+def _standby_start():
+    """Accende Liquidsoap in attesa (all'apertura e dopo ogni stop, dal keepalive)."""
+    if not STANDBY_OK or _closing.is_set():
+        return
+    with _liq_proc_lock:
+        if _liq_proc_alive() or not LIQ_EXE.exists():
+            return
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        cfg = EC.load()
+        try:
+            text = _liq_render(cfg)
+        except Exception:
+            return
+        _standby["on"] = True          # prima di avviarlo: nessuno deve vederlo "acceso"
+        _standby["sig"] = (text, tuple(_liq_args(cfg, True)))
+        try:
+            _liq_spawn(cfg, standby=True)
+        except Exception:
+            _standby["on"] = False
+            return
+    print(f"  {datetime.now():%H:%M:%S} Motore radio pronto in attesa")
 
 def _liq_service(action):
     """start / stop / restart di Liquidsoap. Ritorna (ok, messaggio)."""
-    global _liq_proc
     with _liq_proc_lock:
-        if action in ("stop", "restart") and _liq_is_active():
-            # Chiude prima la registrazione, cosi' l'MP3 termina pulito
-            try:
-                if _read_rec_file():
-                    _liq_telnet(["rec.stop"])
-                    time.sleep(0.5)
-            except Exception:
-                pass
-            _liq_proc.terminate()
-            try:
-                _liq_proc.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                _liq_proc.kill()
-            _liq_proc = None
-            # terminato di colpo: on_disconnect del .liq non scrive "off"
-            try:
-                HARBOR_LIVE_FILE.write_text("off")
-                (DATA_DIR / "mic_on.txt").write_text("off")
-                (DATA_DIR / "rec_status.txt").write_text("off")
-                (DATA_DIR / "manual_mode.txt").write_text("off")
-            except Exception: pass
+        if action in ("stop", "restart") and _liq_proc_alive():
+            _liq_kill()
         if action in ("start", "restart") and not _liq_is_active():
             if not LIQ_EXE.exists():
                 return False, f"Liquidsoap non trovato: {LIQ_EXE}"
@@ -530,27 +693,31 @@ def _liq_service(action):
             # Server e microfono riletti a ogni avvio: una modifica in /impostazioni
             # vale dalla prossima "Vai in onda", senza riaprire l'app
             cfg = EC.load()
-            st = cfg["stream"]
-            # senza server si puo' usare solo 🎧 Prova (chi non ha ancora i dati del server)
+            # senza server si puo' usare solo offline (chi non ha ancora i dati del server)
             if not EC.server_configured(cfg) and not _prova["on"]:
                 return False, _NO_SERVER_MSG
+            # Motore gia' acceso in attesa con le stesse impostazioni: basta aprire i cancelli
+            if _liq_proc_alive() and _standby["on"]:
+                try:
+                    sig = (_liq_render(cfg, write=False), tuple(_liq_args(cfg, True)))
+                except Exception:
+                    sig = None
+                if sig is not None and sig == _standby["sig"]:
+                    _standby["on"] = False
+                    try: SILENCE_FLAG_FILE.write_text("off")   # il silenzio dell'attesa non conta
+                    except Exception: pass
+                    (DATA_DIR / "server_error.txt").write_text("", encoding="utf-8")
+                    threading.Thread(target=_standby_wake, args=(not _prova["on"],),
+                                     daemon=True, name="standby_wake").start()
+                    return True, "ok"
+                _liq_kill()   # impostazioni cambiate nel frattempo: si riparte da capo
             try:
                 _liq_render(cfg)
                 (DATA_DIR / "server_error.txt").write_text("", encoding="utf-8")
             except Exception as e:
                 return False, f"Impostazioni non valide per Liquidsoap: {e}"
-            out = open(LOG_DIR / "liquidsoap_console.log", "ab")
-            _liq_proc = subprocess.Popen(
-                [str(LIQ_EXE), str(LIQ_SCRIPT), "--", str(DATA_DIR), str(PORT),
-                 str(st["host"]).strip(),
-                 str(LIQ_TELNET_PORT), str(MONITOR_PORT),
-                 (cfg["audio"]["mic_device"] or "").strip() or "-",
-                 str(REC_DIR)],
-                cwd=str(LIQ_EXE.parent), stdout=out, stderr=subprocess.STDOUT,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-            _job_attach(_liq_proc)
-            # uscita verso il server: spenta all'avvio, accesa qui se non siamo in 🎧 Prova
+            _liq_spawn(cfg)
+            # uscita verso il server: spenta all'avvio, accesa qui se non siamo offline
             # (vale anche per i riavvii automatici del keepalive)
             if not _prova["on"]:
                 threading.Thread(target=_liq_output_start, daemon=True).start()
@@ -773,6 +940,13 @@ CREATE TABLE IF NOT EXISTS notes (
     done       INTEGER DEFAULT 0,
     created_at TEXT    DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS artist_voice (
+    artist     TEXT PRIMARY KEY COLLATE NOCASE,
+    voice      TEXT NOT NULL,
+    source     TEXT DEFAULT 'mb',
+    mb_name    TEXT,
+    updated_at TEXT
+);
 CREATE INDEX IF NOT EXISTS idx_t_artist  ON tracks(artist);
 CREATE INDEX IF NOT EXISTS idx_t_title   ON tracks(title);
 CREATE INDEX IF NOT EXISTS idx_ct_cat    ON category_tracks(category_id);
@@ -815,6 +989,7 @@ ADMIN_ONLY = {
     "/api/db/delete_no_artist_title",
     "/api/db/import_library",
     "/api/db/import_folder",
+    "/api/db/import_files",
     "/api/db/delete_tracks",
     "/api/notes/list",
     "/api/notes/add",
@@ -1669,8 +1844,8 @@ def _silence_watcher():
         try:
             state = _liq_silence_detected()
             if state != last_state:
-                if _prova["on"]:
-                    pass  # in 🎧 Prova non va niente in onda: nessuna notifica
+                if _prova["on"] or not _liq_is_active():
+                    pass  # offline o motore in attesa: non va niente in onda, nessuna notifica
                 elif state:
                     _ntfy_send("Nessun audio rilevato da oltre 20 secondi.", f"🔇 {CFG['station']['name']}: silenzio rilevato")
                 else:
@@ -2043,6 +2218,196 @@ def _ti_itunes(artists, title):
                     "it_collection": re.sub(r"\s*-\s*(Single|EP)$", "", coll), "it_kind": kind,
                     "it_track": t.get("trackNumber"), "it_tracks": t.get("trackCount")}
     return None
+
+# ── Voce maschile / femminile (27/10/2026) ───────────────────────────
+# Libreria → 🎤 su una categoria: per ogni artista chiede a MusicBrainz se è una persona
+# (maschio/femmina) o un gruppo. Risultato ricordato in artist_voice (anche le scelte a mano),
+# così la categoria dopo non richiede gli stessi artisti. Codici: M F X(misti/duetti) G(gruppo) ?(non trovato)
+VOICE_CODES = ("M", "F", "X", "G", "?")
+_voice_job  = {"running": False}
+_voice_lock = threading.Lock()
+
+def _voice_mb(name):
+    """Codice voce di un solo nome su MusicBrainz, None se non c'è (nome uguale, punteggio alto)."""
+    arts = _ti_get("https://musicbrainz.org/ws/2/artist?fmt=json&limit=5&query=artist:" + urllib.parse.quote(_ti_lucene(name)),
+                   mb=True).get("artists", [])
+    for a in arts:
+        if a.get("score", 0) >= 90 and (_ti_same(a.get("name", ""), name)
+                                        or any(_ti_same(al.get("name", ""), name) for al in a.get("aliases") or [])):
+            if (a.get("type") or "") in ("Group", "Orchestra", "Choir"):
+                return "G", _ti_plain(a.get("name", ""))
+            g = (a.get("gender") or "").lower()
+            return ("M" if g == "male" else "F" if g == "female" else "?"), _ti_plain(a.get("name", ""))
+    return None
+
+def _voice_lookup(artist):
+    """(codice, nome su MusicBrainz). Prima il nome intero; se non c'è, "A feat. B" / "A & B" a pezzi:
+    decide il primo artista, misti se tra gli altri c'è una voce dell'altro sesso."""
+    r = _voice_mb(artist)
+    if r:
+        return r
+    plain = re.sub(r"[()\[\]]", " ", artist)          # "Liz Mandeville (feat- Eddie Shaw)"
+    parts = [p.strip() for p in re.split(r"\s+(?:feat[.\-]?|ft[.\-]?|featuring|with|con|&|and|e|x|vs\.?)\s+|\s*[,/;+]\s*",
+                                         plain, flags=re.I) if len(p.strip()) >= 2]
+    if len(parts) < 2:
+        return "?", ""
+    found = [_voice_mb(p) for p in parts[:4]]
+    if not found[0]:
+        return "?", ""
+    main, others = found[0][0], {f[0] for f in found[1:] if f}
+    if main in ("M", "F") and ({"M", "F"} - {main}) & others:
+        return "X", found[0][1]
+    return main, found[0][1]
+
+def _voice_cat_ids(conn, cat_id):
+    """La categoria e le sue sottocategorie."""
+    return [cat_id] + [r[0] for r in conn.execute("SELECT id FROM categories WHERE parent_id=?", (cat_id,))]
+
+def _voice_artists(conn, cat_id):
+    """Artisti della categoria (con sottocategorie), dal più presente; [(artista, brani)]."""
+    ids = _voice_cat_ids(conn, cat_id)
+    return conn.execute(f"""SELECT TRIM(t.artist), COUNT(DISTINCT t.id) FROM tracks t
+        JOIN category_tracks ct ON ct.track_id=t.id
+        WHERE ct.category_id IN ({','.join('?'*len(ids))}) AND TRIM(COALESCE(t.artist,'')) != ''
+        GROUP BY LOWER(TRIM(t.artist)) ORDER BY 2 DESC, 1 COLLATE NOCASE""", ids).fetchall()
+
+def _voice_known(conn):
+    return {r[0].lower(): {"voice": r[1], "source": r[2], "mb_name": r[3] or ""}
+            for r in conn.execute("SELECT artist, voice, source, mb_name FROM artist_voice")}
+
+def _voice_worker(cat_id):
+    job = _voice_job
+    try:
+        with get_db() as conn:
+            arts = _voice_artists(conn, cat_id)
+            known = _voice_known(conn)
+        todo = [a for a, _ in arts if a.lower() not in known]
+        job.update(total=len(todo), done=0)
+        for a in todo:
+            if job.get("stop"):
+                break
+            job["current"] = a
+            code = None
+            for wait in (10, 30, 60, 0):    # MusicBrainz ogni tanto risponde 503 "rallenta": si aspetta e si riprova
+                try:
+                    code, mb_name = _voice_lookup(a)
+                    break
+                except Exception as e:
+                    job["error"] = str(e)
+                    if not wait or job.get("stop"):
+                        break
+                    job["current"] = f"{a} (MusicBrainz " + (f"busy, retrying in {wait} s)" if _lang() == "en"
+                                                             else f"occupato, riprovo tra {wait} s)")
+                    time.sleep(wait)
+            if code is None:            # internet assente o MusicBrainz che non risponde: si riprende premendo di nuovo
+                break
+            job["error"] = ""
+            with get_db() as conn:
+                conn.execute("INSERT OR REPLACE INTO artist_voice(artist, voice, source, mb_name, updated_at) "
+                             "VALUES(?,?,?,?,datetime('now'))", (a, code, "mb", mb_name))
+            job["done"] += 1
+    except Exception as e:
+        job["error"] = str(e)
+    finally:
+        job.update(running=False, current="")
+
+# ── Copertine (26/10/2026) ───────────────────────────────────────────────
+# Per i due player della Regia e la Dashboard. Prima la copertina dentro il file, poi
+# un'immagine nella cartella dell'album, poi iTunes (gratis, serve internet). Quella trovata
+# si salva in data\covers: la volta dopo e' immediata. Senza copertina: il disco.
+COVER_DIR = DATA_DIR / "covers"
+_COVER_MISS_FILE = COVER_DIR / "_senza_itunes.json"   # brani senza copertina su iTunes: riprova dopo 7 giorni
+_COVER_FOLDER = ("folder.jpg", "cover.jpg", "front.jpg", "album.jpg", "folder.png", "cover.png", "front.png")
+_cover_lock = threading.Lock()
+
+def _cover_embedded(fn):
+    try:
+        import mutagen
+        f = mutagen.File(fn)
+        tags = getattr(f, "tags", None) if f is not None else None
+        if tags is not None and hasattr(tags, "getall"):           # MP3 (ID3)
+            pics = tags.getall("APIC")
+            if pics:
+                best = next((x for x in pics if x.type == 3), pics[0])   # 3 = copertina davanti
+                return best.data, best.mime or "image/jpeg"
+        if f is not None and getattr(f, "pictures", None):        # FLAC
+            return f.pictures[0].data, f.pictures[0].mime or "image/jpeg"
+        if tags is not None and not hasattr(tags, "getall") and hasattr(tags, "get"):   # M4A
+            covr = tags.get("covr")
+            if covr:
+                return bytes(covr[0]), "image/png" if getattr(covr[0], "imageformat", 0) == 14 else "image/jpeg"
+    except Exception:
+        pass
+    return None
+
+def _cover_folder(fn):
+    try:
+        files = {x.name.lower(): x for x in Path(fn).parent.iterdir() if x.is_file()}
+    except Exception:
+        return None
+    for n in _COVER_FOLDER:
+        if n in files:
+            return files[n].read_bytes(), "image/png" if n.endswith(".png") else "image/jpeg"
+    return None
+
+def _cover_itunes(artist, title):
+    """Copertina 600x600 di iTunes, solo se artista E titolo coincidono (come _ti_itunes)."""
+    if not artist or not title:
+        return None
+    d = _ti_get("https://itunes.apple.com/search?entity=song&limit=10&term=" + urllib.parse.quote(f"{artist} {title}"))
+    for r in d.get("results", []):
+        if _ti_same(r.get("trackName", ""), title) and _ti_same(r.get("artistName", ""), artist):
+            url = (r.get("artworkUrl100") or "").replace("100x100bb", "600x600bb")
+            if url:
+                req = urllib.request.Request(url, headers={"User-Agent": _TI_UA})
+                with urllib.request.urlopen(req, timeout=8, context=_TI_SSL) as resp:
+                    return resp.read(), "image/jpeg"
+    return None
+
+def _cover_get(fn):
+    """(dati, tipo) della copertina di un brano della libreria, o None."""
+    fn = _strip_annotate(fn or "").strip()
+    if not fn:
+        return None
+    key = hashlib.sha1(os.path.normcase(fn).encode("utf-8")).hexdigest()
+    for ext, mime in ((".jpg", "image/jpeg"), (".png", "image/png")):
+        c = COVER_DIR / (key + ext)
+        if c.exists():
+            return c.read_bytes(), mime
+    with get_db() as conn:   # solo brani della libreria, non file qualsiasi del PC
+        row = conn.execute("SELECT artist, title, songtype FROM tracks WHERE filename=?", (fn,)).fetchone()
+    if not row or not Path(fn).exists():
+        return None
+    res = _cover_embedded(fn) or _cover_folder(fn)
+    if not res and (row[2] or "S") == "S":   # niente iTunes per i jingle
+        with _cover_lock:
+            try:
+                miss = json.loads(_COVER_MISS_FILE.read_text(encoding="utf-8"))
+            except Exception:
+                miss = {}
+        if time.time() - miss.get(key, 0) > 7 * 86400:
+            try:
+                res = _cover_itunes((row[0] or "").strip(), (row[1] or "").strip())
+            except Exception:
+                res = None
+            if not res:
+                with _cover_lock:
+                    miss[key] = time.time()
+                    try:
+                        COVER_DIR.mkdir(parents=True, exist_ok=True)
+                        _COVER_MISS_FILE.write_text(json.dumps(miss), encoding="utf-8")
+                    except Exception:
+                        pass
+    if not res:
+        return None
+    data, mime = res
+    ext = ".png" if "png" in mime else ".jpg"
+    try:
+        COVER_DIR.mkdir(parents=True, exist_ok=True)
+        (COVER_DIR / (key + ext)).write_bytes(data)
+    except Exception:
+        pass
+    return data, ("image/png" if ext == ".png" else "image/jpeg")
 
 def _ti_wiki_song(title, artists):
     """Pagina Wikipedia del brano: titolo uguale, descritta come brano/singolo/canzone
@@ -2437,6 +2802,7 @@ _end_after = {"on": False}
 # nel .liq). Fuori da Prova la apre _liq_output_start; da Prova "Vai in onda" la
 # accende al volo: la musica non si ferma e il brano in corso va in onda.
 _prova = {"on": False}
+_liq_ready = {"on": False}   # Liquidsoap ha finito di caricare lo script (telnet aperto)
 
 def _liq_output_start():
     """Accende l'uscita verso il server appena Liquidsoap e' pronto (+ REC automatico)."""
@@ -2519,7 +2885,7 @@ def _title_status():
 
 def _prova_start():
     if _liq_is_active():
-        return {"ok": False, "error": "In onda: chiudi prima la diretta" if not _prova["on"] else "Prova gia' attiva"}
+        return {"ok": False, "error": "In onda: chiudi prima la diretta" if not _prova["on"] else "La radio e' gia' avviata offline"}
     _prova["on"] = True
     LIQ_STATE_FILE.write_text("running")
     ok, msg = _liq_service("start")
@@ -2527,7 +2893,7 @@ def _prova_start():
         _prova["on"] = False
         LIQ_STATE_FILE.write_text("stopped")
         return {"ok": False, "error": msg}
-    log_activity("liquidsoap", "prova", "🎧 Prova: la radio suona solo sul PC")
+    log_activity("liquidsoap", "offline", "🎧 Offline: la radio suona solo sul PC")
     threading.Thread(target=_push_queue_after_start, daemon=True).start()
     return {"ok": True}
 
@@ -2535,7 +2901,7 @@ def _prova_go_live():
     """Da Prova a IN ONDA senza fermare Liquidsoap."""
     _prova["on"] = False
     threading.Thread(target=_liq_output_start, daemon=True).start()
-    log_activity("liquidsoap", "on_air", "da Prova: IN ONDA sul server di streaming")
+    log_activity("liquidsoap", "on_air", "da offline: IN ONDA sul server di streaming")
     return True, "ok"
 
 def _radio_control(action):
@@ -2580,7 +2946,7 @@ def _air_to_prova():
     _prova["on"] = True
     try: HARBOR_LIVE_FILE.write_text("off")
     except Exception: pass
-    log_activity("liquidsoap", "prova", "fuori onda: la radio continua solo sul PC (🎧 Prova)")
+    log_activity("liquidsoap", "offline", "fuori onda: la radio continua solo sul PC (offline)")
     return True, "ok"
 
 def _air_stop_now(reason):
@@ -2699,6 +3065,78 @@ def _push_queue_after_start():
     fuori onda (restano nel DB perche' il push telnet era fallito)."""
     _liq_sync_after_start()
 
+DISK_AWAKE_EVERY = 180   # secondi: sotto i tempi di spegnimento dei dischi (Windows e box USB)
+
+def _disk_read_direct(path, offset):
+    """Legge 4 KB del file saltando la cache di Windows (FILE_FLAG_NO_BUFFERING):
+    la lettura arriva davvero al disco. Solo lettura, il file non viene toccato."""
+    import ctypes
+    from ctypes import wintypes
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateFileW.restype = wintypes.HANDLE
+    k32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+                                wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    k32.VirtualAlloc.restype = wintypes.LPVOID
+    k32.VirtualAlloc.argtypes = [wintypes.LPVOID, ctypes.c_size_t, wintypes.DWORD, wintypes.DWORD]
+    k32.VirtualFree.argtypes = [wintypes.LPVOID, ctypes.c_size_t, wintypes.DWORD]
+    k32.ReadFile.argtypes = [wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD,
+                             ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID]
+    k32.SetFilePointerEx.argtypes = [wintypes.HANDLE, ctypes.c_longlong, wintypes.LPVOID, wintypes.DWORD]
+    k32.CloseHandle.argtypes = [wintypes.HANDLE]
+    GENERIC_READ, SHARE_RW, OPEN_EXISTING, NO_BUFFERING = 0x80000000, 0x3, 3, 0x20000000
+    h = k32.CreateFileW(str(path), GENERIC_READ, SHARE_RW, None, OPEN_EXISTING, NO_BUFFERING, None)
+    if h in (None, wintypes.HANDLE(-1).value):
+        return
+    buf = k32.VirtualAlloc(None, 4096, 0x3000, 0x04)   # memoria allineata, richiesta da NO_BUFFERING
+    try:
+        if buf and k32.SetFilePointerEx(h, offset, None, 0):
+            got = wintypes.DWORD(0)
+            k32.ReadFile(h, buf, 4096, ctypes.byref(got), None)
+    finally:
+        if buf:
+            k32.VirtualFree(buf, 0, 0x8000)
+        k32.CloseHandle(h)
+
+def _db_warm_cache(quiet=False):
+    """All'avvio legge tutto radio.db di fila, così Windows lo tiene in memoria.
+    Su un disco esterno meccanico la prima apertura della Libreria leggeva il
+    database a pezzi sparsi e ci metteva vari secondi (25/10/2026, ~42.000 brani);
+    letto di fila sono pochi decimi di secondo, e dopo le letture arrivano dalla memoria.
+    Ripetuta da _disk_keep_awake: mentre la radio suona Windows riempie la memoria con
+    gli mp3 e scarta il database, e la colonna categorie tornava lenta (27/10/2026, ~3 s).
+    Se il file è ancora in memoria la rilettura costa pochi millisecondi."""
+    try:
+        t = time.time()
+        with open(DB_PATH, "rb") as f:
+            while f.read(1024 * 1024):
+                pass
+        if not quiet:
+            print(f"  Database letto in memoria in {time.time() - t:.1f} s")
+    except Exception:
+        pass
+
+def _disk_keep_awake():
+    """Thread: tiene sveglio il disco del database mentre l'app è accesa.
+    Se il database sta su un disco esterno, Windows (o il box USB) lo spegne dopo
+    un po' che è fermo e la prima apertura della Libreria aspetta ~10 s che riparta.
+    Le letture normali del programma passano dalla cache e non lo tengono sveglio:
+    qui ogni 3 minuti si leggono 4 KB direttamente dal disco, ogni volta in un
+    punto diverso del file (così risponde il disco e non la sua memoria interna)."""
+    _db_warm_cache()
+    if os.name != "nt":
+        return
+    offset = 0
+    while True:
+        time.sleep(DISK_AWAKE_EVERY)
+        try:
+            size = DB_PATH.stat().st_size
+            if size >= 4096:
+                offset = (offset + 1024 * 1024) % (size - size % 4096)
+                _disk_read_direct(DB_PATH, offset)
+            _db_warm_cache(quiet=True)
+        except Exception:
+            pass
+
 def _queue_watchdog():
     """Thread: ogni 60s interviene SOLO se Liquidsoap ha perso tutti i brani del DB
     (es. dopo un restart di Liquidsoap senza restart del server Python).
@@ -2711,6 +3149,7 @@ def _queue_watchdog():
                 with get_db() as conn:
                     n_db = conn.execute("SELECT COUNT(*) FROM liquidsoap_queue").fetchone()[0]
                 if n_db > 0 and time.time() - last_push > 120:
+                    _queue_drop_missing()   # prima si rimandava anche il brano senza file, ogni 2 minuti
                     resps = _liq_telnet(["user_queue.queue"])
                     liq_raw = resps[0] if resps else ""
                     n_liq = sum(1 for tok in liq_raw.split() if tok.strip().isdigit())
@@ -2721,8 +3160,57 @@ def _queue_watchdog():
             pass
         time.sleep(60)
 
+# ── Brani in coda senza file (27/10/2026) ──────────────────────────────
+# Un mp3 spostato o cancellato restava in coda per sempre: Liquidsoap lo scartava e
+# suonava il clockwheel, ma la Regia lo mostrava ancora come prossimo, senza avvisi.
+_queue_missing_log = []   # [(time, id, nome)] tolti di recente, la pagina li mostra una volta
+
+def _file_missing(fn):
+    """True se il file non c'è ma il suo disco sì: un disco staccato un attimo
+    (es. il disco USB) non deve svuotare la coda."""
+    fn = (fn or "").strip()
+    if not fn:
+        return False
+    drive = os.path.splitdrive(fn)[0]
+    if drive and not os.path.isdir(drive + os.sep):
+        return False
+    return not os.path.isfile(fn)
+
+def _missing_name(fn, title=""):
+    return title or Path(fn).stem
+
+def _queue_drop_missing():
+    """Toglie dalla coda i brani il cui file non c'è più. Ritorna i nomi tolti."""
+    with get_db() as conn:
+        rows = conn.execute("SELECT id, filename, title, artist FROM liquidsoap_queue").fetchall()
+        gone = [r for r in rows if _file_missing(r[1])]
+        for r in gone:
+            conn.execute("DELETE FROM liquidsoap_queue WHERE id=?", (r[0],))
+    names = []
+    for r in gone:
+        name = " – ".join(x for x in (r[3], _missing_name(r[1], r[2])) if x)
+        names.append(name)
+        _queue_missing_log.append((time.time(), r[0], name))
+        log_activity("coda", "file mancante", f"tolto dalla coda: {name} ({r[1]})")
+    del _queue_missing_log[:-20]
+    return names
+
+def _split_missing(tracks):
+    """(brani con il file, nomi di quelli senza) per gli inserimenti in coda."""
+    ok, missing = [], []
+    for t in tracks:
+        fn = t.get("filename", "") if isinstance(t, dict) else str(t)
+        if _file_missing(fn):
+            missing.append(_missing_name(fn, t.get("title", "") if isinstance(t, dict) else ""))
+        else:
+            ok.append(t)
+    return ok, missing
+
 def _sched_push_tracks(tracks, queue_mode):
     """Inserisce tracks nella liquidsoap_queue e triggera il push a Liquidsoap."""
+    tracks, missing = _split_missing(tracks or [])
+    if missing:
+        log_activity("coda", "scheduler", f"{len(missing)} brani senza file non messi in coda: " + ", ".join(missing[:5]))
     _emb_files = _embargo_blocked()[1]
     if _emb_files and tracks:
         n0 = len(tracks)
@@ -2997,6 +3485,41 @@ def _sched_run_one_action(item, ev_name):
             if cat_id:
                 with get_db() as conn:
                     conn.execute("DELETE FROM category_tracks WHERE category_id=?", (cat_id,))
+        elif action == "genre_to_category":
+            # Tutti i brani del genere indicato nella categoria col nome del genere (creata se manca)
+            genre = (item.get("genre") or "").strip()
+            if not genre:
+                return
+            with get_db() as conn:
+                row = conn.execute(
+                    "SELECT id FROM categories WHERE LOWER(name)=LOWER(?) AND parent_id=0", (genre,)
+                ).fetchone()
+                if row:
+                    cat_id = row[0]
+                else:
+                    cat_id = conn.execute(
+                        "INSERT INTO categories(name, parent_id, songtype) VALUES(?,0,'S')", (genre,)
+                    ).lastrowid
+                ids = [r[0] for r in conn.execute(
+                    "SELECT id FROM tracks WHERE LOWER(TRIM(genre))=LOWER(?) "
+                    "AND id NOT IN (SELECT track_id FROM category_tracks WHERE category_id=?) "
+                    "ORDER BY artist, title", (genre, cat_id)
+                ).fetchall()]
+                if ids:
+                    max_order = conn.execute(
+                        "SELECT COALESCE(MAX(sort_order),0) FROM category_tracks WHERE category_id=?",
+                        (cat_id,)
+                    ).fetchone()[0]
+                    for i, tid in enumerate(ids, 1):
+                        conn.execute(
+                            "INSERT OR IGNORE INTO category_tracks(category_id,track_id,sort_order) VALUES(?,?,?)",
+                            (cat_id, tid, max_order + i)
+                        )
+                    _apply_category_songtype(conn, cat_id, ids)
+            log_activity("scheduler", f"auto:{ev_name}",
+                         f"genere '{genre}': {len(ids)} brani aggiunti alla categoria"
+                         + ("" if row else " (creata)"))
+            return
         elif action == "backup":
             name, size_kb = _create_db_backup()
             log_activity("scheduler", f"auto:{ev_name}", f"backup creato: {name} ({size_kb} KB)")
@@ -3156,14 +3679,31 @@ def read_tags(filename):
                 info["genre"]    = tags.get("genre",   [""])[0]
                 info["year"]     = tags.get("date",    [""])[0][:4]
                 info["composer"] = tags.get("composer",[""])[0]
-                info["comment"]  = tags.get("comment", [""])[0]
             except ID3NoHeaderError:
                 pass
+            info["comment"] = _read_comment(filename)
             if not info["title"] and not info["artist"]:
                 info.update(_read_mislabeled_id3(filename))
     except Exception:
         pass
     return info
+
+def _read_comment(filename):
+    """Campo Commento (frame COMM). EasyID3 non lo legge: senza questo la data di embargo
+    scritta nel tag con altri programmi (Mp3tag...) non arrivava mai nel database."""
+    try:
+        from mutagen.id3 import ID3
+        frames = ID3(filename).getall("COMM")
+    except Exception:
+        return ""
+    frames.sort(key=lambda f: bool(f.desc))   # prima il commento senza descrizione
+    for f in frames:
+        if f.desc.lower().startswith("itun"):  # iTunNORM, iTunSMPB...: dati tecnici di iTunes
+            continue
+        txt = " ".join(str(t) for t in f.text).replace("\x00", " ").strip()
+        if txt:
+            return txt
+    return ""
 
 _ID3_FIELDS = {   # frame v2.3/v2.4 e v2.2 -> campo
     "TIT2": "title", "TT2": "title", "TPE1": "artist", "TP1": "artist", "TPE2": "artist2", "TP2": "artist2",
@@ -3845,6 +4385,8 @@ class Handler(BaseHTTPRequestHandler):
         if not self._require_auth():
             return
         qs   = parse_qs(p.query)
+        if path == "/api/cover":
+            self._api_cover(qs.get("file", [""])[0]); return
         if path == "/api/edition/info":
             self._api_edition_info(); return
         if path == "/api/edition/closing":
@@ -3881,6 +4423,10 @@ class Handler(BaseHTTPRequestHandler):
             self._api_cw_list()
         elif path == "/api/scheduler/list":
             self._api_sched_list()
+        elif path == "/api/scheduler/upcoming":
+            self._api_sched_upcoming()
+        elif path == "/api/scheduler/genres":
+            self._api_sched_genres()
         elif path == "/api/automation/config":
             self._api_automation_get()
         elif path == "/streaming":
@@ -3891,7 +4437,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/api/streaming/config":
             self._api_streaming_get()
         elif path == "/api/streaming/nowplaying":
-            np = NP_FILE.read_text(encoding="utf-8").strip() if NP_FILE.exists() else ""
+            # radio spenta o motore in attesa: niente "in onda" (era l'ultimo titolo rimasto nel file)
+            np = NP_FILE.read_text(encoding="utf-8").strip() if NP_FILE.exists() and _liq_is_active() else ""
             self._json({"ok": True, "nowplaying": np})
         elif path == "/api/nowplaying/cover":
             self._api_nowplaying_cover()
@@ -3946,7 +4493,7 @@ class Handler(BaseHTTPRequestHandler):
             self._api_login(data)
             return
         if path2 in ("/api/edition/config", "/api/edition/test", "/api/edition/pick_folder",
-                     "/api/edition/pick_file", "/api/edition/restart"):
+                     "/api/edition/pick_file", "/api/edition/restart", "/api/edition/list_dirs"):
             if not self._edition_gate():
                 return
             length = int(self.headers.get("Content-Length", 0))
@@ -3958,6 +4505,7 @@ class Handler(BaseHTTPRequestHandler):
              "/api/edition/test":        lambda: self._api_edition_test(data),
              "/api/edition/pick_folder": lambda: self._api_edition_pick_folder(data),
              "/api/edition/pick_file":   lambda: self._api_edition_pick_file(data),
+             "/api/edition/list_dirs":   lambda: self._api_edition_list_dirs(data),
              "/api/edition/restart":     lambda: self._api_edition_restart()}[path2]()
             return
         if not self._require_auth():
@@ -3983,6 +4531,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/fs/browse":                            lambda: self._api_fs_browse(data),
             "/api/system/disk":                          lambda: self._api_system_disk(),
             "/api/db/import_folder":                     lambda: self._api_db_import_folder(data),
+            "/api/db/import_files":                      lambda: self._api_db_import_files(data),
             "/api/db/import_count":                      lambda: self._api_db_import_count(data),
             "/api/playlist/load":                        lambda: self._api_playlist_load(data),
             "/api/playlist/delete":                       lambda: self._api_playlist_delete(data),
@@ -3993,6 +4542,12 @@ class Handler(BaseHTTPRequestHandler):
             "/api/live_next":                            lambda: self._api_live_next(data),
             "/api/scheduler/playlists":                  lambda: self._api_sched_playlists(),
             "/api/scheduler/list":                       lambda: self._api_sched_list(),
+            "/api/scheduler/genres":                     lambda: self._api_sched_genres(),
+            "/api/voice/scan":                           lambda: self._api_voice_scan(data),
+            "/api/voice/status":                         lambda: self._api_voice_status(data),
+            "/api/voice/stop":                           lambda: self._api_voice_stop(data),
+            "/api/voice/set":                            lambda: self._api_voice_set(data),
+            "/api/voice/apply":                          lambda: self._api_voice_apply(data),
             "/api/scheduler/save":                       lambda: self._api_sched_save(data),
             "/api/scheduler/delete":                     lambda: self._api_sched_delete(data),
             "/api/scheduler/run":                        lambda: self._api_sched_run(data),
@@ -4025,6 +4580,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/db/delete_empty_categories":           lambda: self._api_dbm_del_empty_cats(),
             "/api/db/duplicates":                        lambda: self._api_dbm_duplicates(),
             "/api/db/missing_metadata":                  lambda: self._api_dbm_missing_meta(),
+            "/api/db/reread_comments":                   lambda: self._api_dbm_reread_comments(),
             "/api/db/top_artists":                       lambda: self._api_dbm_top_artists(data),
             "/api/db/top_genres_played":                 lambda: self._api_dbm_top_genres(data),
             "/api/db/never_played":                      lambda: self._api_dbm_never_played(data),
@@ -4092,6 +4648,8 @@ class Handler(BaseHTTPRequestHandler):
             "/api/liquidsoap/skip":                      lambda: self._api_liquidsoap_skip(),
             "/api/db/setup_categories":                  lambda: self._api_db_setup_categories(),
             "/api/liquidsoap/queue/add":                 lambda: self._api_liqqueue_add(data),
+            "/api/liquidsoap/queue/first":               lambda: self._api_liqqueue_first(data),
+            "/api/liquidsoap/queue/insert":              lambda: self._api_liqqueue_insert(data),
             "/api/liquidsoap/queue/clear":               lambda: self._api_liqqueue_clear(),
             "/api/liquidsoap/queue/remove":              lambda: self._api_liqqueue_remove(data),
             "/api/users/add":                            lambda: self._api_users_add(data),
@@ -4240,40 +4798,29 @@ class Handler(BaseHTTPRequestHandler):
         with get_db() as conn:
             total_tracks = conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]
             cats = conn.execute("SELECT * FROM categories ORDER BY name").fetchall()
-            # Conteggio brani diretti per categoria
-            counts = {
-                row[0]: row[1]
-                for row in conn.execute(
-                    "SELECT category_id, COUNT(*) FROM category_tracks GROUP BY category_id"
-                ).fetchall()
-            }
-            # Durata totale brani diretti per categoria
-            durations = {
-                row[0]: row[1]
-                for row in conn.execute(
-                    """SELECT ct.category_id, COALESCE(SUM(t.duration_seconds),0)
-                       FROM category_tracks ct
-                       JOIN tracks t ON t.id = ct.track_id
-                       GROUP BY ct.category_id"""
-                ).fetchall()
-            }
-        # Costruisce risultato con info parent/children
-        cat_map = {}
-        result  = []
+            # Brani diretti e durata per categoria
+            direct = {r[0]: (r[1], r[2]) for r in conn.execute(
+                """SELECT ct.category_id, COUNT(*), COALESCE(SUM(t.duration_seconds),0)
+                   FROM category_tracks ct JOIN tracks t ON t.id = ct.track_id GROUP BY ct.category_id""")}
+            # Categorie madri: brani propri + delle sottocategorie (un solo livello) SENZA contare due
+            # volte lo stesso brano. Prima si sommavano: con le sottocategorie 🎤 voce (stessi brani
+            # della madre) Blues 233 diventava 414, e Rock 6.244 invece di 5.074 (27/10/2026).
+            parents = {r[0]: (r[1], r[2]) for r in conn.execute(
+                """SELECT x.p, COUNT(*), COALESCE(SUM(t.duration_seconds),0) FROM (
+                     SELECT c.parent_id AS p, ct.track_id AS tid FROM category_tracks ct
+                       JOIN categories c ON c.id = ct.category_id WHERE c.parent_id > 0
+                     UNION
+                     SELECT ct.category_id, ct.track_id FROM category_tracks ct
+                       WHERE ct.category_id IN (SELECT parent_id FROM categories WHERE parent_id > 0)
+                   ) x JOIN tracks t ON t.id = x.tid GROUP BY x.p""")}
+        result = []
         for c in cats:
             d = dict(c)
-            d["count"]            = counts.get(d["id"], 0)
-            d["track_count"]      = d["count"]
-            d["duration_seconds"] = durations.get(d["id"], 0)
-            cat_map[d["id"]] = d
+            n, dur = parents.get(d["id"]) or direct.get(d["id"]) or (0, 0)
+            d["count"]            = n
+            d["track_count"]      = n
+            d["duration_seconds"] = dur
             result.append(d)
-        # Accumula durata e conteggio nei genitori (un solo livello)
-        for d in result:
-            pid = d.get("parent_id") or 0
-            if pid and pid in cat_map:
-                cat_map[pid]["duration_seconds"] += d["duration_seconds"]
-                cat_map[pid]["count"]            += d["count"]
-                cat_map[pid]["track_count"]      += d["count"]
         self._json({"ok": True, "categories": result, "total_tracks": total_tracks})
 
     def _api_db_cat_tracks(self, data):
@@ -4300,21 +4847,45 @@ class Handler(BaseHTTPRequestHandler):
         cat_id= data.get("category_id")
         with get_db() as conn:
             if cat_id:
-                rows = conn.execute("""
+                words = q.split() or [""]
+                where = " AND ".join("(t.title LIKE ? OR t.artist LIKE ? OR t.filename LIKE ?)" for _ in words)
+                rows = conn.execute(f"""
                     SELECT t.*, ct.sort_order FROM tracks t
                     JOIN category_tracks ct ON ct.track_id = t.id
-                    WHERE ct.category_id = ?
-                      AND (t.title LIKE ? OR t.artist LIKE ? OR t.filename LIKE ?)
+                    WHERE ct.category_id = ? AND {where}
                     ORDER BY t.artist, t.title
-                """, (cat_id, f"%{q}%", f"%{q}%", f"%{q}%")).fetchall()
+                """, [cat_id] + [a for w in words for a in (f"%{w}%",) * 3]).fetchall()
+            elif not q:
+                # "Tutti i brani": nessun filtro da applicare
+                rows = conn.execute("SELECT * FROM tracks ORDER BY artist, title").fetchall()
             else:
-                rows = conn.execute("""
-                    SELECT * FROM tracks
-                    WHERE title LIKE ? OR artist LIKE ? OR album LIKE ? OR filename LIKE ?
-                    ORDER BY artist, title
-                """, (f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%")).fetchall()
+                # Ogni parola in uno qualsiasi dei campi ("kabaka rotation" = artista + titolo);
+                # prima i brani il cui titolo o artista comincia con quello che si è scritto
+                words = q.split()
+                where = " AND ".join("(title LIKE ? OR artist LIKE ? OR album LIKE ? OR filename LIKE ?)" for _ in words)
+                args = [a for w in words for a in (f"%{w}%",) * 4]
+                rows = conn.execute(f"""
+                    SELECT * FROM tracks WHERE {where}
+                    ORDER BY CASE WHEN title LIKE ? OR artist LIKE ? THEN 0
+                                  WHEN title LIKE ? OR artist LIKE ? THEN 1 ELSE 2 END, artist, title
+                """, args + [q, q, f"{q}%", f"{q}%"]).fetchall()
+        total = len(rows)
+        # Le ricerche veloci (Regia, Scheduler) mostrano pochi risultati: "limit" evita
+        # di mandare migliaia di brani al browser
+        try:
+            limit = int(data.get("limit") or 0)
+        except (TypeError, ValueError):
+            limit = 0
+        try:   # "offset": la Regia carica i risultati a pezzi mentre si scorre
+            offset = max(0, int(data.get("offset") or 0))
+        except (TypeError, ValueError):
+            offset = 0
+        if limit > 0:
+            rows = rows[offset:offset + limit]
         results = [row_to_track(r) for r in rows]
-        self._json({"ok": True, "results": results, "tracks": results, "total": len(results)})
+        # Solo "results": prima l'elenco partiva due volte (anche come "tracks"),
+        # con 40.000 brani erano quasi 50 MB a ogni apertura di "Tutti i brani"
+        self._json({"ok": True, "results": results, "total": total})
 
     def _api_db_rename_cat(self, data):
         cat_id  = data.get("category_id")
@@ -4829,6 +5400,9 @@ class Handler(BaseHTTPRequestHandler):
         tracks = parse_m3u(path)
         if not tracks:
             self._json({"ok": False, "error": "Playlist vuota o non trovata"}); return
+        tracks, missing = _split_missing(tracks)
+        if not tracks:
+            self._json({"ok": False, "missing": missing, "error": "Nessun file della playlist trovato sul disco"}); return
         _emb_files = _embargo_blocked()[1]
         n0 = len(tracks)
         tracks = [t for t in tracks if _strip_embargo_key(t.get("filename", "")) not in _emb_files]
@@ -4862,8 +5436,9 @@ class Handler(BaseHTTPRequestHandler):
             cmds = [f"user_queue.push {_liq_annotate(f)}" for f in new_filenames]
             threading.Thread(target=_liq_telnet, args=(cmds,), daemon=True).start()
         log_activity("playlist", "to_queue", f"{Path(path).name} → {added} brani (mode={mode})"
-                     + (f", {embargoed} sotto embargo esclusi" if embargoed else ""))
-        self._json({"ok": True, "added": added, "total": total, "embargoed": embargoed})
+                     + (f", {embargoed} sotto embargo esclusi" if embargoed else "")
+                     + (f", {len(missing)} senza file esclusi" if missing else ""))
+        self._json({"ok": True, "added": added, "total": total, "embargoed": embargoed, "missing": missing})
 
     def _api_playlist_load(self, data):
         path = data.get("path","")
@@ -4976,6 +5551,37 @@ class Handler(BaseHTTPRequestHandler):
         path = DATA_DIR / "scheduler_events.json"
         events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
         self._json({"ok": True, "events": events})
+
+    def _api_sched_upcoming(self):
+        """Regia (28/10/2026): i prossimi eventi nelle 24 ore, con le stesse regole di _sched_check_events."""
+        path = DATA_DIR / "scheduler_events.json"
+        try:
+            events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+        except Exception:
+            events = []
+        now = _sched_now().replace(second=0, microsecond=0)
+        out = []
+        for ev in events:
+            if not ev.get("enabled", True):
+                continue
+            try:
+                hh, mm = (int(x) for x in str(ev.get("time", "")).split(":"))
+            except ValueError:
+                continue
+            for day in (0, 1):
+                at = (now + timedelta(days=day)).replace(hour=hh, minute=mm)
+                if at < now or at > now + timedelta(hours=24):
+                    continue
+                repeat = ev.get("repeat", "daily")
+                if repeat == "once" and ev.get("date", "") != at.strftime("%Y-%m-%d"):
+                    continue
+                if repeat == "weekdays" and at.strftime("%a").lower() not in [d.lower() for d in ev.get("weekdays", [])]:
+                    continue
+                out.append({"name": ev.get("name", ""), "type": ev.get("type", ""), "time": at.strftime("%H:%M"),
+                            "tomorrow": at.date() != now.date(), "in_min": int((at - now).total_seconds() // 60)})
+                break
+        out.sort(key=lambda e: e["in_min"])
+        self._json({"ok": True, "events": out[:10]})
 
     def _api_sched_save(self, data):
         path   = DATA_DIR / "scheduler_events.json"
@@ -5228,6 +5834,28 @@ class Handler(BaseHTTPRequestHandler):
                  for k in order]
         self._json({"ok": True, "duplicates": dupes})
 
+    def _api_dbm_reread_comments(self):
+        """Rilegge il Commento dai file per i brani che nel database non ce l'hanno
+        (importati prima che il Commento venisse letto). Un commento gia' presente
+        nel database (scritto nel Tag Editor) non viene mai sostituito."""
+        with get_db() as conn:
+            rows = conn.execute(
+                "SELECT id, filename FROM tracks WHERE trim(coalesce(comment,'')) = ''").fetchall()
+        found = []
+        for tid, fn in rows:
+            if fn and Path(fn).exists():
+                com = _read_comment(fn)
+                if com:
+                    found.append((com, tid))
+        if found:
+            with get_db() as conn:
+                conn.executemany("UPDATE tracks SET comment=? WHERE id=?", found)
+        _emb_cache["ts"] = 0.0
+        embargoed = sum(1 for com, _ in found if embargo_until(com))
+        log_activity("tools", "reread_comments",
+                     f"{len(rows)} controllati, {len(found)} commenti letti, {embargoed} sotto embargo")
+        self._json({"ok": True, "checked": len(rows), "updated": len(found), "embargoed": embargoed})
+
     def _api_dbm_missing_meta(self):
         with get_db() as conn:
             no_artist   = conn.execute("SELECT COUNT(*) FROM tracks WHERE artist=''").fetchone()[0]
@@ -5264,6 +5892,107 @@ class Handler(BaseHTTPRequestHandler):
                 GROUP BY t.artist ORDER BY plays DESC LIMIT ?
             """, (limit,)).fetchall()
         self._json({"ok": True, "artists": [{"artist": r[0], "plays": r[1]} for r in rows]})
+
+    def _api_sched_genres(self):
+        with get_db() as conn:
+            rows = conn.execute(
+                "SELECT TRIM(genre) g, COUNT(*) FROM tracks WHERE TRIM(genre) != '' "
+                "GROUP BY LOWER(TRIM(genre)) ORDER BY g COLLATE NOCASE"
+            ).fetchall()
+        self._json({"ok": True, "genres": [{"genre": r[0], "count": r[1]} for r in rows]})
+
+    # ── 🎤 Voce maschile / femminile ──
+    def _api_voice_scan(self, data):
+        cat_id = int(data.get("category_id") or 0)
+        with get_db() as conn:
+            row = conn.execute("SELECT name FROM categories WHERE id=?", (cat_id,)).fetchone()
+        if not row:
+            self._json({"ok": False, "error": "Categoria non trovata"}); return
+        with _voice_lock:
+            if _voice_job.get("running"):
+                self._json({"ok": False, "error": f"Sto già cercando le voci di \"{_voice_job.get('cat_name','')}\""}); return
+            _voice_job.clear()
+            _voice_job.update(running=True, cat_id=cat_id, cat_name=row[0], total=0, done=0, current="", error="")
+        threading.Thread(target=_voice_worker, args=(cat_id,), daemon=True, name="voice_scan").start()
+        self._json({"ok": True})
+
+    def _api_voice_status(self, data):
+        """Stato della ricerca + artisti della categoria con la voce trovata (o scelta a mano)."""
+        job = dict(_voice_job)
+        cat_id = int(data.get("category_id") or job.get("cat_id") or 0)
+        with get_db() as conn:
+            arts = _voice_artists(conn, cat_id) if cat_id else []
+            known = _voice_known(conn)
+        rows = []
+        for a, n in arts:
+            k = known.get(a.lower())
+            rows.append({"artist": a, "tracks": n, "voice": k["voice"] if k else "",
+                         "source": k["source"] if k else "", "mb_name": k["mb_name"] if k else ""})
+        self._json({"ok": True, "running": bool(job.get("running")) and job.get("cat_id") == cat_id,
+                    "busy_other": bool(job.get("running")) and job.get("cat_id") != cat_id,
+                    "total": job.get("total", 0), "done": job.get("done", 0), "current": job.get("current", ""),
+                    "error": job.get("error", "") if job.get("cat_id") == cat_id else "", "artists": rows})
+
+    def _api_voice_stop(self, data):
+        _voice_job["stop"] = True
+        self._json({"ok": True})
+
+    def _api_voice_set(self, data):
+        artist, voice = (data.get("artist") or "").strip(), data.get("voice") or ""
+        if not artist or voice not in VOICE_CODES:
+            self._json({"ok": False, "error": "Dati mancanti"}); return
+        with get_db() as conn:
+            conn.execute("INSERT INTO artist_voice(artist, voice, source, updated_at) VALUES(?,?,'manual',datetime('now')) "
+                         "ON CONFLICT(artist) DO UPDATE SET voice=excluded.voice, source='manual', updated_at=excluded.updated_at",
+                         (artist, voice))
+        self._json({"ok": True})
+
+    def _api_voice_apply(self, data):
+        """Mette i brani della categoria nelle categorie della voce (i brani restano anche dove sono).
+        mode "sub" = sottocategorie della categoria scelta, "root" = categorie principali generali.
+        names {M, F, X, G}: nome vuoto = quella voce non si divide. I non trovati restano fuori."""
+        cat_id = int(data.get("category_id") or 0)
+        mode = "root" if data.get("mode") == "root" else "sub"
+        names = {k: (v or "").strip() for k, v in (data.get("names") or {}).items() if k in ("M", "F", "X", "G")}
+        names = {k: v for k, v in names.items() if v}
+        if not names:
+            self._json({"ok": False, "error": "Scrivi almeno un nome di categoria"}); return
+        with get_db() as conn:
+            cat = conn.execute("SELECT name, parent_id FROM categories WHERE id=?", (cat_id,)).fetchone()
+            if not cat:
+                self._json({"ok": False, "error": "Categoria non trovata"}); return
+            if mode == "sub" and cat["parent_id"]:
+                self._json({"ok": False, "error": "È già una sottocategoria: scegli «categorie generali»"}); return
+            parent = cat_id if mode == "sub" else 0
+            if mode == "sub":   # "Voce maschile" sotto Blues → "Voce maschile Blues"
+                names = {k: v if v.lower().endswith(cat["name"].lower()) else f"{v} {cat['name']}" for k, v in names.items()}
+            targets, created = {}, []
+            for code, nm in names.items():
+                row = conn.execute("SELECT id FROM categories WHERE LOWER(name)=LOWER(?) AND parent_id=?", (nm, parent)).fetchone()
+                if row:
+                    targets[code] = row[0]
+                else:
+                    targets[code] = conn.execute("INSERT INTO categories(name, parent_id, songtype) VALUES(?,?,'S')",
+                                                 (nm, parent)).lastrowid
+                    created.append(nm)
+            src = [i for i in _voice_cat_ids(conn, cat_id) if i not in targets.values()]
+            known = _voice_known(conn)
+            tracks = conn.execute(f"""SELECT DISTINCT t.id, TRIM(t.artist) FROM tracks t
+                JOIN category_tracks ct ON ct.track_id=t.id
+                WHERE ct.category_id IN ({','.join('?'*len(src))}) ORDER BY t.artist, t.title""", src).fetchall()
+            added = {}
+            for code, tid in targets.items():
+                ids = [r[0] for r in tracks if (known.get((r[1] or "").lower()) or {}).get("voice") == code]
+                have = {r[0] for r in conn.execute("SELECT track_id FROM category_tracks WHERE category_id=?", (tid,))}
+                ids = [i for i in ids if i not in have]
+                if ids:
+                    so = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM category_tracks WHERE category_id=?", (tid,)).fetchone()[0]
+                    conn.executemany("INSERT OR IGNORE INTO category_tracks(category_id, track_id, sort_order) VALUES(?,?,?)",
+                                     [(tid, i, so + n) for n, i in enumerate(ids, 1)])
+                    _apply_category_songtype(conn, tid, ids)
+                added[names[code]] = len(ids)
+        log_activity("library", "voice_split", f"{cat['name']}: " + ", ".join(f"{k} +{v}" for k, v in added.items()))
+        self._json({"ok": True, "added": added, "created": created})
 
     def _api_dbm_top_genres(self, data):
         period = data.get("period","all")
@@ -5857,7 +6586,7 @@ class Handler(BaseHTTPRequestHandler):
     def _api_mic(self, cmd):
         """Microfono in diretta (Yeti, gestito da Liquidsoap): on / off / status."""
         if not _liq_is_active():
-            self._json({"ok": False, "on": False, "error": "Fuori onda: il microfono funziona solo in diretta"}); return
+            self._json({"ok": False, "on": False, "error": "Fuori onda: il microfono funziona solo in diretta o offline"}); return
         raw  = (_liq_telnet([f"mic.{cmd}"]) or [""])[0]
         resp = raw.replace("\r", "").split("\n")[0].strip()  # "on\nEND" -> "on"
         if resp not in ("on", "off"):
@@ -5913,6 +6642,11 @@ class Handler(BaseHTTPRequestHandler):
                     row = conn.execute("SELECT duration_seconds FROM tracks WHERE filename=?", (cur,)).fetchone()
                 if row and row[0]:
                     duration = float(row[0])
+            # mp3 con l'intestazione rovinata (es. un byte di troppo dopo il tag): Liquidsoap stima la
+            # durata dal bitrate e il conto alla rovescia diceva 20+ minuti per un brano di 4:37
+            # (Puzzle Heart, 27/10/2026). Allora vale la durata della libreria meno il tempo già suonato.
+            if duration and remaining is not None and remaining > duration + 10:
+                remaining = max(0.0, duration - (time.time() - CT_FILE.stat().st_mtime))
         except Exception:
             pass
         self._json({"ok": True, "remaining": remaining, "next": nxt, "next_file": nxt_file, "now": now, "now_file": cur,
@@ -5922,7 +6656,7 @@ class Handler(BaseHTTPRequestHandler):
     def _api_rec(self, cmd):
         """⏺ REC: avvia/ferma la registrazione di quello che va in onda."""
         if not _liq_is_active():
-            self._json({"ok": False, "error": "Fuori onda: si registra solo in diretta"}); return
+            self._json({"ok": False, "error": "Fuori onda: si registra solo in diretta o offline"}); return
         REC_DIR.mkdir(parents=True, exist_ok=True)
         raw = (_liq_telnet([f"rec.{cmd}"]) or [""])[0]
         resp = raw.replace("\r", "").replace("END", "").strip()
@@ -5954,7 +6688,7 @@ class Handler(BaseHTTPRequestHandler):
     def _api_manual_mode(self, data):
         """Automatico <-> Manuale. Il passaggio avviene a fine brano (in Liquidsoap)."""
         if not _liq_is_active():
-            self._json({"ok": False, "error": "Fuori onda: la regia manuale funziona solo in diretta"}); return
+            self._json({"ok": False, "error": "Fuori onda: la regia manuale funziona solo in diretta o offline"}); return
         cmd = "on" if data.get("on") else "off"
         r = (_liq_telnet([f"manual.{cmd}"]) or [""])[0].replace("\r", "").replace("END", "").strip()
         if r not in ("on", "off"):
@@ -6408,6 +7142,20 @@ class Handler(BaseHTTPRequestHandler):
         mp3_files = sorted({f for f in Path(folder).rglob("*") if f.suffix.lower() == ".mp3"})
         if not mp3_files:
             self._json({"ok": False, "error": "No MP3 files found in " + folder}); return
+        self._import_mp3_list(mp3_files, cat_id, folder)
+
+    def _api_db_import_files(self, data):
+        """Import di file scelti uno per uno dallo sfoglia interno (Importa → Upload file):
+        come la cartella, i file restano dove sono, nessuna copia."""
+        cat_id = data.get("category_id")
+        files = sorted({Path(f) for f in (data.get("files") or []) if str(f).lower().endswith(".mp3")})
+        missing = [str(f) for f in files if not f.is_file()]
+        if not files or missing:
+            self._json({"ok": False, "error": "File non trovati: " + ", ".join(missing[:3]) if missing
+                        else "Nessun file MP3 scelto"}); return
+        self._import_mp3_list(files, cat_id, f"{len(files)} file")
+
+    def _import_mp3_list(self, mp3_files, cat_id, source):
         imported = 0; skipped = 0; added_cat = 0
         cat_ids_seen = []
         with get_db() as conn:
@@ -6447,7 +7195,7 @@ class Handler(BaseHTTPRequestHandler):
                         added_cat += 1
                     cat_ids_seen.append(track_id)
             _apply_category_songtype(conn, cat_id, cat_ids_seen)
-        log_activity("database", f"import_folder: {imported} imported, {skipped} skipped ← {folder}")
+        log_activity("database", f"import_folder: {imported} imported, {skipped} skipped ← {source}")
         self._json({"ok": True, "imported": imported, "skipped": skipped,
                     "added_cat": added_cat, "total": len(mp3_files)})
 
@@ -6542,9 +7290,13 @@ class Handler(BaseHTTPRequestHandler):
                     _push_queue_after_start()
                 threading.Thread(target=_reload_prova, daemon=True).start()
                 liq_note = "prova_restarted"
-                log_activity("liquidsoap", "prova", "Prova riavviata con le nuove impostazioni")
+                log_activity("liquidsoap", "offline", "radio offline riavviata con le nuove impostazioni")
             else:
                 liq_note = "next_on_air"
+        elif liq_changed and _standby["on"] and _liq_proc_alive():
+            # motore in attesa con le impostazioni vecchie: lo si spegne, il keepalive lo
+            # riaccende in pochi secondi con quelle nuove
+            threading.Thread(target=_liq_service, args=("stop",), daemon=True).start()
         # Cartelle cambiate: riavvio subito (qui, non da una seconda richiesta: al primo
         # avvio dopo il salvataggio servirebbe gia' il login appena creato)
         started = restart and not _liq_is_active()
@@ -6606,10 +7358,87 @@ class Handler(BaseHTTPRequestHandler):
         except OSError as e:
             self._json({"ok": False, "error": f"Errore di rete: {e}"})
 
+    def _api_edition_list_dirs(self, data):
+        """Sfoglia cartelle interno alla pagina (al posto della finestra di Windows):
+        path vuoto = dischi; per ogni sottocartella quanti brani contiene (solo quelli
+        direttamente dentro, per restare veloci anche sul disco USB)."""
+        AUDIO = (".mp3", ".aac", ".ogg", ".flac", ".wav", ".m4a")
+        home, en = Path.home(), _lang() == "en"
+        desk = next((d for d in (home / "Desktop", home / "OneDrive" / "Desktop") if d.is_dir()), home / "Desktop")
+        places = [{"name": n, "path": str(p)} for n, p in (
+            ("🎵 " + ("App music" if en else "Musica dell'app"), MUSIC_DIR), ("🖥 Desktop", desk),
+            ("🎶 " + ("Music" if en else "Musica"), home / "Music"), ("⬇ Download", home / "Downloads")) if p.is_dir()]
+
+        def n_audio(folder):
+            """(brani, sottocartelle) direttamente dentro la cartella."""
+            n = s = 0
+            try:
+                with os.scandir(folder) as it:
+                    for e in it:
+                        if e.name.lower().endswith(AUDIO):
+                            n += 1
+                        elif not e.name.startswith((".", "$")) and e.is_dir(follow_symlinks=False):
+                            s += 1
+            except OSError:
+                return None, None
+            return n, s
+
+        raw = (data.get("path") or "").strip().strip('"')
+        if not raw:
+            drives = []
+            for d in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                root = f"{d}:\\"
+                if not os.path.isdir(root):
+                    continue
+                label = ""
+                try:
+                    import ctypes
+                    buf = ctypes.create_unicode_buffer(261)
+                    if ctypes.windll.kernel32.GetVolumeInformationW(root, buf, 261, None, None, None, None, 0):
+                        label = buf.value
+                except Exception:
+                    pass
+                drives.append({"name": f"{d}:" + (f" ({label})" if label else ""), "path": root, "n": None})
+            self._json({"ok": True, "path": "", "parent": None, "dirs": drives, "n": 0, "places": places}); return
+        p = Path(os.path.abspath(raw))
+        if p.is_file():   # sfoglia file: si parte dalla cartella del file già scelto
+            p = p.parent
+        if not p.is_dir():
+            self._json({"ok": False, "error": ("Folder not found: " if en else "Cartella non trovata: ") + raw,
+                        "places": places}); return
+        exts = tuple(x.lower() for x in (data.get("exts") or []))   # anche i file (sfoglia file)
+        dirs, files = [], []
+        try:
+            with os.scandir(p) as it:
+                for e in it:
+                    if exts and e.name.lower().endswith(exts) and e.is_file():
+                        try: size = e.stat().st_size
+                        except OSError: size = 0
+                        files.append({"name": e.name, "path": e.path, "size": size})
+                        continue
+                    if e.name.startswith((".", "$")) or not e.is_dir(follow_symlinks=False):
+                        continue
+                    try:
+                        if e.stat(follow_symlinks=False).st_file_attributes & 0x6:   # nascoste / di sistema
+                            continue
+                    except (OSError, AttributeError):
+                        pass
+                    dirs.append({"name": e.name, "path": e.path})
+        except OSError as e:
+            self._json({"ok": False, "error": str(e), "places": places}); return
+        dirs.sort(key=lambda x: x["name"].lower())
+        t0 = time.time()
+        for d in dirs:   # i conteggi solo se non ci mettono troppo (cartelle enormi)
+            d["n"], d["sub"] = n_audio(d["path"]) if time.time() - t0 < 3 else (None, None)
+        parent = str(p.parent) if p.parent != p else ""
+        files.sort(key=lambda x: x["name"].lower())
+        self._json({"ok": True, "path": str(p), "parent": parent, "dirs": dirs, "files": files,
+                    "n": n_audio(p)[0] or 0, "places": places})
+
     def _api_edition_pick_folder(self, data):
         """Finestra di Windows per scegliere una cartella (solo sul PC dell'app)."""
         start = (data.get("start") or "").replace("'", "''")
-        self._json(_win_dialog("$f=New-Object System.Windows.Forms.FolderBrowserDialog;"
+        self._json(_win_dialog("$f=New-Object CwFolder;"
                                f"$f.SelectedPath='{start}';",
                                "$f.SelectedPath"))
 
@@ -6735,8 +7564,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def _api_nowplaying_cover(self):
-        """Copertina del brano in onda per la dashboard. Edizione: nessuna fonte esterna,
-        risponde sempre "nessuna copertina" (cache 15 s per il polling)."""
+        """Copertina del brano in onda per la dashboard (cache 15 s per il polling)."""
         raw = NP_FILE.read_text(encoding="utf-8").strip() if NP_FILE.exists() else ""
         if not raw:
             self._json({"ok": True, "img_url": None}); return
@@ -6744,9 +7572,29 @@ class Handler(BaseHTTPRequestHandler):
         cache = _NP_COVER_CACHE
         if cache["key"] == raw and (now - cache["ts"]) < 15:
             self._json({"ok": True, "img_url": cache["data"]}); return
-        img = None
+        # copertina dal brano in onda (file, cartella o iTunes: vedi _cover_get)
+        try:
+            cur = CT_FILE.read_text(encoding="utf-8").strip() if CT_FILE.exists() else ""
+        except Exception:
+            cur = ""
+        img = ("/api/cover?file=" + urllib.parse.quote(cur)) if cur and _cover_get(cur) else None
         cache["key"] = raw; cache["data"] = img; cache["ts"] = now
         self._json({"ok": True, "img_url": img})
+
+    def _api_cover(self, fn):
+        res = _cover_get(fn)
+        if not res:
+            self.send_response(404); self.send_header("Content-Length", "0"); self.end_headers(); return
+        data, mime = res
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "max-age=86400")
+            self.end_headers()
+            self.wfile.write(data)
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            pass
 
     def _api_public_nowplaying(self):
         """Endpoint pubblico, no auth: solo artista/titolo del brano corrente.
@@ -6766,6 +7614,9 @@ class Handler(BaseHTTPRequestHandler):
             "ok": True,
             "active": active,
             "prova": active and _prova["on"],
+            "ready": active and _liq_ready["on"],
+            "standby": _standby["on"] and _liq_proc_alive(),
+            "standby_ready": _standby["on"] and _liq_proc_alive() and _liq_ready["on"],
             "server_error": _server_error_text() if active and not _prova["on"] else "",
             "title_status": _title_status() if active and not _prova["on"] and _liq_harbor_connected() else {},
             "sched_running": _liq_scheduled_running(),
@@ -6899,10 +7750,10 @@ class Handler(BaseHTTPRequestHandler):
         if on:
             self._json(_prova_start()); return
         if not _prova["on"]:
-            self._json({"ok": False, "error": "Non sei in Prova"}); return
+            self._json({"ok": False, "error": "La radio non e' avviata offline"}); return
         ok, msg = self._systemctl("stop")
         if ok:
-            log_activity("liquidsoap", "prova", "🎧 Prova fermata")
+            log_activity("liquidsoap", "offline", "🎧 Offline fermato")
         self._json({"ok": ok, "msg": msg})
 
     def _api_liquidsoap_skip(self):
@@ -6944,12 +7795,15 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ok": False, "error": str(e)})
 
     def _api_liqqueue_list(self):
+        _queue_drop_missing()
         with get_db() as conn:
             rows = conn.execute(
                 "SELECT id, filename, title, artist FROM liquidsoap_queue ORDER BY position, id"
             ).fetchall()
         items = [{"id": r[0], "filename": r[1], "title": r[2], "artist": r[3]} for r in rows]
-        self._json({"ok": True, "queue": items, "count": len(items)})
+        # tolti negli ultimi 10 minuti perché il file non c'è più: la pagina avvisa una volta per id
+        missing = [{"id": i, "name": n} for t, i, n in _queue_missing_log if time.time() - t < 600]
+        self._json({"ok": True, "queue": items, "count": len(items), "missing_removed": missing})
 
     def _api_liqqueue_count(self):
         with get_db() as conn:
@@ -6961,6 +7815,10 @@ class Handler(BaseHTTPRequestHandler):
         mode   = data.get("mode", "append")
         if not tracks:
             self._json({"ok": False, "error": "Nessun brano fornito"}); return
+        tracks, missing = _split_missing(tracks)
+        if not tracks:
+            self._json({"ok": False, "missing": missing,
+                        "error": "File non trovato (spostato o cancellato): " + ", ".join(missing[:3])}); return
         _emb_files = _embargo_blocked()[1]
         n0 = len(tracks)
         tracks = [t for t in tracks if _strip_embargo_key(
@@ -7001,7 +7859,70 @@ class Handler(BaseHTTPRequestHandler):
             threading.Thread(target=_liq_telnet, args=(cmds,), daemon=True).start()
         if embargoed:
             log_activity("embargo", "coda", f"{embargoed} brani sotto embargo esclusi")
-        self._json({"ok": True, "added": added, "total": total, "embargoed": embargoed})
+        self._json({"ok": True, "added": added, "total": total, "embargoed": embargoed, "missing": missing})
+
+    def _api_liqqueue_first(self, data):
+        """Player della Regia (26/10/2026): un brano trascinato sul player "pronto" diventa il primo
+        della scaletta; trascinato sul player "in onda" (play_now) parte subito con la dissolvenza
+        (in regia manuale come ▶ AVVIA). id = brano gia' in scaletta, altrimenti filename dalla ricerca."""
+        qid = data.get("id")
+        play_now = bool(data.get("play_now"))
+        with get_db() as conn:
+            first = conn.execute("SELECT COALESCE(MIN(position),0) FROM liquidsoap_queue").fetchone()[0] - 1
+            if qid:
+                row = conn.execute("SELECT title, filename FROM liquidsoap_queue WHERE id=?", (qid,)).fetchone()
+                if not row:
+                    self._json({"ok": False, "error": "Brano non piu' in scaletta"}); return
+                conn.execute("UPDATE liquidsoap_queue SET position=? WHERE id=?", (first, qid))
+                name = row[0] or Path(row[1]).stem
+            else:
+                fn = (data.get("filename") or "").strip()
+                if not fn:
+                    self._json({"ok": False, "error": "Nessun brano fornito"}); return
+                if _file_missing(fn):
+                    self._json({"ok": False, "error": "File non trovato (spostato o cancellato): " + Path(fn).name}); return
+                if _strip_embargo_key(fn) in _embargo_blocked()[1]:
+                    self._json({"ok": False, "error": "Brano sotto embargo: non si puo' mettere in coda prima della data",
+                                "embargoed": 1}); return
+                conn.execute("INSERT INTO liquidsoap_queue(filename,title,artist,position) VALUES(?,?,?,?)",
+                             (fn, data.get("title") or "", data.get("artist") or "", first))
+                name = data.get("title") or Path(fn).stem
+        active = _liq_is_active()
+        def work():
+            _liq_push_queue()            # Liquidsoap riceve la scaletta nel nuovo ordine (il brano in onda continua)
+            if play_now and active:
+                time.sleep(0.3)
+                _liq_telnet(["manual.go" if _manual_on() else "music.skip"])
+        threading.Thread(target=work, daemon=True).start()
+        log_activity("regia", "subito" if play_now and active else "primo", name)
+        self._json({"ok": True, "started": play_now and active})
+
+    def _api_liqqueue_insert(self, data):
+        """Regia (26/10/2026): brano trascinato dalla Ricerca rapida sulla Scaletta. before_id = id
+        della riga su cui e' stato lasciato (va prima di lei); senza, va in fondo."""
+        fn = (data.get("filename") or "").strip()
+        if not fn:
+            self._json({"ok": False, "error": "Nessun brano fornito"}); return
+        if _file_missing(fn):
+            self._json({"ok": False, "error": "File non trovato (spostato o cancellato): " + Path(fn).name}); return
+        if _strip_embargo_key(fn) in _embargo_blocked()[1]:
+            self._json({"ok": False, "error": "Brano sotto embargo: non si puo' mettere in coda prima della data",
+                        "embargoed": 1}); return
+        before = data.get("before_id")
+        with get_db() as conn:
+            row = conn.execute("SELECT position FROM liquidsoap_queue WHERE id=?", (before,)).fetchone() if before else None
+            if row:
+                pos = row[0]
+                conn.execute("UPDATE liquidsoap_queue SET position=position+1 WHERE position>=?", (pos,))
+            else:
+                pos = conn.execute("SELECT COALESCE(MAX(position),0) FROM liquidsoap_queue").fetchone()[0] + 1
+            conn.execute("INSERT INTO liquidsoap_queue(filename,title,artist,position) VALUES(?,?,?,?)",
+                         (fn, data.get("title") or "", data.get("artist") or "", pos))
+        if row:   # ordine cambiato: Liquidsoap riceve tutta la scaletta (il brano in onda continua)
+            threading.Thread(target=_liq_push_queue, daemon=True).start()
+        else:
+            threading.Thread(target=_liq_telnet, args=([f"user_queue.push {_liq_annotate(fn)}"],), daemon=True).start()
+        self._json({"ok": True})
 
     def _api_liqqueue_clear(self):
         with get_db() as conn:
@@ -7207,7 +8128,7 @@ def _start_tray(server):
     def tip_loop():
         while True:
             state = (("🔴 ON AIR" if en else "🔴 IN ONDA") if on_air()
-                     else ("🎧 Rehearsing" if en else "🎧 In prova") if _prova["on"] and _liq_is_active()
+                     else "🎧 Offline" if _prova["on"] and _liq_is_active()
                      else ("Off air" if en else "Fuori onda"))
             tray.set_tip(f"Catorweb Broadcaster — {station}\n{state}")
             time.sleep(5)
@@ -7248,6 +8169,7 @@ def _main():
     threading.Thread(target=_scheduler_runner,   daemon=True, name="scheduler_runner").start()
     threading.Thread(target=_dlg_helper_start,   daemon=True, name="dlg_helper").start()   # Sfoglia subito pronto
     threading.Thread(target=_silence_watcher,    daemon=True, name="silence_watcher").start()
+    threading.Thread(target=_disk_keep_awake,    daemon=True, name="disk_keep_awake").start()
 
     # Solo locale: sul PC l'app non deve essere raggiungibile da altri.
     # Niente SO_REUSEADDR: su Windows permetterebbe a una seconda copia
@@ -7308,6 +8230,8 @@ def _main():
                     log_activity("liquidsoap", "auto_restart", "silenzio rilevato, Liquidsoap riavviato")
                     SILENCE_FLAG_FILE.write_text("off")
                     _liq_service("restart")
+            elif not _liq_proc_alive():
+                _standby_start()   # radio ferma: motore pronto in attesa per la prossima partenza
             time.sleep(5)
     threading.Thread(target=_monitor_server, daemon=True, name="monitor_server").start()
     threading.Thread(target=_liq_keepalive, daemon=True, name="liq_keepalive").start()

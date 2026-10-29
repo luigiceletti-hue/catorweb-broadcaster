@@ -6,7 +6,7 @@
 
 **Who is it for:** hobby and community internet radio stations, DJs and podcasters. Run a 24/7 station from your PC, or host live shows with jingles and a microphone.
 
-![The Studio: big countdown, next track, artist card, running order and jingle buttons](manuale/img/en/regia.webp)
+![The Studio: the two players, artist card, running order, quick search and jingle buttons](manuale/img/en/regia.webp)
 
 ## ⬇ Download
 
@@ -18,9 +18,9 @@ Windows 10 / 11 · free and open source · no admin rights needed
 
 - **Library** with categories: import your music without copying the files, Tag Editor, release-date embargo
 - **Clockwheels** and **Scheduler**: the station runs on its own, 24/7
-- **🎛 Live studio**: big countdown, running order, manual mode, 8 jingle buttons
+- **🎛 Studio**: two players with countdown, running order, manual mode, 8 to 32 jingle buttons, modules you can arrange as you like
 - **🎙 Microphone** with automatic music ducking and voice processing
-- **🎧 Rehearsal mode**: the station plays only on your PC, to practise or record a podcast
+- **▶ Start offline**: the station plays only on your PC, to listen to music, practise or record a podcast
 - **⏺ Recording** of the live show (voice only too, for editing)
 - Interface in **English and Italian** · full manual in [`manuale/`](manuale/) (`manual.html` in English)
 

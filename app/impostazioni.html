@@ -78,7 +78,7 @@ a{color:#79c0ff}
 <div class="card">
   <h2>📡 Server di streaming</h2>
   <div class="hint">I dati che ti ha dato il fornitore dello streaming (pannello Icecast / Shoutcast / Centova / AzuraCast…).</div>
-  <div class="hint" style="color:#a5c8ff">Non li hai ancora? Lascia vuoto l'indirizzo: puoi usare tutto in 🎧 Prova (la radio suona solo sul PC) e inserirli quando li avrai.</div>
+  <div class="hint" style="color:#a5c8ff">Non li hai ancora? Lascia vuoto l'indirizzo: puoi usare tutto offline con ▶ Avvia offline (la radio suona solo sul PC) e inserirli quando li avrai.</div>
   <label>Tipo di server</label>
   <select id="stream.type" onchange="typeChanged(true)"></select>
   <div class="row3">
@@ -126,17 +126,17 @@ a{color:#79c0ff}
         <option value="10">10 secondi</option>
       </select></div>
   </div>
-  <div class="hint">Vale dalla prossima volta che vai in onda; in 🎧 Prova si sente subito dopo il salvataggio.</div>
+  <div class="hint">Vale dalla prossima volta che vai in onda; offline si sente subito dopo il salvataggio.</div>
 </div>
 
 <div class="card">
-  <h2>🎛 Regia</h2>
-  <label>Tasti jingle in Regia</label>
+  <h2>🎛 Studio</h2>
+  <label>Tasti jingle in Studio</label>
   <select id="regia.jingle_buttons">
     <option value="8">8 tasti</option><option value="12">12 tasti</option><option value="16">16 tasti</option>
     <option value="24">24 tasti</option><option value="32">32 tasti</option>
   </select>
-  <div class="hint">Sempre 4 per fila. Se li riduci, i jingle assegnati ai tasti in più restano salvati e ricompaiono quando li rialzi. Si può cambiare anche dalla Regia, nel riquadro Jingle.</div>
+  <div class="hint">Sempre 4 per fila. Se li riduci, i jingle assegnati ai tasti in più restano salvati e ricompaiono quando li rialzi. Si può cambiare anche dallo Studio, nel riquadro Jingle.</div>
 </div>
 
 <div class="card">
@@ -198,13 +198,13 @@ a{color:#79c0ff}
         <option value="4">+4 dB</option><option value="5">+5 dB</option><option value="6">+6 dB</option>
       </select></div>
   </div>
-  <div class="hint">Il processore della voce (compressore, de-esser, limitatore) è sempre attivo; qui regoli solo tono e corpo della voce. In 🎧 Prova la modifica si sente subito dopo il salvataggio.</div>
+  <div class="hint">Il processore della voce (compressore, de-esser, limitatore) è sempre attivo; qui regoli solo tono e corpo della voce. Offline la modifica si sente subito dopo il salvataggio.</div>
 </div>
 
 <div class="card">
   <h2>✨ Extra</h2>
   <label class="chk"><input type="checkbox" id="extras.claude_intro">"✍ Proponi presentazione" con Claude</label>
-  <div class="hint">Nella scheda 🎛 Regia, sotto il prossimo brano, Claude scrive 2-3 frasi da leggere al microfono usando le informazioni del brano.</div>
+  <div class="hint">Nella scheda 🎛 Studio, sotto il prossimo brano, Claude scrive 2-3 frasi da leggere al microfono usando le informazioni del brano.</div>
   <div id="claude-status" class="hint"></div>
   <details class="howto">
     <summary>Come attivarlo</summary>
@@ -213,7 +213,7 @@ a{color:#79c0ff}
       <li><b>Installa Claude Code</b>: apri <b>PowerShell</b> (menu Start → scrivi "PowerShell"), incolla questa riga e premi Invio:<br>
         <code>irm https://claude.ai/install.ps1 | iex</code></li>
       <li><b>Collegalo al tuo account</b>: nella stessa finestra scrivi <code>claude</code> e premi Invio. Si apre il browser: accedi con il tuo account Claude e autorizza. Poi scrivi <code>/exit</code> e chiudi PowerShell.</li>
-      <li><b>Chiudi e riapri Catorweb Broadcaster</b>. Qui sopra deve comparire "✓ Claude Code trovato"; in Regia, sotto il prossimo brano, compare <b>✍ Proponi presentazione</b>.</li>
+      <li><b>Chiudi e riapri Catorweb Broadcaster</b>. Qui sopra deve comparire "✓ Claude Code trovato"; in Studio, sotto il prossimo brano, compare <b>✍ Proponi presentazione</b>.</li>
     </ol>
     <div class="hint">Se l'installazione chiede <b>Git per Windows</b>, scaricalo da git-scm.com e installalo con le opzioni proposte. Ogni presentazione usa una piccola parte dei limiti di utilizzo del tuo abbonamento Claude.</div>
   </details>
@@ -300,10 +300,8 @@ async function testConn() {
 
 async function pick(id) {
   const el = document.getElementById(id);
-  msg('save-msg', 'info', 'Scegli la cartella nella finestra che si è aperta (se non la vedi, guarda nella barra delle applicazioni)…');
-  const d = await api('/api/edition/pick_folder', { start: el.value });
-  document.getElementById('save-msg').className = 'msg';
-  if (d.ok && d.path) el.value = d.path;
+  const path = await cwPickFolder(el.value.trim());
+  if (path) el.value = path;
 }
 
 // Aperta dalla radio in una finestra a parte: "torna alla radio" la chiude (la radio non si e' mai
@@ -337,7 +335,7 @@ async function save() {
     return;
   }
   msg('save-msg', d.liq_note === 'next_on_air' ? 'info' : 'ok',
-      d.liq_note === 'prova_restarted' ? '✓ Salvato. La 🎧 Prova si riavvia con le nuove impostazioni (qualche secondo).'
+      d.liq_note === 'prova_restarted' ? '✓ Salvato. La radio offline si riavvia con le nuove impostazioni (qualche secondo).'
     : d.liq_note === 'next_on_air'     ? '✓ Salvato. Sei in diretta: microfono e server nuovi valgono dalla prossima "Vai in onda" (chiudi e riapri la diretta per usarli subito).'
     :                                    '✓ Salvato.');
   if (FIRST || d.language_changed) setTimeout(() => backToRadio(true), 1200);
@@ -358,4 +356,160 @@ load();
     }, 400);
   }).catch(() => setTimeout(waitClosing, 3000));
 })();
-</script></body></html>
+</script><!-- Edizione: sfoglia cartelle e file dentro la pagina (prima le finestre di Windows, scomode da usare).
+     Stesso blocco in catorweb_radio.html e impostazioni.html:
+     cwPickFolder(start) → percorso, '' = annullato
+     cwPickFile(start, ['.m3u','.m3u8']) → percorso, '' = annullato
+     cwPickFile(start, ['.mp3'], true) → elenco di percorsi (anche da cartelle diverse), [] = annullato -->
+<style>
+#cwfp{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center}
+#cwfp.open{display:flex}
+#cwfp .fp-box{background:var(--bg2,#161b22);color:var(--txt,#e6edf3);border:1px solid var(--brd,#30363d);border-radius:10px;width:min(820px,94vw);height:min(600px,88vh);display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+#cwfp .fp-head{padding:12px 14px 10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-title{font-weight:600;font-size:15px;margin-bottom:8px}
+#cwfp .fp-nav{display:flex;gap:8px;align-items:center}
+#cwfp .fp-crumbs{flex:1;display:flex;flex-wrap:wrap;gap:2px;align-items:center;min-width:0}
+#cwfp .fp-crumbs span{cursor:pointer;padding:2px 6px;border-radius:4px;color:var(--blue,#79c0ff)}
+#cwfp .fp-crumbs span:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-crumbs i{color:var(--mut,#7d8590);font-style:normal}
+#cwfp input.fp-path{width:100%;margin:8px 0 0;font-family:Consolas,monospace;font-size:12px;padding:6px 8px;background:var(--bg,#0d1117);color:inherit;border:1px solid var(--brd,#30363d);border-radius:5px}
+#cwfp .fp-body{flex:1;display:flex;min-height:0}
+#cwfp .fp-side{width:200px;border-right:1px solid var(--brd,#30363d);overflow:auto;padding:4px 0;flex-shrink:0}
+#cwfp .fp-side div,#cwfp .fp-row{padding:7px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-side div:hover,#cwfp .fp-row:hover{background:var(--bg,#0d1117)}
+#cwfp .fp-side .fp-sec{color:var(--mut,#7d8590);font-size:11px;cursor:default;padding-top:10px;padding-bottom:3px}
+#cwfp .fp-side .fp-sec:hover{background:none}
+#cwfp .fp-list{flex:1;overflow:auto}
+#cwfp .fp-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-row span:first-child{overflow:hidden;text-overflow:ellipsis}
+#cwfp .fp-row.fp-file.sel,#cwfp .fp-row.fp-file.sel:hover{background:rgba(56,139,253,.22)}
+#cwfp .fp-allrow{padding:6px 12px;font-size:12px;color:var(--mut,#7d8590);border-bottom:1px solid var(--brd,#30363d)}
+#cwfp .fp-allrow a{color:var(--blue,#79c0ff);cursor:pointer;margin-left:10px}
+#cwfp .fp-n{color:var(--mut,#7d8590);font-size:12px;flex-shrink:0}
+#cwfp .fp-n.has{color:var(--green,#3fb950)}
+#cwfp .fp-msg{padding:14px;color:var(--mut,#7d8590)}
+#cwfp .fp-foot{padding:10px 14px;border-top:1px solid var(--brd,#30363d);display:flex;gap:8px;align-items:center}
+#cwfp .fp-cur{flex:1;color:var(--mut,#7d8590);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cwfp button{margin:0}
+#cwfp button:disabled{opacity:.4;cursor:default}
+@media (max-width:600px){#cwfp .fp-side{display:none}}
+</style>
+<script>
+let _fp = null;
+function _fpEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function _fpRecent() { try { return JSON.parse(localStorage.getItem('fpRecent') || '[]'); } catch (e) { return []; } }
+function cwPickFolder(start) { return _fpOpen(start, null, false); }
+function cwPickFile(start, exts, multi) { return _fpOpen(start, exts || [], !!multi); }
+function _fpOpen(start, exts, multi) {
+  if (!document.getElementById('cwfp')) {
+    const d = document.createElement('div'); d.id = 'cwfp';
+    d.innerHTML = `<div class="fp-box">
+      <div class="fp-head"><div class="fp-title" id="fp-title"></div>
+        <div class="fp-nav"><button type="button" class="sec" id="fp-up" onclick="_fpGo(_fp.parent)" title="Cartella superiore">⬆</button>
+          <div class="fp-crumbs" id="fp-crumbs"></div></div>
+        <input class="fp-path" id="fp-path" placeholder="Clicca sulle cartelle per entrare, oppure incolla qui un percorso e premi Invio"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();_fpGo(this.value)}"></div>
+      <div class="fp-body"><div class="fp-side" id="fp-side"></div><div class="fp-list" id="fp-list"></div></div>
+      <div class="fp-foot"><span class="fp-cur" id="fp-cur"></span>
+        <button type="button" class="sec" onclick="_fpDone(false)">Annulla</button>
+        <button type="button" id="fp-ok" onclick="_fpDone(true)"></button></div></div>`;
+    d.addEventListener('mousedown', e => { if (e.target === d) _fpDone(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && _fp && _fp.resolve) _fpDone(false); });
+    document.body.appendChild(d);
+  }
+  if (_fp && _fp.resolve) _fpDone(false);
+  document.getElementById('fp-title').textContent = !exts ? '📁 Scegli una cartella'
+    : multi ? '🎵 Scegli i brani (clicca per sceglierne quanti vuoi, anche da cartelle diverse)' : '📄 Scegli un file';
+  return new Promise(async res => {
+    _fp = { resolve: res, exts, multi, sel: [], path: '', parent: null, dirs: [], files: [], side: [] };
+    document.getElementById('cwfp').classList.add('open');
+    _fpFoot();
+    if (!(await _fpGo(start || _fpRecent()[0] || ''))) await _fpGo('');
+  });
+}
+function _fpDone(ok) {
+  if (!_fp || !_fp.resolve) return;
+  let val = _fp.multi ? [] : '';
+  if (ok) val = !_fp.exts ? _fp.path : _fp.multi ? _fp.sel.slice() : (_fp.sel[0] || '');
+  const folder = !_fp.exts ? _fp.path : (ok && _fp.path);
+  if (ok && folder) {   // si ricorda la cartella (per i file, quella dove si è scelto)
+    const rec = [folder, ..._fpRecent().filter(p => p.toLowerCase() !== folder.toLowerCase())].slice(0, 6);
+    try { localStorage.setItem('fpRecent', JSON.stringify(rec)); } catch (e) {}
+  }
+  document.getElementById('cwfp').classList.remove('open');
+  const res = _fp.resolve; _fp.resolve = null; res(val);
+}
+function _fpFoot() {
+  const ok = document.getElementById('fp-ok'), cur = document.getElementById('fp-cur');
+  if (!_fp.exts) {
+    ok.textContent = '✓ Usa questa cartella'; ok.disabled = !_fp.path;
+    cur.textContent = _fp.path ? _fp.path + ' — brani direttamente in questa cartella: ' + _fp.n : 'Scegli un disco';
+  } else if (_fp.multi) {
+    ok.textContent = '✓ Aggiungi i brani scelti (' + _fp.sel.length + ')'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel.length ? 'Brani scelti: ' + _fp.sel.length + ' (clicca di nuovo su un brano per toglierlo)' : 'Nessun brano scelto';
+  } else {
+    ok.textContent = '✓ Scegli questo file'; ok.disabled = !_fp.sel.length;
+    cur.textContent = _fp.sel[0] || 'Clicca su un file (doppio clic = scegli subito)';
+  }
+}
+function _fpFile(i, dbl) {
+  const p = _fp.files[i].path, k = _fp.sel.indexOf(p);
+  if (_fp.multi) { if (k >= 0) _fp.sel.splice(k, 1); else _fp.sel.push(p); }
+  else _fp.sel = [p];
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', _fp.sel.includes(_fp.files[+el.dataset.i].path)));
+  _fpFoot();
+  if (dbl && !_fp.multi) _fpDone(true);
+}
+function _fpAll(on) {
+  _fp.files.forEach(f => { const k = _fp.sel.indexOf(f.path); if (on && k < 0) _fp.sel.push(f.path); if (!on && k >= 0) _fp.sel.splice(k, 1); });
+  document.querySelectorAll('#fp-list .fp-file').forEach(el => el.classList.toggle('sel', on));
+  _fpFoot();
+}
+function _fpSide(places) {
+  _fp.side = [{ name: '💻 Questo PC', path: '' }, ...places];
+  const rec = _fpRecent();
+  let h = _fp.side.map((p, i) => `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p.path)}">${_fpEsc(p.name)}</div>`).join('');
+  if (rec.length) {
+    h += '<div class="fp-sec">Usate di recente</div>';
+    rec.forEach(p => { const i = _fp.side.push({ name: p, path: p }) - 1;
+      h += `<div onclick="_fpGo(_fp.side[${i}].path)" title="${_fpEsc(p)}">🕘 ${_fpEsc(p.replace(/\\$/, '').split('\\').pop() || p)}</div>`; });
+  }
+  document.getElementById('fp-side').innerHTML = h;
+}
+async function _fpGo(path) {
+  if (path === null || path === undefined) return false;
+  const list = document.getElementById('fp-list');
+  list.innerHTML = '<div class="fp-msg">Caricamento…</div>';
+  let r;
+  try {
+    r = await (await fetch('/api/edition/list_dirs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                                       body: JSON.stringify({ path, exts: _fp.exts || [] }) })).json();
+  } catch (e) { r = { ok: false, error: String(e) }; }
+  if (r.places) _fpSide(r.places);
+  if (!r.ok) { list.innerHTML = `<div class="fp-msg" style="color:var(--red,#ff7b72)">⚠ ${_fpEsc(r.error || 'Errore')}</div>`; return false; }
+  _fp.path = r.path; _fp.parent = r.parent; _fp.dirs = r.dirs; _fp.files = r.files || []; _fp.n = r.n;
+  document.getElementById('fp-path').value = r.path;
+  document.getElementById('fp-up').disabled = r.parent === null;
+  // percorso a pezzi cliccabili: Questo PC › I: › Musica › Blues
+  _fp.crumbs = [{ name: '💻 Questo PC', path: '' }];
+  if (r.path) {
+    const parts = r.path.replace(/\\$/, '').split('\\');
+    parts.forEach((p, i) => _fp.crumbs.push({ name: p, path: parts.slice(0, i + 1).join('\\') + (i === 0 ? '\\' : '') }));
+  }
+  document.getElementById('fp-crumbs').innerHTML = _fp.crumbs.map((c, i) =>
+    `<span onclick="_fpGo(_fp.crumbs[${i}].path)">${_fpEsc(c.name)}</span>`).join('<i>›</i>');
+  let h = r.dirs.map((d, i) =>
+    `<div class="fp-row" onclick="_fpGo(_fp.dirs[${i}].path)" title="${_fpEsc(d.path)}"><span>${r.path ? '📁' : '💽'} ${_fpEsc(d.name)}</span>`
+    + `<span class="fp-n${d.n ? ' has' : ''}" title="Sottocartelle e brani qui dentro">${d.n == null ? '' : (d.sub ? '📁 ' + d.sub + ' ' : '') + (d.n ? '🎵 ' + d.n : '') || '—'}</span></div>`).join('');
+  if (_fp.multi && _fp.files.length > 1)
+    h += `<div class="fp-allrow">${_fp.files.length} brani in questa cartella <a onclick="_fpAll(true)">Scegli tutti</a><a onclick="_fpAll(false)">Togli tutti</a></div>`;
+  h += _fp.files.map((f, i) =>
+    `<div class="fp-row fp-file${_fp.sel.includes(f.path) ? ' sel' : ''}" data-i="${i}" onclick="_fpFile(${i})" ondblclick="_fpFile(${i},true)" title="${_fpEsc(f.path)}">`
+    + `<span>${/\.m3u8?$/i.test(f.name) ? '📄' : '🎵'} ${_fpEsc(f.name)}</span><span class="fp-n">${(f.size / 1048576).toFixed(1)} MB</span></div>`).join('');
+  list.innerHTML = h || `<div class="fp-msg">${_fp.exts ? 'Niente da scegliere qui dentro' : 'Nessuna sottocartella qui dentro'}</div>`;
+  list.scrollTop = 0;
+  _fpFoot();
+  return true;
+}
+</script>
+</body></html>

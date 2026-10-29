@@ -23,7 +23,7 @@ PRIMO AVVIO
   3. Salva: si apre la Dashboard (niente login, l'app risponde solo su
      questo PC). Poi in "Libreria" importa la cartella della musica.
      Non hai ancora i dati del server? Lascia vuoto l'indirizzo e usa
-     🎧 Prova finche' non li avrai.
+     ▶ Avvia offline finche' non li avrai.
 
 ANDARE IN ONDA
   In alto "FUORI ONDA - Vai in onda" e conferma -> "IN ONDA".
@@ -33,17 +33,19 @@ ANDARE IN ONDA
   Finche' il programma e' aperto il PC non va in sospensione
   (chiudere il coperchio del portatile lo sospende comunque).
 
-🎧 PROVA (ascoltare senza andare in onda)
-  Pulsante "🎧 Prova" accanto a FUORI ONDA: la radio gira normalmente
-  (coda, clockwheel, jingle, microfono) ma solo sul PC; al server non
-  arriva niente. Ascolta con "🎧 Ascolto".
-  In Prova il pulsante verde dice "🎧 IN PROVA (solo sul PC) - ⏹ Ferma";
+▶ AVVIA OFFLINE (la radio solo sul PC)
+  Pulsante "▶ Avvia offline" accanto a FUORI ONDA: la radio gira
+  normalmente (coda, clockwheel, jingle, microfono, registrazione) ma solo
+  sul PC; al server non arriva niente e non serve internet. Serve per
+  ascoltare la tua musica, registrare un podcast o provare prima della
+  diretta. Dopo qualche secondo l'ascolto parte da solo.
+  Offline il pulsante verde dice "🎧 OFFLINE (solo sul PC) - ⏹ Ferma";
   quello grande resta "FUORI ONDA - Vai in onda": premendolo (e
   confermando) il server si collega SENZA fermare la musica, il brano che
   stai ascoltando va in onda cosi' com'e'. "⏹ Ferma" spegne tutto.
-  In Prova la registrazione automatica non parte (parte quando vai in onda).
-  Se salvi le Impostazioni (microfono, server) durante la Prova, la Prova
-  si riavvia da sola con i valori nuovi.
+  Offline la registrazione automatica non parte (parte quando vai in onda).
+  Se salvi le Impostazioni (microfono, server) mentre sei offline, la
+  radio si riavvia da sola con i valori nuovi.
 
 LINGUA
   Impostazioni -> "🌐 Lingua / Language": Italiano o English.
@@ -77,11 +79,12 @@ DOVE STANNO I DATI
 
 PRESENTAZIONE CON CLAUDE (facoltativa)
   Se sul PC c'e' Claude Code collegato al tuo account, nella scheda
-  Regia compare "✍ Proponi presentazione": scrive 2-3 frasi sul
+  Studio compare "✍ Proponi presentazione": scrive 2-3 frasi sul
   prossimo brano. Si spegne in Impostazioni -> Extra.
 
 PROBLEMI
-  - "Catorweb Broadcaster e' gia' aperto": usa la finestra gia' aperta.
+  - Riaprendo il programma quando e' gia' acceso torna davanti la
+    finestra gia' aperta.
   - Non va in onda: Impostazioni -> Prova collegamento; guarda la
     scheda Log.
   - Il programma usa le porte 8767, 8001 e 1235 solo sul PC.

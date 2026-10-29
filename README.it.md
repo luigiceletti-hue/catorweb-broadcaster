@@ -6,7 +6,7 @@
 
 **Per chi è:** web radio amatoriali e di comunità, DJ e podcaster. Fai andare una radio 24 ore su 24 dal PC, oppure conduci dirette con jingle e microfono.
 
-![La Regia: conto alla rovescia, prossimo brano, scheda dell'artista, scaletta e pulsanti jingle](manuale/img/it/regia.webp)
+![Lo Studio: i due player, scheda dell'artista, scaletta, ricerca rapida e pulsanti jingle](manuale/img/it/regia.webp)
 
 ## ⬇ Scarica
 
@@ -18,9 +18,9 @@ Windows 10 / 11 · gratuito e open source · niente permessi di amministratore
 
 - **Libreria** con categorie, import senza copiare i file, Tag Editor, embargo per data
 - **Clockwheel** e **Scheduler**: la radio va avanti da sola 24 ore su 24
-- **🎛 Regia**: conto alla rovescia, scaletta, modo manuale, 8 pulsanti jingle
+- **🎛 Studio**: due player con conto alla rovescia, scaletta, modo manuale, da 8 a 32 pulsanti jingle, moduli da sistemare come vuoi
 - **🎙 Microfono** con abbassamento automatico della musica e processore della voce
-- **🎧 Prova**: la radio suona solo sul PC, per provare o registrare un podcast
+- **▶ Avvia offline**: la radio suona solo sul PC, per ascoltare musica, provare o registrare un podcast
 - **⏺ Registrazione** della diretta (anche la sola voce, per il montaggio)
 - Interfaccia in **italiano e inglese** · manuale completo in [`manuale/`](manuale/)
 

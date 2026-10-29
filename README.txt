@@ -22,8 +22,8 @@ FIRST START
      - Microphone (optional)
   3. Save: the Dashboard opens (no login, the app only answers on this
      PC). Then in "Library" import your music folder.
-     No server details yet? Leave the address empty and use 🎧 Rehearse
-     until you get them.
+     No server details yet? Leave the address empty and use
+     ▶ Start offline until you get them.
 
 GOING ON AIR
   At the top press "OFF AIR - Go on air" and confirm -> "ON AIR".
@@ -33,17 +33,19 @@ GOING ON AIR
   While the program is open the PC does not go to sleep
   (closing a laptop lid still puts it to sleep).
 
-🎧 REHEARSE (listen without going on air)
-  "🎧 Rehearse" button next to OFF AIR: the radio runs normally (queue,
-  clockwheel, jingles, microphone) but only on this PC; nothing is sent
-  to the server. Listen with "🎧 Listen".
-  While rehearsing the green button reads "🎧 REHEARSING (this PC only)
-  - ⏹ Stop"; the big button still reads "OFF AIR - Go on air": press it
-  (and confirm) and the server connects WITHOUT stopping the music, the
-  track you are listening to goes on air as it is. "⏹ Stop" turns
-  everything off. Automatic recording does not start while rehearsing
-  (it starts when you go on air). If you save the Settings (microphone,
-  server) while rehearsing, Rehearse restarts with the new values.
+▶ START OFFLINE (the radio on this PC only)
+  "▶ Start offline" button next to OFF AIR: the radio runs normally
+  (queue, clockwheel, jingles, microphone, recording) but only on this PC;
+  nothing is sent to the server and no internet is needed. Use it to
+  listen to your music, record a podcast or try things out before going
+  on air. After a few seconds listening starts by itself.
+  Offline the green button reads "🎧 OFFLINE (this PC only) - ⏹ Stop";
+  the big button still reads "OFF AIR - Go on air": press it (and
+  confirm) and the server connects WITHOUT stopping the music, the track
+  you are listening to goes on air as it is. "⏹ Stop" turns everything
+  off. Automatic recording does not start offline (it starts when you go
+  on air). If you save the Settings (microphone, server) while offline,
+  the radio restarts with the new values.
 
 CHANGING THE SETTINGS
   "⚙ Settings", right of the tabs. The server applies from the next
@@ -77,7 +79,8 @@ INTRO WITH CLAUDE (optional)
   the next track. Turn it off in Settings -> Extra.
 
 TROUBLESHOOTING
-  - "Catorweb Broadcaster is already open": use the window that is already open.
+  - Reopening the program while it is running brings back the window
+    that is already open.
   - It won't go on air: Settings -> Test connection; check the Log tab.
   - The program uses ports 8767, 8001 and 1235 on this PC only.
 
