@@ -1251,7 +1251,6 @@
 "dello Scheduler, nelle prossime 24 ore": "from the Scheduler, in the next 24 hours",
 "🕘 Riprodotti di recente": "🕘 Recently played",
 "gli ultimi brani andati in onda": "the last tracks on air",
-"All'ora piena:": "To the top of the hour:",
 "📝 Appunti": "📝 Notes",
 "restano salvati, uguali in tutte le pagine": "kept saved, the same on every page",
 "Scaletta parlata, saluti, cose da dire…": "Talk plan, greetings, things to say…",
@@ -1307,5 +1306,6 @@
 "raw:>FORZATO</span>": ">FORCED</span>",
 "raw:b('ATTIVO · SCHED'": "b('ACTIVE · SCHED'",
 "raw:b('ATTIVO', '#22c55e'": "b('ACTIVE', '#22c55e'",
-"raw:b('FORZATO', '#f59e0b'": "b('FORCED', '#f59e0b'"
+"raw:b('FORZATO', '#f59e0b'": "b('FORCED', '#f59e0b'",
+"Prossima ora fra": "Next hour in"
 }
