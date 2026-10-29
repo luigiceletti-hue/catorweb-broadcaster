@@ -30,7 +30,7 @@ Windows 10 / 11 · free and open source · no admin rights needed
 
 ## What you need
 
-- A PC with **Windows 10 or 11** and your music files (MP3, FLAC, M4A, OGG, WAV).
+- A PC with **Windows 10 or 11** and your music as **MP3** files.
 - To **go on air** you need a **streaming server** account (Icecast or Shoutcast). Many providers offer one for a few euros a month, and you enter its address and password in the Settings.
 - **Without a server** you can still use everything else: rehearse your shows and record podcasts on your PC.
 
