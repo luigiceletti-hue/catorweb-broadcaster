@@ -2793,15 +2793,15 @@ async function rgInfoLoad(file, refresh) {
   if (seq !== _rgInfoSeq) return;   // nel frattempo e' cambiato il prossimo brano
   if (!r.ok) { box.innerHTML = `<div class="rg-info-empty">Card not available${r.error ? ': ' + esc(r.error) : ''}</div>`; return; }
   const o = r.online || {}, l = r.local || {};
-  const fmtDate = d => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-  const own = r.local ? `📀 In your archive: ${l.play_count ? `played <b>${l.play_count}</b> ${l.play_count === 1 ? 'volta' : 'volte'}${l.last_played ? ', last on ' + fmtDate(l.last_played) : ''}` : '<b>never played</b>'}`
+  const fmtDate = d => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const own = r.local ? `📀 In your archive: ${l.play_count ? `played <b>${l.play_count}</b> ${l.play_count === 1 ? 'time' : 'times'}${l.last_played ? ', last on ' + fmtDate(l.last_played) : ''}` : '<b>never played</b>'}`
       + `${l.album ? ' · album: ' + esc(l.album) : ''}${l.year ? ' (' + esc(l.year) + ')' : ''}${l.genre ? ' · ' + esc(l.genre) : ''}` : '';
   if (r.jingle) {
     box.innerHTML = `<div class="rg-info-body"><div class="rg-info-name">🎵 ${esc(r.title)}</div><div class="rg-info-sub">jingle / break — no online lookup</div>${own ? `<div class="rg-info-own">${own}</div>` : ''}</div>`;
     return;
   }
   const name = o.artist_mb || r.artist || '';
-  const type = { Group: 'gruppo', Person: 'artista', Orchestra: 'orchestra', Choir: 'coro' }[o.artist_type] || '';
+  const type = { Group: 'band', Person: 'artist', Orchestra: 'orchestra', Choir: 'choir' }[o.artist_type] || '';
   const years = o.begin ? `${o.begin}–${o.end || ''}` : '';
   const sub = [o.wiki_desc, o.country, !o.wiki_desc ? type : '', years].filter(Boolean).map(esc).join(' · ');
   const song = `<b>${esc(r.title)}</b>${o.album ? ' — album <i>' + esc(o.album) + '</i>' : ''}${o.year ? ' (' + esc(o.year) + ')' : ''}`
@@ -2813,7 +2813,7 @@ async function rgInfoLoad(file, refresh) {
     : `<div class="rg-info-sub">🌐 not available in your language right now, try again later with ↻</div>`;
   const bio = o.wiki_extract ? `<div class="rg-info-bio">${esc(o.wiki_extract)}</div>${trNote}`
     : `<div class="rg-info-bio" style="color:var(--mut)">${o.no_artist ? 'The artist is missing in the database: no online lookup (it could easily find the wrong one).' : o.found ? 'No biography on Wikipedia.' : 'No information found online.'}${r.error ? ' (' + esc(r.error) + ')' : ''}</div>`;
-  const links = [o.wiki_url ? `<a href="${esc(o.wiki_url)}" target="_blank" rel="noopener">Wikipedia${o.wiki_lang === 'en' ? ' (inglese)' : ''} ↗</a>` : '',
+  const links = [o.wiki_url ? `<a href="${esc(o.wiki_url)}" target="_blank" rel="noopener">Wikipedia${o.wiki_lang === 'it' ? ' (Italian)' : ''} ↗</a>` : '',
                  o.mb_url ? `<a href="${esc(o.mb_url)}" target="_blank" rel="noopener">MusicBrainz ↗</a>` : ''].filter(Boolean).join('');
   box.innerHTML = `${thumb}<div class="rg-info-body">
       <div class="rg-info-name">${esc(name || '—')}</div>${sub ? `<div class="rg-info-sub">${sub}</div>` : ''}
@@ -2863,8 +2863,8 @@ function rgReadRender() {
   box.style.display = '';
   const f = _rgRead.file, info = _oiLast || {};
   const norm = p => (p || '').replace(/\\\\/g, '\\').toLowerCase();
-  const state = norm(info.now_file) === norm(f) && info.playing ? ['onair', '▶ IN ONDA ORA']
-              : norm(info.next_file) === norm(f) ? ['next', 'PROSSIMO'] : ['old', 'already played / not in queue'];
+  const state = norm(info.now_file) === norm(f) && info.playing ? ['onair', '▶ ON AIR NOW']
+              : norm(info.next_file) === norm(f) ? ['next', 'NEXT'] : ['old', 'already played / not in queue'];
   // ridisegno solo se cambia qualcosa: niente sfarfallio mentre leggi o selezioni il testo
   const key = JSON.stringify([state[0], _rgRead]);
   if (key === _rgReadKey) return;
@@ -3032,7 +3032,7 @@ function rgRenderCarts() {
     ? `<div class="rg-cart ${c.mode === 'stacco' ? 'stacco' : ''} ${_rgKbdOn ? 'has-key' : ''}" id="rg-cart-${c.slot}" onclick="rgCartPlay(${c.slot})" title="${esc(c.filename)}">
          ${key(c.slot)}<span class="rg-n">${c.slot}</span><b>${esc(c.title)}</b><span>${esc(c.artist)}${c.missing ? ' ⚠ missing file' : ''}</span>
          <button class="rg-mode" onclick="event.stopPropagation();rgCartMode(${c.slot}, '${c.mode === 'stacco' ? 'sopra' : 'stacco'}')"
-           title="${c.mode === 'stacco' ? 'BREAK: the music fades and the jingle plays alone. Click = switch to OVER' : 'OVER: the jingle plays over the (lowered) music. Click = switch to BREAK'}">${c.mode === 'stacco' ? '⏏ STACCO' : '≋ SOPRA'}</button>
+           title="${c.mode === 'stacco' ? 'BREAK: the music fades and the jingle plays alone. Click = switch to OVER' : 'OVER: the jingle plays over the (lowered) music. Click = switch to BREAK'}">${c.mode === 'stacco' ? '⏏ BREAK' : '≋ OVER'}</button>
          <button class="rg-x" onclick="event.stopPropagation();rgCartClear(${c.slot})" title="Clear button">✕</button></div>`
     : `<div class="rg-cart empty ${_rgKbdOn ? 'has-key' : ''}" title="To assign a jingle: Quick search → 🎵 menu">${key(c.slot)}<span class="rg-n">${c.slot}</span><span>empty</span></div>`).join('');
 }
@@ -3080,7 +3080,7 @@ function micRender(active, on, ptt) {
   const b = document.getElementById('mic-btn');
   if (!b) return;
   b.className = !active ? 'dis' : (ptt ? 'ptt' : (on ? 'on' : 'off'));
-  b.textContent = !active ? '🎙 MIC' : (on ? (ptt ? '🎙 PARLA…' : '🎙 MIC ACCESO') : '🎙 MIC');
+  b.textContent = !active ? '🎙 MIC' : (on ? (ptt ? '🎙 TALK…' : '🎙 MIC ON') : '🎙 MIC');
 }
 async function micSet(on, ptt) {
   _micBusy = true;
@@ -3213,7 +3213,7 @@ async function dashLoad() {
       <div class="irow"><span class="ikey">Port</span><span class="ival">${esc(c.port||'—')}</span></div>
       <div class="irow"><span class="ikey">Bitrate</span><span class="ival">${esc(c.bitrate||'—')} kbps</span></div>
       <div class="irow"><span class="ikey">Clockwheel</span><span class="ival">${
-        cwa.ok ? esc(cwa.name||'—') + (cwa.source==='forced' ? ' <span style="background:#f59e0b;color:#000;border-radius:3px;padding:1px 4px;font-size:10px;font-weight:700">FORZATO</span>' : cwa.source==='scheduler' ? ' <span style="background:#22c55e;color:#000;border-radius:3px;padding:1px 4px;font-size:10px;font-weight:700">SCHED</span>' : '') : esc(c.clockwheel||'—')
+        cwa.ok ? esc(cwa.name||'—') + (cwa.source==='forced' ? ' <span style="background:#f59e0b;color:#000;border-radius:3px;padding:1px 4px;font-size:10px;font-weight:700">FORCED</span>' : cwa.source==='scheduler' ? ' <span style="background:#22c55e;color:#000;border-radius:3px;padding:1px 4px;font-size:10px;font-weight:700">SCHED</span>' : '') : esc(c.clockwheel||'—')
       }</span></div>`;
   }
   if (q.ok) {
@@ -4227,7 +4227,7 @@ async function tySave(gi, newYear) {
   if (!t) return;
   if (newYear === (t.year || '')) { renderTracks(); return; }
   const payload = { song_id: t.id, year: newYear };
-  const applyAlbum = t.album && await askConfirm(`Apply the year "${newYear || '(vuoto)'}" to all tracks of the album "${t.album}"?`, null, 'Apply');
+  const applyAlbum = t.album && await askConfirm(`Apply the year "${newYear || '(empty)'}" to all tracks of the album "${t.album}"?`, null, 'Apply');
   if (applyAlbum) payload.year_apply_album = true;
   const r = await POST('/api/database/edit_track', payload);
   if (r.ok) {
@@ -4548,7 +4548,7 @@ async function execMove(removeFromSource) {
     const rr = await POST('/api/database/remove_tracks_from_category', { song_ids: toRemove, category_id: catId });
     if (!rr.ok) toast('Copied but NOT removed from the source category: ' + (rr.error||''), 'err', 6000);
   }
-  toast(`✓ ${r.copied} tracks ${removeFromSource?'spostati':'copiati'} (${r.skipped} already there)`, 'ok', 5000);
+  toast(`✓ ${r.copied} tracks ${removeFromSource?'moved':'copied'} (${r.skipped} already there)`, 'ok', 5000);
   if (r.embargoed) toast(`🔒 ${r.embargoed} tracks under embargo left where they are`, 'err', 6000);
   closeModal('modal-move');
   sel.clear();
@@ -4983,7 +4983,7 @@ async function doImport() {
       }
       await _refreshLibIfViewing(viewingCatId, targetId);
     } else {
-      res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+      res.textContent = '✗ Error: ' + (r.error||'unknown');
       res.style.color = 'var(--red)'; res.style.display = '';
       toast('Error: ' + r.error, 'err');
     }
@@ -5004,7 +5004,7 @@ async function doImport() {
       renderCats(); populateImportCats();
       await _refreshLibIfViewing(viewingCatId, catId);
     } else {
-      res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+      res.textContent = '✗ Error: ' + (r.error||'unknown');
       res.style.color = 'var(--red)'; res.style.display = '';
       toast('Error: ' + r.error, 'err');
     }
@@ -5025,7 +5025,7 @@ async function doImport() {
     toast('Importing…', 'inf', 60000);
     const r = await POST('/api/db/import_folder', { folder: _pcFolderPath, category_id: catId ? parseInt(catId) : null });
     if (!r.ok) {
-      res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+      res.textContent = '✗ Error: ' + (r.error||'unknown');
       res.style.color = 'var(--red)'; res.style.display = '';
       toast('Error: ' + r.error, 'err'); btn.disabled = false; return;
     }
@@ -5064,7 +5064,7 @@ async function doImport() {
       cats = cr.categories || []; catsTotalTracks = cr.total_tracks || 0; renderCats(); populateImportCats();
       await _refreshLibIfViewing(viewingCatId, catId);
     } else {
-      res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+      res.textContent = '✗ Error: ' + (r.error||'unknown');
       res.style.color = 'var(--red)'; res.style.display = '';
       toast('Error: ' + r.error, 'err');
     }
@@ -5076,7 +5076,7 @@ async function doImport() {
       toast('Importing…', 'inf', 15000);
       const r = await POST('/api/db/import_files', { files: pendingPaths, category_id: catId ? parseInt(catId) : null });
       if (!r.ok) {
-        res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+        res.textContent = '✗ Error: ' + (r.error||'unknown');
         res.style.color = 'var(--red)'; res.style.display = '';
         toast('Error: ' + r.error, 'err'); return;
       }
@@ -5111,7 +5111,7 @@ async function doImport() {
       cats = cr.categories || []; catsTotalTracks = cr.total_tracks || 0; renderCats(); populateImportCats();
       await _refreshLibIfViewing(viewingCatId, catId);
     } else {
-      res.textContent = '✗ Error: ' + (r.error||'sconosciuto');
+      res.textContent = '✗ Error: ' + (r.error||'unknown');
       res.style.color = 'var(--red)'; res.style.display = '';
       toast('Error: ' + r.error, 'err');
     }
@@ -5176,10 +5176,10 @@ async function saveRules() {
 function cwBadges(n) {
   const b = (txt, bg, fg, tip) => `<span class="abadge" title="${tip}" style="margin-left:6px;background:${bg};color:${fg}">${txt}</span>`;
   let out = '';
-  if (forcedCwName === n) out += b('FORZATO', '#f59e0b', '#000', 'Forced by hand: takes priority over the scheduler (✖ Release to remove it)');
+  if (forcedCwName === n) out += b('FORCED', '#f59e0b', '#000', 'Forced by hand: takes priority over the scheduler (✖ Release to remove it)');
   else if (realCw.name === n) out += realCw.source === 'scheduler'
-    ? b('ATTIVO · SCHED', '#22c55e', '#000', 'In use now, picked by the Scheduler')
-    : b('ATTIVO', '#22c55e', '#000', 'In use now (default: no Scheduler event running)');
+    ? b('ACTIVE · SCHED', '#22c55e', '#000', 'In use now, picked by the Scheduler')
+    : b('ACTIVE', '#22c55e', '#000', 'In use now (default: no Scheduler event running)');
   if (activeCwName === n && realCw.name !== n) out += b('predefinito', 'var(--brd)', 'var(--mut)', 'Used only when no Scheduler event is running');
   return out;
 }
@@ -6605,7 +6605,7 @@ async function mntDeleteSelectedShort(delFile) {
     const r = await POST('/api/db/delete_track', { id, delete_file: delFile });
     if (r.ok) ok++;
   }
-  toast('Deleted ' + ok + ' tracce' + (delFile ? ' + disk files' : ''), 'ok');
+  toast('Deleted ' + ok + ' tracks' + (delFile ? ' + disk files' : ''), 'ok');
   mntLoadShort();
 }
 
@@ -7012,7 +7012,7 @@ async function mntDeleteSelectedTags(delFile) {
     const r = await POST('/api/db/delete_track', { id: parseInt(c.dataset.id), delete_file: delFile });
     if (r.ok) ok++;
   }
-  toast('Deleted ' + ok + ' brani' + (delFile ? ' + disk files' : ''), 'ok');
+  toast('Deleted ' + ok + ' tracks' + (delFile ? ' + disk files' : ''), 'ok');
   mntLoadTags();
 }
 
@@ -7027,7 +7027,7 @@ async function mntSaveTag(id) {
 async function mntFixTagsAll() {
   if (!await askConfirm('Try to work out artist/title from the file name for all tracks without tags?', null, 'Go ahead')) return;
   const r = await POST('/api/db/fix_tags_from_filename', {});
-  if (r.ok) { toast('Updated ' + r.updated + ' brani', 'ok'); mntLoadTags(); }
+  if (r.ok) { toast('Updated ' + r.updated + ' tracks', 'ok'); mntLoadTags(); }
   else toast('Error: ' + (r.error||''), 'err');
 }
 
